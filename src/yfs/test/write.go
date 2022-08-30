@@ -9,12 +9,14 @@ import (
 func main() {
 
 	path := "/home/mamluk/Projects/yottaStore-go/src/yfs/test/readTest.txt"
-	fd, err := unix.Open(path, unix.O_RDONLY|unix.O_DIRECT, 0666)
+	fd, err := unix.Open(path, unix.O_RDWR|unix.O_DIRECT, 0666)
 	defer unix.Close(fd)
 
 	if err != nil {
 		panic(err)
 	}
+
+	message := []byte("Hello world\n")
 
 	file := make([]byte, 4096*2)
 
@@ -27,9 +29,11 @@ func main() {
 
 	file = file[offset : offset+utils.BlockSize]
 
-	fmt.Println(a, offset, len(file))
+	copy(file, message)
 
-	n, readErr := unix.Pread(fd, file, 0)
+	fmt.Println(file, a, offset, len(file))
+
+	n, readErr := unix.Write(fd, file)
 
 	fmt.Println("Return is: ", n)
 
@@ -37,5 +41,4 @@ func main() {
 		panic(readErr)
 	}
 
-	fmt.Println("Content is: ", string(file))
 }
