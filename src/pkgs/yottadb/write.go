@@ -1,9 +1,9 @@
-package yottaDB
+package yottadb
 
 import (
 	"fmt"
 	"github.com/vmihailenco/msgpack/v5"
-	"yottaStore/yottaStore-go/src/yfs/direct"
+	"yottaStore/yottaStore-go/src/pkgs/yfs/direct"
 )
 
 func Write(record string, data interface{}) {

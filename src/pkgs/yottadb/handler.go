@@ -1,4 +1,4 @@
-package yottaDB
+package yottadb
 
 import (
 	"net/http"
@@ -7,8 +7,7 @@ import (
 
 func HttpHandler(w http.ResponseWriter, r *http.Request) {
 
-	endpoints := strings.Split(r.URL.String(), "/")
-	endpoint := endpoints[len(endpoints)-1]
+	endpoint := strings.Split(r.URL.String(), "/")[2]
 
 	switch endpoint {
 	case "read":

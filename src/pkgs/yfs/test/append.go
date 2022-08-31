@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"golang.org/x/sys/unix"
-	"yottaStore/yottaStore-go/src/yfs/test/utils"
+	"yottaStore/yottaStore-go/src/pkgs/yfs/test/utils"
 )
 
 func main() {

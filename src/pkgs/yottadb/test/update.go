@@ -2,12 +2,12 @@ package main
 
 import (
 	"fmt"
-	"yottaStore/yottaStore-go/src/yottaDB"
+	yottadb2 "yottaStore/yottaStore-go/src/pkgs/yottadb"
 )
 
 func main() {
 
-	path := "/home/mamluk/Projects/yottaStore-go/src/yottaDB/test/record.txt"
+	path := "/home/mamluk/Projects/yottaStore-go/src/yottadb/test/record.txt"
 
 	type Data struct {
 		Hello string
@@ -18,9 +18,9 @@ func main() {
 		Hello: "world",
 		Count: 5,
 	}
-	yottaDB.Write(path, data)*/
+	yottadb.Write(path, data)*/
 
-	item, _ := yottaDB.ReadOf[Data](path)
+	item, _ := yottadb2.ReadOf[Data](path)
 	fmt.Println(item)
 
 	updates := make(map[string]interface{})
@@ -28,8 +28,8 @@ func main() {
 	updates["Count"] = item.Count + 255
 	updates["Test"] = "kawabonga"
 
-	yottaDB.Update(path, updates)
-	item, _ = yottaDB.ReadOf[Data](path)
+	yottadb2.Update(path, updates)
+	item, _ = yottadb2.ReadOf[Data](path)
 	fmt.Println(item)
 
 }

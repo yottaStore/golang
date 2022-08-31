@@ -1,13 +1,13 @@
 package main
 
 import (
-	"yottaStore/yottaStore-go/src/yfs/direct"
+	"yottaStore/yottaStore-go/src/pkgs/yfs/direct"
 )
 
 func main() {
 
 	path := "/home/mamluk/Projects/yottaStore-go/src/yfs/direct/test/writeTest.txt"
-	data := []byte("\nHello again from yfs!")
-	direct.Append(path, data)
+	data := []byte("Hello from yfs!\n")
+	direct.Write(path, data)
 
 }

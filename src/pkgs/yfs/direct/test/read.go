@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"io"
-	"yottaStore/yottaStore-go/src/yfs/direct"
+	"yottaStore/yottaStore-go/src/pkgs/yfs/direct"
 )
 
 func main() {

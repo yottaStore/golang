@@ -1,13 +1,13 @@
-package yottaDB
+package yottadb
 
 import (
 	"github.com/vmihailenco/msgpack/v5"
-	"yottaStore/yottaStore-go/src/yfs/direct"
+	direct2 "yottaStore/yottaStore-go/src/pkgs/yfs/direct"
 )
 
 func Update(recordPath string, updates map[string]interface{}) (bool, error) {
 
-	buff, err := direct.ReadAll(recordPath)
+	buff, err := direct2.ReadAll(recordPath)
 	if err != nil {
 		return false, err
 	}
@@ -24,7 +24,7 @@ func Update(recordPath string, updates map[string]interface{}) (bool, error) {
 
 	b, err := msgpack.Marshal(record)
 
-	_, err = direct.Write(recordPath, b)
+	_, err = direct2.Write(recordPath, b)
 	if err != nil {
 		return false, err
 	}

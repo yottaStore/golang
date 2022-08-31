@@ -1,6 +1,8 @@
 package main
 
-import "yottaStore/yottaStore-go/src/yfs/direct"
+import (
+	"yottaStore/yottaStore-go/src/pkgs/yfs/direct"
+)
 
 func main() {
 

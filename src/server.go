@@ -4,14 +4,14 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"yottaStore/yottaStore-go/src/gossip"
-	"yottaStore/yottaStore-go/src/yfs"
-	"yottaStore/yottaStore-go/src/yottaDB"
+	"yottaStore/yottaStore-go/src/pkgs/gossip"
+	"yottaStore/yottaStore-go/src/pkgs/yfs"
+	"yottaStore/yottaStore-go/src/pkgs/yottadb"
 )
 
 func main() {
 	log.Print("starting yottaStore...")
-	http.HandleFunc("/ydb/", yottaDB.HttpHandler)
+	http.HandleFunc("/ydb/", yottadb.HttpHandler)
 	http.HandleFunc("/yfs/", yfs.HttpHandler)
 	http.HandleFunc("/gossip/", gossip.HttpHandler)
 	http.HandleFunc("/", handler)

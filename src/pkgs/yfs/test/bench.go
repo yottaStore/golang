@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"time"
-	"yottaStore/yottaStore-go/src/yfs/test/utils"
+	"yottaStore/yottaStore-go/src/pkgs/yfs/test/utils"
 )
 
 func main() {
