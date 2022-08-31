@@ -17,8 +17,7 @@ func main() {
 
 	file := make([]byte, 4096)
 
-	println(&file[0])
-	//fmt.Println(&file[0])
+	fmt.Println(&file[0])
 	//fmt.Println("Unsafe pointer: ", unsafe.Pointer(&file[0]))
 	//temp := uintptr(unsafe.Pointer(&file[0]))
 	//fmt.Println("Unsafe pointer, uintptr: ", temp)

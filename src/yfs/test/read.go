@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"golang.org/x/sys/unix"
-	"unsafe"
 	"yottaStore/yottaStore-go/src/yfs/test/utils"
 )
 
@@ -17,16 +16,7 @@ func main() {
 		panic(err)
 	}
 
-	file := make([]byte, 4096)
-
-	fmt.Println("Pointer: ", &file[0])
-	fmt.Println("Unsafe pointer: ", unsafe.Pointer(&file[0]))
-	temp := uintptr(unsafe.Pointer(&file[0]))
-	fmt.Println("Unsafe pointer, uintptr: ", temp)
-	temp = uintptr(unsafe.Pointer(&file[0])) & uintptr(utils.AlignSize-1)
-	fmt.Println("Unpersand: ", temp)
-	temp2 := int(temp)
-	fmt.Println("Cast to int: ", temp2)
+	file := make([]byte, 4096*2)
 
 	a := utils.Alignment(file, utils.AlignSize)
 

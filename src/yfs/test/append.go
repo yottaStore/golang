@@ -3,12 +3,8 @@ package main
 import (
 	"fmt"
 	"golang.org/x/sys/unix"
-	"unsafe"
+	"yottaStore/yottaStore-go/src/yfs/test/utils"
 )
-
-func Alignment(block []byte, AlignSize int) int {
-	return int(uintptr(unsafe.Pointer(&block[0])) & uintptr(AlignSize-1))
-}
 
 func main() {
 
@@ -16,18 +12,18 @@ func main() {
 	AlignSize := 512
 
 	path := "/home/mamluk/Projects/yottaStore-go/src/yfs/test/readTest.txt"
-	fd, err := unix.Open(path, unix.O_RDWR|unix.O_DIRECT, 0666)
+	fd, err := unix.Open(path, unix.O_RDWR|unix.O_APPEND|unix.O_NOATIME|unix.O_DIRECT, 0666)
 	defer unix.Close(fd)
 
 	if err != nil {
 		panic(err)
 	}
 
-	message := []byte("Hello world\n")
+	message := []byte("\nHello Append!\n")
 
 	file := make([]byte, 512*2)
 
-	a := Alignment(file, AlignSize)
+	a := utils.Alignment(file, AlignSize)
 
 	offset := 0
 	if a != 0 {
@@ -37,8 +33,9 @@ func main() {
 	file = file[offset : offset+BlockSize]
 
 	copy(file, message)
+	copy(file[len(message):], message)
 
-	fmt.Println(file, a, offset, len(file))
+	fmt.Println(a, offset, len(file))
 
 	n, readErr := unix.Write(fd, file)
 
