@@ -6,32 +6,41 @@ import (
 	"io"
 )
 
-func read(path string, writer io.Writer) {
+func Read(path string, writer io.PipeWriter) {
 
+	defer writer.Close()
 	fd, err := unix.Open(path, unix.O_RDONLY|unix.O_DIRECT, 0666)
 	defer unix.Close(fd)
-
-	if err != nil {
+	if err == unix.ENOENT {
+		fmt.Println("File don't exist")
+		writer.CloseWithError(err)
+		return
+	} else if err != nil {
 		panic(err)
 	}
 
-	file := make([]byte, 4096*2)
+	file := callocAlignedBlock(1)
 
-	a := alignment(file, AlignSize)
+	isDone := false
+	counter := int64(0)
+	for !isDone {
 
-	offset := 0
-	if a != 0 {
-		offset = AlignSize - a
+		fmt.Println("Step: ", counter)
+		n, readErr := unix.Pread(fd, file, counter*4096)
+		fmt.Println("Read: ", n)
+		if readErr != nil {
+			panic(readErr)
+		}
+		r, err := writer.Write(file)
+		if err != nil {
+			panic(err)
+		}
+		fmt.Println("Written: ", r)
+
+		counter++
+		if n < 4096 {
+			isDone = true
+		}
 	}
 
-	file = file[offset : offset+BlockSize]
-
-	n, readErr := unix.Pread(fd, file, 0)
-	if readErr != nil {
-		panic(readErr)
-	}
-
-	fmt.Println(n, " bytes read from: ", path)
-
-	writer.Write(file)
 }

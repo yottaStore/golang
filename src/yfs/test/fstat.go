@@ -8,10 +8,13 @@ import (
 func main() {
 
 	path := "/home/mamluk/Projects/yottaStore-go/src/yfs/test/readTest.txt"
-	fd, err := unix.Open(path, unix.O_RDWR|unix.O_APPEND|unix.O_DIRECT, 0666)
+	fd, err := unix.Open(path, unix.O_RDONLY|unix.O_DIRECT, 0666)
 	defer unix.Close(fd)
 
-	if err != nil {
+	if err == unix.ENOENT {
+		fmt.Println("Doesn't exist")
+		return
+	} else if err != nil {
 		panic(err)
 	}
 
