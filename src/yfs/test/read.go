@@ -35,8 +35,8 @@ func main() {
 		offset = utils.AlignSize - a
 	}
 
-	//file = file[offset : offset+utils.BlockSize]
-	file = file[0:4096]
+	file = file[offset : offset+utils.BlockSize]
+	//file = file[0:4096]
 
 	fmt.Println(a, offset, offset+utils.BlockSize, len(file))
 

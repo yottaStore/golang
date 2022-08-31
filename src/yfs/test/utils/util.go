@@ -3,8 +3,8 @@ package utils
 import "unsafe"
 
 const (
-	AlignSize = 4096
-	BlockSize = 4096
+	AlignSize = 512
+	BlockSize = 512
 )
 
 func Alignment(block []byte, AlignSize int) int {

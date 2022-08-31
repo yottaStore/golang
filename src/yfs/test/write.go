@@ -8,7 +8,7 @@ import (
 
 func main() {
 
-	path := "/home/mamluk/Projects/yottaStore-go/src/yfs/test/readTest.txt"
+	path := "/home/mamluk/yotta/yottaStore-go/src/yfs/test/readTest.txt"
 	fd, err := unix.Open(path, unix.O_RDWR|unix.O_DIRECT, 0666)
 	defer unix.Close(fd)
 
@@ -18,7 +18,7 @@ func main() {
 
 	message := []byte("Hello world\n")
 
-	file := make([]byte, 4096*2)
+	file := make([]byte, 512*2)
 
 	a := utils.Alignment(file, utils.AlignSize)
 
@@ -34,6 +34,8 @@ func main() {
 	fmt.Println(file, a, offset, len(file))
 
 	n, readErr := unix.Write(fd, file)
+
+	//err = unix.Ftruncate(fd, 16)
 
 	fmt.Println("Return is: ", n)
 
