@@ -1,14 +1,19 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"os"
+	"yottaStore/yottaStore-go/src/gossip"
+	"yottaStore/yottaStore-go/src/yfs"
+	"yottaStore/yottaStore-go/src/yottaDB"
 )
 
 func main() {
 	log.Print("starting yottaStore...")
+	http.HandleFunc("/ydb/", yottaDB.HttpHandler)
+	http.HandleFunc("/yfs/", yfs.HttpHandler)
+	http.HandleFunc("/gossip/", gossip.HttpHandler)
 	http.HandleFunc("/", handler)
 
 	// Determine port for HTTP service.
@@ -26,6 +31,6 @@ func main() {
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
-	name := "world"
-	fmt.Fprintf(w, "Hello %s!\n", name)
+	helloString := []byte("Hello from yottaStore-go v 0.0.1!")
+	w.Write(helloString)
 }

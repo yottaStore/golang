@@ -4,13 +4,12 @@ import (
 	"golang.org/x/sys/unix"
 )
 
-func Write(path string, data []byte) {
+func Write(path string, data []byte) (bool, error) {
 
 	fd, err := unix.Open(path, unix.O_RDWR|unix.O_CREAT|unix.O_TRUNC|unix.O_DIRECT, 0666)
 	defer unix.Close(fd)
-
 	if err != nil {
-		panic(err)
+		return false, err
 	}
 
 	file := callocAlignedBlock(1)
@@ -28,7 +27,7 @@ func Write(path string, data []byte) {
 
 		_, readErr := unix.Write(fd, file)
 		if readErr != nil {
-			panic(readErr)
+			return false, readErr
 		}
 
 		counter++
@@ -36,5 +35,7 @@ func Write(path string, data []byte) {
 			break
 		}
 	}
+
+	return true, nil
 
 }
