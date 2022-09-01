@@ -27,8 +27,8 @@ func TestDirectDriver(t *testing.T) {
 		t.Error("Written payload doesn't match")
 	}
 
-	payload = []byte("Testing direct driver append\n")
-	if err = driver.Append("./test.txt", payload); err != nil {
+	appendPayload := []byte("Testing direct driver append\n")
+	if err = driver.Append("./test.txt", appendPayload); err != nil {
 		t.Error(err)
 	}
 
@@ -40,9 +40,10 @@ func TestDirectDriver(t *testing.T) {
 		t.Error("Buffer size wrong")
 	}
 
-	/*if res := bytes.Compare(payload, buff[:len(payload)]); res != 0 {
-		t.Error("Written payload doesn't match")
-	}*/
+	payload = append(payload, appendPayload...)
+	if res := bytes.Compare(payload, buff[:len(payload)]); res != 0 {
+		t.Error("Appended payload doesn't match")
+	}
 
 	err = driver.Delete("./test.txt")
 	if err != nil {
