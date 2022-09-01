@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"yottaStore/yottaStore-go/src/pkgs/yottadb"
+	"yottaStore/yottaStore-go/src/libs/yottadb"
 )
 
 func main() {

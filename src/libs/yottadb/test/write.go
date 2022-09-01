@@ -1,7 +1,7 @@
 package main
 
 import (
-	"yottaStore/yottaStore-go/src/pkgs/yottadb"
+	"yottaStore/yottaStore-go/src/libs/yottadb"
 )
 
 func main() {

@@ -1,5 +1,7 @@
 package yfs
 
+import "yottaStore/yottaStore-go/src/libs/drivers"
+
 type Namespace struct {
 	Path string
 }
@@ -12,7 +14,7 @@ type YfsSetupOptions struct {
 	Path string
 }
 
-func New[T Driver](opts YfsSetupOptions) (Namespace, error) {
+func New[T drivers.IoDriver](opts YfsSetupOptions) (Namespace, error) {
 
 	nspace := Namespace{
 		Path: opts.Path,

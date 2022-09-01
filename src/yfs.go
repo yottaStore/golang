@@ -5,16 +5,28 @@ import (
 	"net/http"
 	"os"
 	"yottaStore/yottaStore-go/src/libs/gossip"
-	"yottaStore/yottaStore-go/src/libs/yottadb"
 	"yottaStore/yottaStore-go/src/pkgs/yfs"
 )
 
 func main() {
-	log.Print("starting yottadb...")
-	http.HandleFunc("/ydb/", yottadb.HttpHandler)
-	http.HandleFunc("/yfs/", yfs.HttpHandler)
+
+	log.Print("starting yottaStore...")
+
+	versionHandler := func(w http.ResponseWriter, r *http.Request) {
+		helloString := []byte("Hello from yfs-go v 0.0.1!")
+		w.Write(helloString)
+	}
+
+	opts := yfs.YfsSetupOptions{}
+	// TODO: setup io driver here
+	yfsHandler, err := yfs.HttpHandlerFactory(opts)
+	if err != nil {
+		panic(err)
+	}
+
+	http.HandleFunc("/yfs/", yfsHandler)
 	http.HandleFunc("/gossip/", gossip.HttpHandler)
-	http.HandleFunc("/", handler)
+	http.HandleFunc("/", versionHandler)
 
 	// Determine port for HTTP service.
 	port := os.Getenv("PORT")
@@ -28,9 +40,4 @@ func main() {
 	if err := http.ListenAndServe(":"+port, nil); err != nil {
 		log.Fatal(err)
 	}
-}
-
-func handler(w http.ResponseWriter, r *http.Request) {
-	helloString := []byte("Hello from yottadb-go v 0.0.1!")
-	w.Write(helloString)
 }

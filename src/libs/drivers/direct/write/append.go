@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"golang.org/x/sys/unix"
-	"yottaStore/yottaStore-go/src/libs/yfs/drivers/direct/utils"
+	"yottaStore/yottaStore-go/src/libs/drivers/direct/utils"
 )
 
 func Append(path string, data []byte) error {

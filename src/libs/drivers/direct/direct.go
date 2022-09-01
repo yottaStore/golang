@@ -2,9 +2,9 @@ package direct
 
 import (
 	"errors"
-	"yottaStore/yottaStore-go/src/libs/yfs/drivers"
-	"yottaStore/yottaStore-go/src/libs/yfs/drivers/direct/read"
-	"yottaStore/yottaStore-go/src/libs/yfs/drivers/direct/write"
+	"yottaStore/yottaStore-go/src/libs/drivers"
+	"yottaStore/yottaStore-go/src/libs/drivers/direct/read"
+	"yottaStore/yottaStore-go/src/libs/drivers/direct/write"
 )
 
 type DirectDriver struct {

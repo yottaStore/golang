@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"io"
-	"yottaStore/yottaStore-go/src/libs/yfs/drivers/direct/read"
+	"yottaStore/yottaStore-go/src/libs/drivers/direct/read"
 )
 
 func main() {

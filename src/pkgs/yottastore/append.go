@@ -2,7 +2,7 @@ package yottastore
 
 import (
 	"fmt"
-	"yottaStore/yottaStore-go/src/libs/yfs/drivers/direct/read"
+	"yottaStore/yottaStore-go/src/libs/drivers/direct/read"
 )
 
 func Append(recordPath string, updates []byte) (bool, error) {

@@ -2,7 +2,8 @@ package yottadb
 
 import (
 	"fmt"
-	"yottaStore/yottaStore-go/src/libs/yfs/drivers/direct"
+	"github.com/vmihailenco/msgpack/v5"
+	"yottaStore/yottaStore-go/src/libs/drivers/direct/write"
 )
 
 func Write(record string, data interface{}) {
@@ -15,5 +16,5 @@ func Write(record string, data interface{}) {
 
 	fmt.Println(b)
 
-	direct.Write(record, b)
+	write.Write(record, b)
 }

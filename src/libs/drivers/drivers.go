@@ -11,3 +11,7 @@ type IoDriver interface {
 	CompareAndAppend(string, []byte) error
 	Verify(string, []byte) error
 }
+
+type IoStruct struct {
+	IoDriver
+}

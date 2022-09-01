@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	yottadb2 "yottaStore/yottaStore-go/src/pkgs/yottadb"
+	"yottaStore/yottaStore-go/src/libs/yottadb"
 )
 
 func main() {
@@ -20,7 +20,7 @@ func main() {
 	}
 	yottadb.Write(path, data)*/
 
-	item, _ := yottadb2.ReadOf[Data](path)
+	item, _ := yottadb.ReadOf[Data](path)
 	fmt.Println(item)
 
 	updates := make(map[string]interface{})
@@ -28,8 +28,8 @@ func main() {
 	updates["Count"] = item.Count + 255
 	updates["Test"] = "kawabonga"
 
-	yottadb2.Update(path, updates)
-	item, _ = yottadb2.ReadOf[Data](path)
+	yottadb.Update(path, updates)
+	item, _ = yottadb.ReadOf[Data](path)
 	fmt.Println(item)
 
 }
