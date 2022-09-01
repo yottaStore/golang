@@ -4,10 +4,10 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"yottaStore/yottaStore-go/src/libs/drivers"
-	"yottaStore/yottaStore-go/src/libs/gossip"
-	"yottaStore/yottaStore-go/src/pkgs/yfs"
-	"yottaStore/yottaStore-go/src/utils/config"
+	"yottaStore/yottaStore-go/src/libs/config"
+	"yottaStore/yottaStore-go/src/pkgs/drivers"
+	"yottaStore/yottaStore-go/src/pkgs/gossip"
+	"yottaStore/yottaStore-go/src/svcs/yfs"
 )
 
 func main() {
@@ -28,7 +28,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	yfsHandler, err := yfs.HttpHandlerFactory(config, ioDriver)
+	yfsHandler, err := yfs.HttpHandlerFactory(ioDriver)
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -4,19 +4,34 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"yottaStore/yottaStore-go/src/libs/gossip"
-	"yottaStore/yottaStore-go/src/pkgs/yottastore"
+	"yottaStore/yottaStore-go/src/libs/config"
+	"yottaStore/yottaStore-go/src/pkgs/drivers"
+	"yottaStore/yottaStore-go/src/pkgs/gossip"
+	"yottaStore/yottaStore-go/src/svcs/yottastore"
 )
 
 func main() {
 	log.Print("starting yottaStore...")
+
+	_, err := config.ParseConfig[drivers.Config]()
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	versionHandler := func(w http.ResponseWriter, r *http.Request) {
 		helloString := []byte("Hello from yottaStore-go v 0.0.1!")
 		w.Write(helloString)
 	}
 
-	http.HandleFunc("/store/", yottastore.HttpHandler)
+	// TODO: parse config
+	yottastore.New()
+
+	handler, err := yottastore.HttpHandlerFactory()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	http.HandleFunc("/store/", handler)
 	http.HandleFunc("/gossip/", gossip.HttpHandler)
 	http.HandleFunc("/", versionHandler)
 
