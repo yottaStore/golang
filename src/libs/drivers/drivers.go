@@ -12,6 +12,11 @@ type IoDriver interface {
 	Verify(string, []byte) error
 }
 
+type Config struct {
+	NameSpace string
+	Driver    string
+}
+
 type IoStruct struct {
 	IoDriver
 }

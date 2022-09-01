@@ -1,24 +1,30 @@
 package yfs
 
-import "yottaStore/yottaStore-go/src/libs/drivers"
+import (
+	"errors"
+	"yottaStore/yottaStore-go/src/libs/drivers"
+	"yottaStore/yottaStore-go/src/libs/drivers/direct"
+)
 
-type Namespace struct {
-	Path string
-}
+const (
+	DirectIO = "direct"
+)
 
-type Driver interface {
-	Read(path string) []byte
-}
+func New(config drivers.Config) (drivers.IoDriver, error) {
 
-type YfsSetupOptions struct {
-	Path string
-}
+	var ioDriver drivers.IoDriver
 
-func New[T drivers.IoDriver](opts YfsSetupOptions) (Namespace, error) {
+	switch config.Driver {
 
-	nspace := Namespace{
-		Path: opts.Path,
+	case DirectIO:
+		ioDriver = direct.New(config)
+	default:
+		return ioDriver, errors.New("No driver specified")
 	}
 
-	return nspace, nil
+	if err := ioDriver.Init(); err != nil {
+		return ioDriver, err
+	}
+
+	return ioDriver, nil
 }

@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"strings"
-	"yottaStore/yottaStore-go/src/libs/drivers/direct"
+	"yottaStore/yottaStore-go/src/libs/drivers"
 )
 
 type yfsPath interface {
@@ -16,11 +16,7 @@ type yfsRequest[T yfsPath] struct {
 	Data string
 }
 
-func HttpHandlerFactory(opts YfsSetupOptions) (handler func(http.ResponseWriter, *http.Request), err error) {
-
-	ioDriver := direct.New()
-
-	ioDriver.Init()
+func HttpHandlerFactory(opts drivers.Config, ioDriver drivers.IoDriver) (handler func(http.ResponseWriter, *http.Request), err error) {
 
 	handler = func(w http.ResponseWriter, r *http.Request) {
 

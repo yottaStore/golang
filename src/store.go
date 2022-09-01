@@ -10,10 +10,15 @@ import (
 
 func main() {
 	log.Print("starting yottaStore...")
+
+	versionHandler := func(w http.ResponseWriter, r *http.Request) {
+		helloString := []byte("Hello from yottaStore-go v 0.0.1!")
+		w.Write(helloString)
+	}
+
 	http.HandleFunc("/store/", yottastore.HttpHandler)
-	//http.HandleFunc("/yfs/", yfs.HttpHandler)
 	http.HandleFunc("/gossip/", gossip.HttpHandler)
-	http.HandleFunc("/", handler2)
+	http.HandleFunc("/", versionHandler)
 
 	// Determine port for HTTP service.
 	port := os.Getenv("PORT")
@@ -27,9 +32,4 @@ func main() {
 	if err := http.ListenAndServe(":"+port, nil); err != nil {
 		log.Fatal(err)
 	}
-}
-
-func handler2(w http.ResponseWriter, r *http.Request) {
-	helloString := []byte("Hello from yottaStore-go v 0.0.1!")
-	w.Write(helloString)
 }

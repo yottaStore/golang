@@ -8,7 +8,7 @@ import (
 )
 
 type DirectDriver struct {
-	Path string
+	Namespace string
 }
 
 func (d DirectDriver) Init() error {
@@ -16,8 +16,9 @@ func (d DirectDriver) Init() error {
 	return nil
 }
 
-func (d DirectDriver) Read(path string) ([]byte, error) {
+func (d DirectDriver) Read(record string) ([]byte, error) {
 
+	path := d.Namespace + "data/" + record
 	buff, err := read.ReadAll(path)
 	if err != nil {
 		return nil, err
@@ -26,8 +27,9 @@ func (d DirectDriver) Read(path string) ([]byte, error) {
 	return buff, nil
 }
 
-func (d DirectDriver) ReadAll(path string) ([]byte, error) {
+func (d DirectDriver) ReadAll(record string) ([]byte, error) {
 
+	path := d.Namespace + "data/" + record
 	buff, err := read.ReadAll(path)
 	if err != nil {
 		return nil, err
@@ -36,8 +38,9 @@ func (d DirectDriver) ReadAll(path string) ([]byte, error) {
 	return buff, nil
 }
 
-func (d DirectDriver) Write(path string, data []byte) error {
+func (d DirectDriver) Write(record string, data []byte) error {
 
+	path := d.Namespace + "data/" + record
 	err := write.Write(path, data)
 	if err != nil {
 		return err
@@ -46,8 +49,9 @@ func (d DirectDriver) Write(path string, data []byte) error {
 	return nil
 }
 
-func (d DirectDriver) Append(path string, data []byte) error {
+func (d DirectDriver) Append(record string, data []byte) error {
 
+	path := d.Namespace + "data/" + record
 	err := write.Append(path, data)
 	if err != nil {
 		return err
@@ -66,8 +70,9 @@ func (d DirectDriver) CompareAndAppend(path string, data []byte) error {
 	return errors.New("method not implemented")
 }
 
-func (d DirectDriver) Delete(path string) error {
+func (d DirectDriver) Delete(record string) error {
 
+	path := d.Namespace + "data/" + record
 	err := write.Delete(path)
 	if err != nil {
 		return err
@@ -81,9 +86,11 @@ func (d DirectDriver) Verify(path string, data []byte) error {
 	return errors.New("method not implemented")
 }
 
-func New() drivers.IoDriver {
+func New(opts drivers.Config) drivers.IoDriver {
 
-	directDriver := DirectDriver{}
+	directDriver := DirectDriver{
+		Namespace: opts.NameSpace,
+	}
 
 	return directDriver
 }

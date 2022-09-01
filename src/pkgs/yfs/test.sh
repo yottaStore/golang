@@ -1,12 +1,14 @@
 #!/bin/bash
 
-curl -X POST http://localhost:8080/store/read \
+curl -X POST http://localhost:8080/yfs/read \
    -H 'Content-Type: application/json' \
-   -d '{"Path":"/home/mamluk/yotta/yottaStore-go/src/libs/yfs/drivers/direct/test/test.txt"}' \
+   -d '{"Path":"test.txt"}' \
+   --output -
 
 
-   curl -X POST http://localhost:8080/store/append \
+   curl -X POST http://localhost:8080/yfs/append \
       -H 'Content-Type: application/json' \
-      -d '{"Path":"/home/mamluk/yotta/yottaStore-go/src/pkgs/yfs/drivers/direct/test/test.txt","Data":"Http Append"}'
+      -d '{"Path":"test.txt","Data":"Http Append"}' \
+      --output -
 
 

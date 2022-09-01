@@ -2,7 +2,6 @@ package write
 
 import (
 	"bytes"
-	"fmt"
 	"golang.org/x/sys/unix"
 	"yottaStore/yottaStore-go/src/libs/drivers/direct/utils"
 )
@@ -25,7 +24,7 @@ func Append(path string, data []byte) error {
 
 	buffer := utils.CallocAlignedBlock(1)
 
-	fmt.Println("append block is: ", appendBlock)
+	//fmt.Println("append block is: ", appendBlock)
 
 	_, readErr := unix.Pread(fd, buffer, appendBlock*4096)
 	if readErr != nil {
@@ -36,7 +35,7 @@ func Append(path string, data []byte) error {
 	if terminationIndex < 0 {
 		panic("Termination index not found!")
 	}
-	fmt.Println("Termination index is: ", terminationIndex)
+	//fmt.Println("Termination index is: ", terminationIndex)
 
 	writeBuffer := append(buffer[:terminationIndex], data...)
 
@@ -53,7 +52,7 @@ func Append(path string, data []byte) error {
 		buffer = utils.CallocAlignedBlock(1)
 		copy(buffer, writeBuffer[lowerBound:upperBound])
 		offset := appendBlock*utils.BlockSize + int64(lowerBound)
-		fmt.Println("Offset is: ", offset)
+		//fmt.Println("Offset is: ", offset)
 		_, readErr := unix.Pwrite(fd, buffer, offset)
 		if readErr != nil {
 			return readErr
