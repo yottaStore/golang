@@ -2,12 +2,12 @@ package yottastore
 
 import (
 	"fmt"
-	"yottaStore/yottaStore-go/src/pkgs/yfs/drivers/direct"
+	"yottaStore/yottaStore-go/src/libs/yfs/drivers/direct/read"
 )
 
 func Append(recordPath string, updates []byte) (bool, error) {
 
-	buff, err := direct.ReadAll(recordPath)
+	buff, err := read.ReadAll(recordPath)
 	if err != nil {
 		return false, err
 	}

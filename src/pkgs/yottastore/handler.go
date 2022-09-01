@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
-	"yottaStore/yottaStore-go/src/pkgs/yfs/drivers/direct"
+	direct2 "yottaStore/yottaStore-go/src/libs/yfs/drivers/direct"
+	"yottaStore/yottaStore-go/src/libs/yfs/drivers/direct/read"
+	"yottaStore/yottaStore-go/src/libs/yfs/drivers/direct/write"
 )
 
 type StoreRequest struct {
@@ -30,7 +32,7 @@ func HttpHandler(w http.ResponseWriter, r *http.Request) {
 	switch endpoint {
 	case "read":
 		{
-			b, err := direct.ReadAll(storeReq.Path)
+			b, err := read.ReadAll(storeReq.Path)
 
 			if err != nil {
 				w.Write([]byte("Read failed"))
@@ -40,7 +42,7 @@ func HttpHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	case "write":
 		{
-			err := direct.Write(storeReq.Path, []byte(storeReq.Data))
+			err := direct2.Write(storeReq.Path, []byte(storeReq.Data))
 			if err != nil {
 				w.Write([]byte("Write failed"))
 				return
@@ -49,7 +51,7 @@ func HttpHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	case "append":
 		{
-			err := direct.Append(storeReq.Path, []byte(storeReq.Data))
+			err := direct2.Append(storeReq.Path, []byte(storeReq.Data))
 			if err != nil {
 				fmt.Println(err)
 				w.Write([]byte("Append failed"))
@@ -59,7 +61,7 @@ func HttpHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	case "delete":
 		{
-			err := direct.Delete(storeReq.Path)
+			err := write.Delete(storeReq.Path)
 			if err != nil {
 				w.Write([]byte("Delete failed"))
 				return

@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"io"
-	"yottaStore/yottaStore-go/src/pkgs/yfs/drivers/direct"
+	"yottaStore/yottaStore-go/src/libs/yfs/drivers/direct/read"
 )
 
 func main() {
@@ -11,7 +11,7 @@ func main() {
 	pr, pw := io.Pipe()
 
 	path := "/home/mamluk/yotta/yottaStore-go/src/pkgs/yfs/drivers/direct/test/test.txt"
-	go direct.Read(path, *pw)
+	go read.Read(path, *pw)
 	b := make([]byte, 4096)
 	for {
 		n, err := pr.Read(b)

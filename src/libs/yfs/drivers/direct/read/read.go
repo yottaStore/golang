@@ -1,9 +1,10 @@
-package direct
+package read
 
 import (
 	"fmt"
 	"golang.org/x/sys/unix"
 	"io"
+	"yottaStore/yottaStore-go/src/libs/yfs/drivers/direct/utils"
 )
 
 func Read(path string, writer io.PipeWriter) {
@@ -19,7 +20,7 @@ func Read(path string, writer io.PipeWriter) {
 		panic(err)
 	}
 
-	file := callocAlignedBlock(1)
+	file := utils.CallocAlignedBlock(1)
 
 	isDone := false
 	counter := int64(0)
