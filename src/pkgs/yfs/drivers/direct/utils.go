@@ -12,16 +12,16 @@ func alignment(block []byte, AlignSize int) int {
 }
 
 func callocAlignedBlock(size int) []byte {
-	file := make([]byte, 4096*(1+size))
+	block := make([]byte, 4096*(1+size))
 
-	a := alignment(file, AlignSize)
+	a := alignment(block, AlignSize)
 
 	offset := 0
 	if a != 0 {
 		offset = AlignSize - a
 	}
 
-	file = file[offset : offset+BlockSize]
+	block = block[offset : offset+BlockSize]
 
-	return file
+	return block
 }

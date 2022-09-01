@@ -1,4 +1,4 @@
-package yottadb
+package yottastore
 
 import (
 	"github.com/vmihailenco/msgpack/v5"

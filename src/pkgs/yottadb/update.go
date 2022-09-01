@@ -2,7 +2,7 @@ package yottadb
 
 import (
 	"github.com/vmihailenco/msgpack/v5"
-	direct2 "yottaStore/yottaStore-go/src/pkgs/yfs/direct"
+	direct2 "yottaStore/yottaStore-go/src/pkgs/yfs/drivers/direct"
 )
 
 func Update(recordPath string, updates map[string]interface{}) (bool, error) {

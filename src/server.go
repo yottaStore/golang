@@ -10,7 +10,7 @@ import (
 )
 
 func main() {
-	log.Print("starting yottaStore...")
+	log.Print("starting yottadb...")
 	http.HandleFunc("/ydb/", yottadb.HttpHandler)
 	http.HandleFunc("/yfs/", yfs.HttpHandler)
 	http.HandleFunc("/gossip/", gossip.HttpHandler)
@@ -31,6 +31,6 @@ func main() {
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
-	helloString := []byte("Hello from yottaStore-go v 0.0.1!")
+	helloString := []byte("Hello from yottadb-go v 0.0.1!")
 	w.Write(helloString)
 }

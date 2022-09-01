@@ -1,4 +1,4 @@
-package yottadb
+package yottastore
 
 import (
 	"fmt"
