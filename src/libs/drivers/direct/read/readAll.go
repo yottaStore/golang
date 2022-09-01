@@ -1,8 +1,9 @@
-package direct
+package read
 
 import (
 	"fmt"
 	"golang.org/x/sys/unix"
+	"yottaStore/yottaStore-go/src/libs/drivers/direct/utils"
 )
 
 func ReadAll(path string) ([]byte, error) {
@@ -22,8 +23,8 @@ func ReadAll(path string) ([]byte, error) {
 		return nil, err
 	}
 
-	blockSize := (int(stat.Size)-1)/BlockSize + 1
-	file := callocAlignedBlock(blockSize)
+	blockSize := (int(stat.Size)-1)/utils.BlockSize + 1
+	file := utils.CallocAlignedBlock(blockSize)
 
 	_, err = unix.Read(fd, file)
 	if err != nil {

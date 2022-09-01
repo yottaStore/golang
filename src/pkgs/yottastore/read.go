@@ -3,12 +3,12 @@ package yottastore
 import (
 	"github.com/vmihailenco/msgpack/v5"
 	"io"
-	direct2 "yottaStore/yottaStore-go/src/pkgs/yfs/drivers/direct"
+	"yottaStore/yottaStore-go/src/libs/drivers/direct/read"
 )
 
 func Read(record string) (interface{}, error) {
 
-	buff, err := direct2.ReadAll(record)
+	buff, err := read.ReadAll(record)
 	if err != nil {
 		return nil, err
 	}
@@ -27,7 +27,7 @@ func ReadOf[T any](record string) (T, error) {
 
 	var result T
 
-	buff, err := direct2.ReadAll(record)
+	buff, err := read.ReadAll(record)
 	if err != nil {
 		return result, err
 	}
@@ -45,7 +45,7 @@ func ReadStream(record string) (interface{}, error) {
 
 	pr, pw := io.Pipe()
 
-	go direct2.Read(record, *pw)
+	go read.Read(record, *pw)
 	buff := make([]byte, 0)
 	for {
 		b := make([]byte, 0)

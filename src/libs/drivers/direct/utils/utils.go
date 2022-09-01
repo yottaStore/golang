@@ -1,4 +1,4 @@
-package direct
+package utils
 
 import "unsafe"
 
@@ -11,7 +11,7 @@ func alignment(block []byte, AlignSize int) int {
 	return int(uintptr(unsafe.Pointer(&block[0])) & uintptr(AlignSize-1))
 }
 
-func callocAlignedBlock(size int) []byte {
+func CallocAlignedBlock(size int) []byte {
 	block := make([]byte, 4096*(1+size))
 
 	a := alignment(block, AlignSize)

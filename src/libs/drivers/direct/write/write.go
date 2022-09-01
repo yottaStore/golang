@@ -1,7 +1,8 @@
-package direct
+package write
 
 import (
 	"golang.org/x/sys/unix"
+	"yottaStore/yottaStore-go/src/libs/drivers/direct/utils"
 )
 
 func Write(path string, data []byte) error {
@@ -16,8 +17,8 @@ func Write(path string, data []byte) error {
 		return err
 	}
 
-	writeSize := (len(data)-1)/BlockSize + 1
-	file := callocAlignedBlock(writeSize)
+	writeSize := (len(data)-1)/utils.BlockSize + 1
+	file := utils.CallocAlignedBlock(writeSize)
 	copy(file, data)
 	_, readErr := unix.Write(fd, file)
 	if readErr != nil {
