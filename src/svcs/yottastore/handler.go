@@ -2,16 +2,23 @@ package yottastore
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strings"
+	"yottaStore/yottaStore-go/src/pkgs/rendezvous"
+	"yottaStore/yottaStore-go/src/svcs/yottastore/read"
+	"yottaStore/yottaStore-go/src/svcs/yottastore/write"
 )
 
 type StoreRequest struct {
 	Record string
-	Data   string
+	Data   []byte
 }
 
-func HttpHandlerFactory() (func(http.ResponseWriter, *http.Request), error) {
+func HttpHandlerFactory(nodes *[]string, decoder interface{}) (func(http.ResponseWriter, *http.Request), error) {
+
+	// TODO: pick decoder
+	// TODO: pick driver
 
 	handler := func(w http.ResponseWriter, r *http.Request) {
 
@@ -25,8 +32,32 @@ func HttpHandlerFactory() (func(http.ResponseWriter, *http.Request), error) {
 			return
 		}
 
+		node, err := rendezvous.Rendezvous(storeReq.Record, *nodes)
+		if err != nil {
+			w.Write([]byte("Error with rendezvous"))
+			return
+		}
+
 		switch endpoint {
 		case "read":
+
+			record, err := read.Read(storeReq.Record, node)
+			if err != nil {
+				w.Write([]byte("Error with read"))
+				return
+			}
+
+			fmt.Println(string(record.([]byte)))
+
+		case "write":
+
+			record, err := write.WriteNew(storeReq.Record, node, storeReq.Data)
+			if err != nil {
+				w.Write([]byte("Error with read"))
+				return
+			}
+
+			fmt.Println(string(record.([]byte)))
 
 		default:
 			w.Write([]byte("Method not found"))

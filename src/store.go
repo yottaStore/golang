@@ -24,9 +24,12 @@ func main() {
 	}
 
 	// TODO: parse config
+	// TODO: pick decoder
 	yottastore.New()
+	// TODO: get list of nodes
+	nodes := []string{"hello", "world"}
 
-	handler, err := yottastore.HttpHandlerFactory()
+	handler, err := yottastore.HttpHandlerFactory(&nodes, nil)
 	if err != nil {
 		log.Fatal(err)
 	}
