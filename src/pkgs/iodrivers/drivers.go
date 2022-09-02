@@ -1,4 +1,4 @@
-package drivers
+package iodrivers
 
 type IoDriver interface {
 	Init() error

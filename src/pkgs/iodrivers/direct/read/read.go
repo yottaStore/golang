@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"golang.org/x/sys/unix"
 	"io"
-	"yottaStore/yottaStore-go/src/pkgs/drivers/direct/utils"
+	"yottaStore/yottaStore-go/src/pkgs/iodrivers/direct/utils"
 )
 
 func Read(path string, writer io.PipeWriter) {

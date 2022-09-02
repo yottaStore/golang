@@ -3,7 +3,7 @@ package keyvalue
 import (
 	"github.com/vmihailenco/msgpack/v5"
 	"io"
-	read2 "yottaStore/yottaStore-go/src/pkgs/drivers/direct/read"
+	read2 "yottaStore/yottaStore-go/src/pkgs/iodrivers/direct/read"
 )
 
 func Read(record string) (interface{}, error) {

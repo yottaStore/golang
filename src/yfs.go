@@ -5,15 +5,15 @@ import (
 	"net/http"
 	"os"
 	"yottaStore/yottaStore-go/src/libs/config"
-	"yottaStore/yottaStore-go/src/pkgs/drivers"
 	"yottaStore/yottaStore-go/src/pkgs/gossip"
+	"yottaStore/yottaStore-go/src/pkgs/iodrivers"
 	"yottaStore/yottaStore-go/src/svcs/yfs"
 )
 
 func main() {
 	log.Print("starting yottaStore...")
 
-	config, err := config.ParseConfig[drivers.Config]()
+	config, err := config.ParseConfig[iodrivers.Config]()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -40,7 +40,7 @@ func main() {
 	// Determine port for HTTP service.
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "8080"
+		port = "8081"
 		log.Printf("defaulting to port %s", port)
 	}
 

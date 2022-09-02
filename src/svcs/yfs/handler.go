@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"strings"
-	"yottaStore/yottaStore-go/src/pkgs/drivers"
+	"yottaStore/yottaStore-go/src/pkgs/iodrivers"
 )
 
 type yfsPath interface {
@@ -16,7 +16,7 @@ type yfsRequest[T yfsPath] struct {
 	Data string
 }
 
-func HttpHandlerFactory(ioDriver drivers.IoDriver) (handler func(http.ResponseWriter, *http.Request), err error) {
+func HttpHandlerFactory(ioDriver iodrivers.IoDriver) (handler func(http.ResponseWriter, *http.Request), err error) {
 
 	// TODO: handle different node types (linear,random)
 	// TODO: handle locks

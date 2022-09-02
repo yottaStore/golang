@@ -2,7 +2,7 @@ package write
 
 import (
 	"golang.org/x/sys/unix"
-	"yottaStore/yottaStore-go/src/pkgs/drivers/direct/utils"
+	"yottaStore/yottaStore-go/src/pkgs/iodrivers/direct/utils"
 )
 
 func Write(path string, data []byte) error {

@@ -3,10 +3,11 @@ package read
 import (
 	"bytes"
 	"encoding/json"
+	"io"
 	"net/http"
 )
 
-func Read(record string, node string) (interface{}, error) {
+func Read(record string, node string) ([]byte, error) {
 
 	values := map[string]string{"Path": record}
 	json_data, err := json.Marshal(values)
@@ -20,8 +21,9 @@ func Read(record string, node string) (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
+	body, err := io.ReadAll(resp.Body)
 
-	return resp, nil
+	return body, err
 
 }
 

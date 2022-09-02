@@ -2,17 +2,17 @@ package yfs
 
 import (
 	"errors"
-	"yottaStore/yottaStore-go/src/pkgs/drivers"
-	"yottaStore/yottaStore-go/src/pkgs/drivers/direct"
+	"yottaStore/yottaStore-go/src/pkgs/iodrivers"
+	"yottaStore/yottaStore-go/src/pkgs/iodrivers/direct"
 )
 
 const (
 	DirectIO = "direct"
 )
 
-func New(config drivers.Config) (drivers.IoDriver, error) {
+func New(config iodrivers.Config) (iodrivers.IoDriver, error) {
 
-	var ioDriver drivers.IoDriver
+	var ioDriver iodrivers.IoDriver
 
 	switch config.Driver {
 

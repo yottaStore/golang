@@ -3,7 +3,7 @@ package read
 import (
 	"fmt"
 	"golang.org/x/sys/unix"
-	"yottaStore/yottaStore-go/src/pkgs/drivers/direct/utils"
+	"yottaStore/yottaStore-go/src/pkgs/iodrivers/direct/utils"
 )
 
 func ReadAll(path string) ([]byte, error) {

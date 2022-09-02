@@ -2,9 +2,9 @@ package direct
 
 import (
 	"errors"
-	"yottaStore/yottaStore-go/src/pkgs/drivers"
-	"yottaStore/yottaStore-go/src/pkgs/drivers/direct/read"
-	"yottaStore/yottaStore-go/src/pkgs/drivers/direct/write"
+	"yottaStore/yottaStore-go/src/pkgs/iodrivers"
+	"yottaStore/yottaStore-go/src/pkgs/iodrivers/direct/read"
+	"yottaStore/yottaStore-go/src/pkgs/iodrivers/direct/write"
 )
 
 type DirectDriver struct {
@@ -86,7 +86,7 @@ func (d DirectDriver) Verify(path string, data []byte) error {
 	return errors.New("method not implemented")
 }
 
-func New(opts drivers.Config) drivers.IoDriver {
+func New(opts iodrivers.Config) iodrivers.IoDriver {
 
 	directDriver := DirectDriver{
 		Namespace: opts.NameSpace,

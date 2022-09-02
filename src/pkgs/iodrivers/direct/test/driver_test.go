@@ -3,7 +3,7 @@ package main
 import (
 	"bytes"
 	"testing"
-	"yottaStore/yottaStore-go/src/pkgs/drivers/direct"
+	"yottaStore/yottaStore-go/src/pkgs/iodrivers/direct"
 )
 
 func TestDirectDriver(t *testing.T) {

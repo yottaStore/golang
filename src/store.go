@@ -5,15 +5,15 @@ import (
 	"net/http"
 	"os"
 	"yottaStore/yottaStore-go/src/libs/config"
-	"yottaStore/yottaStore-go/src/pkgs/drivers"
 	"yottaStore/yottaStore-go/src/pkgs/gossip"
+	"yottaStore/yottaStore-go/src/pkgs/iodrivers"
 	"yottaStore/yottaStore-go/src/svcs/yottastore"
 )
 
 func main() {
 	log.Print("starting yottaStore...")
 
-	_, err := config.ParseConfig[drivers.Config]()
+	_, err := config.ParseConfig[iodrivers.Config]()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -27,9 +27,10 @@ func main() {
 	// TODO: pick decoder
 	yottastore.New()
 	// TODO: get list of nodes
-	nodes := []string{"hello", "world"}
+	nodes := []string{"http://localhost:8081"}
 
-	handler, err := yottastore.HttpHandlerFactory(&nodes, nil)
+	handler, err := yottastore.
+		HttpHandlerFactory(&nodes, nil)
 	if err != nil {
 		log.Fatal(err)
 	}

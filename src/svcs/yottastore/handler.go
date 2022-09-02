@@ -46,8 +46,9 @@ func HttpHandlerFactory(nodes *[]string, decoder interface{}) (func(http.Respons
 				w.Write([]byte("Error with read"))
 				return
 			}
+			fmt.Println(string(record))
 
-			fmt.Println(string(record.([]byte)))
+			w.Write(record)
 
 		case "write":
 

@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"github.com/vmihailenco/msgpack/v5"
 	"net/http"
-	"yottaStore/yottaStore-go/src/pkgs/drivers/direct/write"
+	"yottaStore/yottaStore-go/src/pkgs/iodrivers/direct/write"
 )
 
 func Write(record string, data interface{}) {

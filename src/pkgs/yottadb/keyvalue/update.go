@@ -2,8 +2,8 @@ package keyvalue
 
 import (
 	"github.com/vmihailenco/msgpack/v5"
-	"yottaStore/yottaStore-go/src/pkgs/drivers/direct/read"
-	"yottaStore/yottaStore-go/src/pkgs/drivers/direct/write"
+	"yottaStore/yottaStore-go/src/pkgs/iodrivers/direct/read"
+	"yottaStore/yottaStore-go/src/pkgs/iodrivers/direct/write"
 )
 
 func Update(recordPath string, updates map[string]interface{}) (bool, error) {
