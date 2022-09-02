@@ -7,6 +7,8 @@ import (
 	"yottaStore/yottaStore-go/src/libs/config"
 	"yottaStore/yottaStore-go/src/pkgs/gossip"
 	"yottaStore/yottaStore-go/src/pkgs/iodrivers"
+	"yottaStore/yottaStore-go/src/pkgs/yottadb"
+	"yottaStore/yottaStore-go/src/pkgs/yottapack"
 	"yottaStore/yottaStore-go/src/svcs/yottastore"
 )
 
@@ -27,10 +29,15 @@ func main() {
 	// TODO: pick decoder
 	yottastore.New()
 	// TODO: get list of nodes
-	nodes := []string{"http://localhost:8081"}
+	nodes := []string{"http://localhost:8081/yfs"}
 
+	config := yottastore.HandlerConfig[interface{}]{
+		Nodes:  &nodes,
+		Driver: yottadb.DbDriver{},
+		Packer: yottapack.Packer[interface{}]{},
+	}
 	handler, err := yottastore.
-		HttpHandlerFactory(&nodes, nil)
+		HttpHandlerFactory(&nodes, config)
 	if err != nil {
 		log.Fatal(err)
 	}

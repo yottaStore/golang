@@ -18,14 +18,9 @@ func Uint16(u xxh3.Uint128) [8]uint16 {
 	}
 }
 
-func Rendezvous(record string, nodes []string) (string, error) {
+func Rendezvous(record ParsedRecord, nodes []string) (string, error) {
 
-	parsedRecord, err := ParseRecord(record)
-	if err != nil {
-		return "", err
-	}
-
-	tmp := xxh3.HashString128(parsedRecord.RecordIdentifier + hashKey)
+	tmp := xxh3.HashString128(record.RecordIdentifier + hashKey)
 	tmpArray := Uint16(tmp)
 
 	fmt.Println(tmp, tmpArray)

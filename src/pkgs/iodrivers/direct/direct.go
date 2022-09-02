@@ -2,6 +2,8 @@ package direct
 
 import (
 	"errors"
+	"fmt"
+	"golang.org/x/sys/unix"
 	"yottaStore/yottaStore-go/src/pkgs/iodrivers"
 	"yottaStore/yottaStore-go/src/pkgs/iodrivers/direct/read"
 	"yottaStore/yottaStore-go/src/pkgs/iodrivers/direct/write"
@@ -12,6 +14,18 @@ type DirectDriver struct {
 }
 
 func (d DirectDriver) Init() error {
+
+	var stats unix.Stat_t
+	err := unix.Stat(d.Namespace+"/data", &stats)
+	if err == unix.ENOENT {
+		// TODO: check permission
+		err = unix.Mkdir(d.Namespace+"/data", 0777)
+		if err != nil {
+			return err
+		}
+	} else if err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -75,6 +89,7 @@ func (d DirectDriver) Delete(record string) error {
 	path := d.Namespace + "data/" + record
 	err := write.Delete(path)
 	if err != nil {
+		fmt.Println(err)
 		return err
 	}
 

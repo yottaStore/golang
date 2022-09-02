@@ -2,6 +2,7 @@ package yfs
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strings"
 	"yottaStore/yottaStore-go/src/pkgs/iodrivers"
@@ -36,18 +37,21 @@ func HttpHandlerFactory(ioDriver iodrivers.IoDriver) (handler func(http.Response
 		switch endpoint {
 		case "read":
 			if b, err := ioDriver.ReadAll(storeReq.Path); err != nil {
+				fmt.Println(err)
 				w.Write([]byte("Read failed"))
 			} else {
 				w.Write(b)
 			}
 		case "write":
 			if err := ioDriver.Write(storeReq.Path, []byte(storeReq.Data)); err != nil {
+				fmt.Println(err)
 				w.Write([]byte("Write failed"))
 			} else {
 				w.Write([]byte("Write successful"))
 			}
 		case "append":
 			if err := ioDriver.Append(storeReq.Path, []byte(storeReq.Data)); err != nil {
+				fmt.Println(err)
 				w.Write([]byte("Append failed"))
 			} else {
 				w.Write([]byte("Append successful"))

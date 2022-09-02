@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/vmihailenco/msgpack/v5"
+	"io"
 	"net/http"
 	"yottaStore/yottaStore-go/src/pkgs/iodrivers/direct/write"
 )
@@ -37,6 +38,8 @@ func WriteNew(record string, node string, data []byte) (interface{}, error) {
 		return nil, err
 	}
 
-	return resp, nil
+	buff, err := io.ReadAll(resp.Body)
+
+	return string(buff), nil
 
 }

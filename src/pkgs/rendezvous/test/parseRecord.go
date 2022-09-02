@@ -7,12 +7,18 @@ import (
 
 func main() {
 
-	recordString := "account@driver:tableName/recordName:recordRow"
-
-	parsedRecord, err := rendezvous.ParseRecord(recordString)
-	if err != nil {
-		fmt.Println(err)
+	recordStrings := []string{
+		"account@driver:tableName/recordName/recordRow/subRow",
+		"account@tableName/recordName",
 	}
 
-	fmt.Println(parsedRecord)
+	for _, recordString := range recordStrings {
+		parsedRecord, err := rendezvous.ParseRecord(recordString)
+		if err != nil {
+			fmt.Println(err)
+		}
+
+		fmt.Println(parsedRecord)
+	}
+
 }

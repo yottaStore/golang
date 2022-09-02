@@ -36,7 +36,7 @@ func main() {
 	http.HandleFunc("/yfs/", yfsHandler)
 	http.HandleFunc("/gossip/", gossip.HttpHandler)
 	http.HandleFunc("/", versionHandler)
-
+	
 	// Determine port for HTTP service.
 	port := os.Getenv("PORT")
 	if port == "" {
