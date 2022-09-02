@@ -100,7 +100,7 @@ func (d Driver) Verify(path string, data []byte) error {
 func New(conf iodrivers.Config) (iodrivers.IoDriverInterface, error) {
 
 	driver := Driver{
-		DataNameSpace: conf.NameSpace + "/data/",
+		DataNameSpace: conf.NameSpace + "data/",
 	}
 	driver.NameSpace = conf.NameSpace
 
