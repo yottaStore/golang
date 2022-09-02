@@ -10,21 +10,15 @@ const (
 	DirectIO = "direct"
 )
 
-func New(config iodrivers.Config) (iodrivers.IoDriver, error) {
-
-	var ioDriver iodrivers.IoDriver
+func New(config iodrivers.Config) (ioDriver iodrivers.IoDriverInterface, err error) {
 
 	switch config.Driver {
 
 	case DirectIO:
-		ioDriver = direct.New(config)
+		ioDriver, err = direct.New(config)
 	default:
 		return ioDriver, errors.New("No driver specified")
 	}
 
-	if err := ioDriver.Init(); err != nil {
-		return ioDriver, err
-	}
-
-	return ioDriver, nil
+	return ioDriver, err
 }

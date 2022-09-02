@@ -3,78 +3,117 @@ package yfs
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
-	"strings"
 	"yottaStore/yottaStore-go/src/pkgs/iodrivers"
 )
 
-type yfsPath interface {
-	string | int
+type Request struct {
+	Path    string
+	Data    string
+	Method  string
+	Options struct {
+	}
 }
 
-type yfsRequest[T yfsPath] struct {
-	Path T
-	Data string
-}
-
-func HttpHandlerFactory(ioDriver iodrivers.IoDriver) (handler func(http.ResponseWriter, *http.Request), err error) {
+func HttpHandlerFactory(ioDriver iodrivers.IoDriverInterface) (handler func(http.ResponseWriter, *http.Request), err error) {
 
 	// TODO: handle different node types (linear,random)
 	// TODO: handle locks
 
 	handler = func(w http.ResponseWriter, r *http.Request) {
 
-		endpoint := strings.Split(r.URL.String(), "/")[2]
 		decoder := json.NewDecoder(r.Body)
-		// TOOD: switch according to ioDriver
-		var storeReq yfsRequest[string]
+		var storeReq Request
 		err := decoder.Decode(&storeReq)
 		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
 			w.Write([]byte("Malformed request"))
 			return
 		}
 
-		switch endpoint {
+		switch storeReq.Method {
 		case "read":
-			if b, err := ioDriver.ReadAll(storeReq.Path); err != nil {
-				fmt.Println(err)
+			req := iodrivers.IoReadRequest{
+				storeReq.Path,
+				"read",
+			}
+			if resp, err := ioDriver.ReadAll(req); err != nil {
+				log.Println(err)
+				w.WriteHeader(http.StatusInternalServerError)
 				w.Write([]byte("Read failed"))
 			} else {
-				w.Write(b)
+				w.WriteHeader(http.StatusOK)
+				w.Write(resp.Data)
 			}
 		case "write":
-			if err := ioDriver.Write(storeReq.Path, []byte(storeReq.Data)); err != nil {
-				fmt.Println(err)
+			req := iodrivers.IoWriteRequest{
+				Path:   storeReq.Path,
+				Data:   []byte(storeReq.Data),
+				Method: "write",
+			}
+			if err := ioDriver.Write(req); err != nil {
+				log.Println(err)
+				w.WriteHeader(http.StatusInternalServerError)
 				w.Write([]byte("Write failed"))
 			} else {
+				w.WriteHeader(http.StatusOK)
 				w.Write([]byte("Write successful"))
 			}
 		case "append":
-			if err := ioDriver.Append(storeReq.Path, []byte(storeReq.Data)); err != nil {
+			req := iodrivers.IoWriteRequest{
+				Path:   storeReq.Path,
+				Data:   []byte(storeReq.Data),
+				Method: "append",
+			}
+			if err := ioDriver.Append(req); err != nil {
 				fmt.Println(err)
+				w.WriteHeader(http.StatusInternalServerError)
 				w.Write([]byte("Append failed"))
 			} else {
+				w.WriteHeader(http.StatusOK)
 				w.Write([]byte("Append successful"))
 			}
 		case "delete":
-			if err := ioDriver.Delete(storeReq.Path); err != nil {
+			req := iodrivers.IoWriteRequest{
+				Path:   storeReq.Path,
+				Method: "delete",
+			}
+			if err := ioDriver.Delete(req); err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
 				w.Write([]byte("Delete failed"))
 			} else {
+				w.WriteHeader(http.StatusOK)
 				w.Write([]byte("Delete successful"))
 			}
 		case "cas":
-			if err := ioDriver.CompareAndSwap(storeReq.Path, []byte(storeReq.Data)); err != nil {
+			req := iodrivers.IoWriteRequest{
+				Path:   storeReq.Path,
+				Data:   []byte(storeReq.Data),
+				Method: "append",
+			}
+			if err := ioDriver.CompareAndSwap(req); err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
 				w.Write([]byte("CompareAndSwap failed"))
 			} else {
+				w.WriteHeader(http.StatusOK)
 				w.Write([]byte("CompareAndSwap successful"))
 			}
 		case "caa":
-			if err := ioDriver.CompareAndAppend(storeReq.Path, []byte(storeReq.Data)); err != nil {
+			req := iodrivers.IoWriteRequest{
+				Path:   storeReq.Path,
+				Data:   []byte(storeReq.Data),
+				Method: "append",
+			}
+			if err := ioDriver.CompareAndAppend(req); err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
 				w.Write([]byte("CompareAndAppend failed"))
 			} else {
+				w.WriteHeader(http.StatusOK)
 				w.Write([]byte("CompareAndAppend successful"))
 			}
 		default:
+			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte("Method not found"))
 		}
 

@@ -1,14 +1,34 @@
 package iodrivers
 
-type IoDriver interface {
+type IoReadRequest struct {
+	Path   string
+	Method string
+}
+
+type IoReadResponse struct {
+	Data []byte
+	Aba  string
+}
+
+type IoWriteRequest struct {
+	Path   string
+	Data   []byte
+	Method string
+}
+
+type FSDev string
+
+type BlkDev int64
+
+type IoDriverInterface interface {
 	Init() error
-	Read(string) ([]byte, error)
-	ReadAll(string) ([]byte, error)
-	Write(string, []byte) error
-	Append(string, []byte) error
-	Delete(string) error
-	CompareAndSwap(string, []byte) error
-	CompareAndAppend(string, []byte) error
+	Read(IoReadRequest) (IoReadResponse, error)
+	ReadAll(IoReadRequest) (IoReadResponse, error)
+	Write(IoWriteRequest) error
+	Append(IoWriteRequest) error
+	Delete(IoWriteRequest) error
+	CompareAndSwap(IoWriteRequest) error
+	CompareAndAppend(IoWriteRequest) error
 	Verify(string, []byte) error
 }
 
@@ -17,6 +37,7 @@ type Config struct {
 	Driver    string
 }
 
-type IoStruct struct {
-	IoDriver
+type IoDriver struct {
+	IoDriverInterface
+	NameSpace string
 }
