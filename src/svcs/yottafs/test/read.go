@@ -3,12 +3,12 @@ package main
 import (
 	"fmt"
 	"golang.org/x/sys/unix"
-	"yottaStore/yottaStore-go/src/svcs/yfs/test/utils"
+	"yottaStore/yottaStore-go/src/svcs/yottafs/test/utils"
 )
 
 func main() {
 
-	path := "/home/mamluk/Projects/yottaStore-go/src/yfs/test/readTest.txt"
+	path := "/home/mamluk/Projects/yottaStore-go/src/yottafs/test/readTest.txt"
 	fd, err := unix.Open(path, unix.O_RDONLY|unix.O_DIRECT, 0666)
 	defer unix.Close(fd)
 

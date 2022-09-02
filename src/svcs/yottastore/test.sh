@@ -1,14 +1,14 @@
 #!/bin/bash
 
-curl -X POST http://localhost:8080/store/write \
+curl -X POST http://localhost:8080/yottastore/ \
       -H 'Content-Type: application/json' \
-      -d '{"Record":"default@testTable/testRecord","Data":"Http Store Write"}' \
+      -d '{"Record":"default@testTable/testRecord","Data":"Http Store Write", "Method":"write"}' \
       --output -
 
 
-curl -X POST http://localhost:8080/store/read \
+curl -X POST http://localhost:8080/yottastore/ \
       -H 'Content-Type: application/json' \
-      -d '{"Record":"default@testTable/testRecord"}' \
+      -d '{"Record":"default@testTable/testRecord", "Method":"read"}' \
       --output -
 
 

@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"golang.org/x/sys/unix"
-	"yottaStore/yottaStore-go/src/svcs/yfs/test/utils"
+	"yottaStore/yottaStore-go/src/svcs/yottafs/test/utils"
 )
 
 func main() {
@@ -11,7 +11,7 @@ func main() {
 	BlockSize := 512
 	AlignSize := 512
 
-	path := "/home/mamluk/Projects/yottaStore-go/src/yfs/test/readTest.txt"
+	path := "/home/mamluk/Projects/yottaStore-go/src/yottafs/test/readTest.txt"
 	fd, err := unix.Open(path, unix.O_RDWR|unix.O_APPEND|unix.O_NOATIME|unix.O_DIRECT, 0666)
 	defer unix.Close(fd)
 

@@ -1,4 +1,4 @@
-package yfs
+package yottafs
 
 import (
 	"encoding/json"
@@ -9,11 +9,13 @@ import (
 )
 
 type Request struct {
-	Path    string
-	Data    string
-	Method  string
-	Options struct {
-	}
+	Path   string `json:"Path"`
+	Data   string `json:"Data"`
+	Method string `json:"Method"`
+}
+
+type WriteOptions struct {
+	CreateDir bool
 }
 
 func HttpHandlerFactory(ioDriver iodrivers.IoDriverInterface) (handler func(http.ResponseWriter, *http.Request), err error) {
@@ -22,13 +24,15 @@ func HttpHandlerFactory(ioDriver iodrivers.IoDriverInterface) (handler func(http
 	// TODO: handle locks
 
 	handler = func(w http.ResponseWriter, r *http.Request) {
-
-		decoder := json.NewDecoder(r.Body)
 		var storeReq Request
+
+		fmt.Println("Handler")
+		decoder := json.NewDecoder(r.Body)
 		err := decoder.Decode(&storeReq)
+		fmt.Println(storeReq)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte("Malformed request"))
+			w.Write([]byte("Malformed yottafs request"))
 			return
 		}
 

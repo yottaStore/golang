@@ -1,4 +1,4 @@
-package yfs
+package yottafs
 
 import (
 	"errors"

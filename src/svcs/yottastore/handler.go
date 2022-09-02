@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"strings"
 	"yottaStore/yottaStore-go/src/pkgs/rendezvous"
 	"yottaStore/yottaStore-go/src/pkgs/yottadb"
 	"yottaStore/yottaStore-go/src/pkgs/yottapack"
@@ -14,6 +13,7 @@ import (
 )
 
 type StoreRequest struct {
+	Method string
 	Record string
 	Data   string
 }
@@ -34,19 +34,20 @@ func HttpHandlerFactory[T any](nodes *[]string, config HandlerConfig[T]) (func(h
 
 	handler := func(w http.ResponseWriter, r *http.Request) {
 
-		endpoint := strings.Split(r.URL.String(), "/")[2]
 		decoder := json.NewDecoder(r.Body)
 		var storeReq StoreRequest
 		err := decoder.Decode(&storeReq)
 		if err != nil {
 			log.Println(err)
-			w.Write([]byte("Malformed request"))
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte("Malformed yottastore request"))
 			return
 		}
 
 		parsedRecord, err := rendezvous.ParseRecord(storeReq.Record)
 		if err != nil {
 			log.Println(err)
+			w.WriteHeader(http.StatusBadRequest)
 			w.Write([]byte("Malformed record"))
 			return
 		}
@@ -55,23 +56,26 @@ func HttpHandlerFactory[T any](nodes *[]string, config HandlerConfig[T]) (func(h
 		node, err := rendezvous.Rendezvous(parsedRecord, *nodes)
 		if err != nil {
 			log.Println(err)
+			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte("Error with rendezvous"))
 			return
 		}
 
 		fmt.Println(node)
 
-		switch endpoint {
+		switch storeReq.Method {
 		case "read":
 
 			record, err := read.Read(parsedRecord.RecordIdentifier, node)
 			if err != nil {
 				log.Println(err)
+				w.WriteHeader(http.StatusInternalServerError)
 				w.Write([]byte("Error with read"))
 				return
 			}
 			fmt.Println(string(record))
 
+			w.WriteHeader(http.StatusOK)
 			w.Write(record)
 
 		case "write":
@@ -84,11 +88,12 @@ func HttpHandlerFactory[T any](nodes *[]string, config HandlerConfig[T]) (func(h
 				return
 			}
 
+			fmt.Println(record)
+			w.WriteHeader(http.StatusOK)
 			w.Write([]byte("Write successful"))
 
-			fmt.Println(record)
-
 		default:
+			w.WriteHeader(http.StatusBadRequest)
 			w.Write([]byte("Method not found"))
 		}
 

@@ -7,49 +7,40 @@ import (
 	"yottaStore/yottaStore-go/src/libs/config"
 	"yottaStore/yottaStore-go/src/pkgs/gossip"
 	"yottaStore/yottaStore-go/src/pkgs/iodrivers"
-	"yottaStore/yottaStore-go/src/pkgs/yottadb"
-	"yottaStore/yottaStore-go/src/pkgs/yottapack"
-	"yottaStore/yottaStore-go/src/svcs/yottastore"
+	"yottaStore/yottaStore-go/src/svcs/yottafs"
 )
 
 func main() {
 	log.Print("starting yottaStore...")
 
-	_, err := config.ParseConfig[iodrivers.Config]()
+	config, err := config.ParseConfig[iodrivers.Config]()
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	versionHandler := func(w http.ResponseWriter, r *http.Request) {
-		helloString := []byte("Hello from yottaStore-go v 0.0.1!")
+		helloString := []byte("Hello from yottafs-go v 0.0.1!")
 		w.Write(helloString)
 	}
 
-	// TODO: parse config
-	// TODO: pick decoder
-	yottastore.New()
-	// TODO: get list of nodes
-	nodes := []string{"http://localhost:8081/yfs"}
-
-	config := yottastore.HandlerConfig[interface{}]{
-		Nodes:  &nodes,
-		Driver: yottadb.DbDriver{},
-		Packer: yottapack.Packer[interface{}]{},
-	}
-	handler, err := yottastore.
-		HttpHandlerFactory(&nodes, config)
+	ioDriver, err := yottafs.New(config)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	http.HandleFunc("/store/", handler)
+	yfsHandler, err := yottafs.HttpHandlerFactory(ioDriver)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	http.HandleFunc("/yottafs/", yfsHandler)
 	http.HandleFunc("/gossip/", gossip.HttpHandler)
 	http.HandleFunc("/", versionHandler)
 
 	// Determine port for HTTP service.
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "8080"
+		port = "8081"
 		log.Printf("defaulting to port %s", port)
 	}
 
