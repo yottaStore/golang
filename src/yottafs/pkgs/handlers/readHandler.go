@@ -2,9 +2,9 @@ package handlers
 
 import (
 	"encoding/json"
-	"libs/yottadb"
 	"log"
 	"net/http"
+	"yottafs/pkgs/iodrivers"
 )
 
 type ReadRequest struct {
@@ -18,7 +18,7 @@ type ReadResponse struct {
 	Options interface{} `json:"Options"`
 }
 
-func ReadHandlerFactory(driverInterface yottadb.Interface) (func(http.ResponseWriter, *http.Request), error) {
+func ReadHandlerFactory(ioDriver iodrivers.IoDriverInterface) (func(http.ResponseWriter, *http.Request), error) {
 
 	handler := func(w http.ResponseWriter, r *http.Request) {
 
@@ -26,19 +26,19 @@ func ReadHandlerFactory(driverInterface yottadb.Interface) (func(http.ResponseWr
 		decoder := json.NewDecoder(r.Body)
 		if err := decoder.Decode(&req); err != nil {
 			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte("Malformed YottaStore read request"))
+			w.Write([]byte("Malformed YottaFs read request"))
 			return
 		}
 
-		ioReq := yottadb.ReadRequest{
+		ioReq := iodrivers.IoReadRequest{
 			Path: req.Path,
 		}
 
-		resp, err := driverInterface.Read(ioReq)
+		resp, err := ioDriver.Read(ioReq)
 		if err != nil {
 			log.Println("Error: ", err)
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte("YottaStore read failed for: " + req.Path))
+			w.Write([]byte("YottaFs read failed for: " + req.Path))
 			return
 		}
 

@@ -1,7 +1,9 @@
 #!/bin/bash
 
-go build -o dist/yfs.out \
- src/yfs.go
+cd src/yottafs
+go build -o ../../dist/yottafs.out \
+ cmd/yottafs.go
 
-go build -o dist/store.out \
-  src/store.go
+cd ../../src/yottastore
+go build -o ../../dist/yottastore.out \
+ cmd/yottastore.go

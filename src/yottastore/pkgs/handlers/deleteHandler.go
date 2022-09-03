@@ -2,20 +2,12 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
-	"libs/iodrivers"
 	"log"
 	"net/http"
+	"yottastore/pkgs/yottadb"
 )
 
-type WriteRequest struct {
-	Path       string `json:"Path"`
-	Data       []byte `json:"Data"`
-	Append     bool
-	CreatePath bool
-}
-
-func WriteHandlerFactory(ioDriver iodrivers.IoDriverInterface) (func(http.ResponseWriter, *http.Request), error) {
+func DeleteHandlerFactory(dbDriver yottadb.Interface) (func(http.ResponseWriter, *http.Request), error) {
 
 	handler := func(w http.ResponseWriter, r *http.Request) {
 		var req WriteRequest
@@ -26,29 +18,21 @@ func WriteHandlerFactory(ioDriver iodrivers.IoDriverInterface) (func(http.Respon
 			return
 		}
 
-		ioReq := iodrivers.IoWriteRequest{
+		ioReq := yottadb.WriteRequest{
 			Path:       req.Path,
 			Data:       req.Data,
 			CreatePath: req.CreatePath,
 		}
 
-		var err error
-		if req.Append {
-			fmt.Println("Appending")
-			_, err = ioDriver.Append(ioReq)
-		} else {
-			_, err = ioDriver.Write(ioReq)
-		}
-
-		if err != nil {
+		if err := dbDriver.Delete(ioReq); err != nil {
 			log.Println("Error: ", err)
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte("YottaFs write failed for: " + req.Path))
+			w.Write([]byte("YottaFs delete failed for: " + req.Path))
 			return
 		}
 
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("Write successful"))
+		w.Write([]byte("Delete successful"))
 	}
 
 	return handler, nil

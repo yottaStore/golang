@@ -3,8 +3,8 @@ package direct
 import (
 	"fmt"
 	"golang.org/x/sys/unix"
-	"libs/iodrivers"
-	"libs/iodrivers/direct/src"
+	"yottafs/pkgs/iodrivers"
+	src2 "yottafs/pkgs/iodrivers/direct/src"
 )
 
 type Driver struct {
@@ -17,7 +17,7 @@ func (d Driver) Read(req iodrivers.IoReadRequest) (iodrivers.IoReadResponse, err
 
 	var resp iodrivers.IoReadResponse
 	path := d.NameSpace + "/data" + req.Path
-	buff, err := src.Read(path)
+	buff, err := src2.Read(path)
 	if err != nil {
 		return resp, err
 	}
@@ -32,7 +32,7 @@ func (d Driver) Write(req iodrivers.IoWriteRequest) (iodrivers.IoWriteResponse, 
 
 	var resp iodrivers.IoWriteResponse
 	path := d.NameSpace + "/data" + req.Path
-	err := src.Write(path, req.Data)
+	err := src2.Write(path, req.Data)
 	if err != nil {
 		return resp, err
 	}
@@ -44,7 +44,7 @@ func (d Driver) Append(req iodrivers.IoWriteRequest) (iodrivers.IoWriteResponse,
 
 	var resp iodrivers.IoWriteResponse
 	path := d.NameSpace + "/data" + req.Path
-	err := src.AppendTo(path, req.Data)
+	err := src2.AppendTo(path, req.Data)
 	if err != nil {
 		return resp, err
 	}
@@ -57,7 +57,7 @@ func (d Driver) Delete(req iodrivers.IoWriteRequest) error {
 	fmt.Println("Deleting: ", req.Path, "\n")
 
 	path := d.NameSpace + "/data" + req.Path
-	err := src.Delete(path)
+	err := src2.Delete(path)
 	if err != nil {
 		return err
 	}

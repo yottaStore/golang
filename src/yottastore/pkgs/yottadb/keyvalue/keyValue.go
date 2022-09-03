@@ -1,6 +1,8 @@
 package keyvalue
 
-import "libs/yottadb"
+import (
+	"yottastore/pkgs/yottadb"
+)
 
 func New(nodes *[]string) (yottadb.Interface, error) {
 

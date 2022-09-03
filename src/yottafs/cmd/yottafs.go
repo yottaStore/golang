@@ -1,11 +1,11 @@
 package main
 
 import (
-	"libs/iodrivers/direct"
 	"log"
 	"net/http"
 	"os"
-	"yottafs/handlers"
+	"yottafs/pkgs/handlers"
+	"yottafs/pkgs/iodrivers/direct"
 	"yottanet"
 )
 

@@ -1,12 +1,12 @@
 package main
 
 import (
-	"libs/yottadb/keyvalue"
 	"log"
 	"net/http"
 	"os"
 	"yottanet"
-	"yottastore/handlers"
+	"yottastore/pkgs/handlers"
+	"yottastore/pkgs/yottadb/keyvalue"
 )
 
 func versionHandler(w http.ResponseWriter, r *http.Request) {
