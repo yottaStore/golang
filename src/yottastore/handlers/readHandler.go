@@ -2,9 +2,9 @@ package handlers
 
 import (
 	"encoding/json"
+	"libs/yottadb"
 	"log"
 	"net/http"
-	"yottastore/dbdrivers"
 )
 
 type ReadRequest struct {
@@ -18,7 +18,7 @@ type ReadResponse struct {
 	Options interface{} `json:"Options"`
 }
 
-func ReadHandlerFactory(driverInterface dbdrivers.Interface) (func(http.ResponseWriter, *http.Request), error) {
+func ReadHandlerFactory(driverInterface yottadb.Interface) (func(http.ResponseWriter, *http.Request), error) {
 
 	handler := func(w http.ResponseWriter, r *http.Request) {
 
@@ -30,7 +30,7 @@ func ReadHandlerFactory(driverInterface dbdrivers.Interface) (func(http.Response
 			return
 		}
 
-		ioReq := dbdrivers.ReadRequest{
+		ioReq := yottadb.ReadRequest{
 			Path: req.Path,
 		}
 

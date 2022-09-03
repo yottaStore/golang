@@ -1,11 +1,11 @@
 package main
 
 import (
+	"libs/yottadb/keyvalue"
 	"log"
 	"net/http"
 	"os"
 	"yottanet"
-	"yottastore/dbdrivers/keyvalue"
 	"yottastore/handlers"
 )
 

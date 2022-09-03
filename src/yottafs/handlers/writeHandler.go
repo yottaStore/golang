@@ -3,9 +3,9 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
+	"libs/iodrivers"
 	"log"
 	"net/http"
-	"yottafs/ioDrivers"
 )
 
 type WriteRequest struct {
@@ -15,7 +15,7 @@ type WriteRequest struct {
 	CreatePath bool
 }
 
-func WriteHandlerFactory(ioDriver ioDrivers.IoDriverInterface) (func(http.ResponseWriter, *http.Request), error) {
+func WriteHandlerFactory(ioDriver iodrivers.IoDriverInterface) (func(http.ResponseWriter, *http.Request), error) {
 
 	handler := func(w http.ResponseWriter, r *http.Request) {
 		var req WriteRequest
@@ -26,7 +26,7 @@ func WriteHandlerFactory(ioDriver ioDrivers.IoDriverInterface) (func(http.Respon
 			return
 		}
 
-		ioReq := ioDrivers.IoWriteRequest{
+		ioReq := iodrivers.IoWriteRequest{
 			Path:       req.Path,
 			Data:       req.Data,
 			CreatePath: req.CreatePath,

@@ -2,12 +2,12 @@ package handlers
 
 import (
 	"encoding/json"
+	"libs/yottadb"
 	"log"
 	"net/http"
-	"yottastore/dbdrivers"
 )
 
-func DeleteHandlerFactory(dbDriver dbdrivers.Interface) (func(http.ResponseWriter, *http.Request), error) {
+func DeleteHandlerFactory(dbDriver yottadb.Interface) (func(http.ResponseWriter, *http.Request), error) {
 
 	handler := func(w http.ResponseWriter, r *http.Request) {
 		var req WriteRequest
@@ -18,7 +18,7 @@ func DeleteHandlerFactory(dbDriver dbdrivers.Interface) (func(http.ResponseWrite
 			return
 		}
 
-		ioReq := dbdrivers.WriteRequest{
+		ioReq := yottadb.WriteRequest{
 			Path:       req.Path,
 			Data:       req.Data,
 			CreatePath: req.CreatePath,

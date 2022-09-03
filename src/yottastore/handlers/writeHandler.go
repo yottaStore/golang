@@ -3,9 +3,9 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
+	"libs/yottadb"
 	"log"
 	"net/http"
-	"yottastore/dbdrivers"
 )
 
 type WriteRequest struct {
@@ -15,7 +15,7 @@ type WriteRequest struct {
 	CreatePath bool
 }
 
-func WriteHandlerFactory(dbDriver dbdrivers.Interface) (func(http.ResponseWriter, *http.Request), error) {
+func WriteHandlerFactory(dbDriver yottadb.Interface) (func(http.ResponseWriter, *http.Request), error) {
 
 	handler := func(w http.ResponseWriter, r *http.Request) {
 		var req WriteRequest
@@ -26,7 +26,7 @@ func WriteHandlerFactory(dbDriver dbdrivers.Interface) (func(http.ResponseWriter
 			return
 		}
 
-		ioReq := dbdrivers.WriteRequest{
+		ioReq := yottadb.WriteRequest{
 			Path:       req.Path,
 			Data:       req.Data,
 			CreatePath: req.CreatePath,

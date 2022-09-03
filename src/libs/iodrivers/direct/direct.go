@@ -3,19 +3,19 @@ package direct
 import (
 	"fmt"
 	"golang.org/x/sys/unix"
-	"yottafs/ioDrivers"
-	"yottafs/ioDrivers/direct/src"
+	"libs/iodrivers"
+	"libs/iodrivers/direct/src"
 )
 
 type Driver struct {
-	ioDrivers.IoDriverInterface
+	iodrivers.IoDriverInterface
 	NameSpace     string
 	DataNameSpace string
 }
 
-func (d Driver) Read(req ioDrivers.IoReadRequest) (ioDrivers.IoReadResponse, error) {
+func (d Driver) Read(req iodrivers.IoReadRequest) (iodrivers.IoReadResponse, error) {
 
-	var resp ioDrivers.IoReadResponse
+	var resp iodrivers.IoReadResponse
 	path := d.NameSpace + "/data" + req.Path
 	buff, err := src.Read(path)
 	if err != nil {
@@ -28,9 +28,9 @@ func (d Driver) Read(req ioDrivers.IoReadRequest) (ioDrivers.IoReadResponse, err
 	return resp, nil
 }
 
-func (d Driver) Write(req ioDrivers.IoWriteRequest) (ioDrivers.IoWriteResponse, error) {
+func (d Driver) Write(req iodrivers.IoWriteRequest) (iodrivers.IoWriteResponse, error) {
 
-	var resp ioDrivers.IoWriteResponse
+	var resp iodrivers.IoWriteResponse
 	path := d.NameSpace + "/data" + req.Path
 	err := src.Write(path, req.Data)
 	if err != nil {
@@ -40,9 +40,9 @@ func (d Driver) Write(req ioDrivers.IoWriteRequest) (ioDrivers.IoWriteResponse, 
 	return resp, nil
 }
 
-func (d Driver) Append(req ioDrivers.IoWriteRequest) (ioDrivers.IoWriteResponse, error) {
+func (d Driver) Append(req iodrivers.IoWriteRequest) (iodrivers.IoWriteResponse, error) {
 
-	var resp ioDrivers.IoWriteResponse
+	var resp iodrivers.IoWriteResponse
 	path := d.NameSpace + "/data" + req.Path
 	err := src.AppendTo(path, req.Data)
 	if err != nil {
@@ -52,7 +52,7 @@ func (d Driver) Append(req ioDrivers.IoWriteRequest) (ioDrivers.IoWriteResponse,
 	return resp, nil
 }
 
-func (d Driver) Delete(req ioDrivers.IoWriteRequest) error {
+func (d Driver) Delete(req iodrivers.IoWriteRequest) error {
 
 	fmt.Println("Deleting: ", req.Path, "\n")
 
@@ -65,7 +65,7 @@ func (d Driver) Delete(req ioDrivers.IoWriteRequest) error {
 	return nil
 }
 
-func New(nameSpace string) (ioDrivers.IoDriverInterface, error) {
+func New(nameSpace string) (iodrivers.IoDriverInterface, error) {
 
 	if err := unix.Access(nameSpace, unix.O_RDWR); err != nil {
 		return nil, err

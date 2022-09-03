@@ -1,4 +1,4 @@
-package dbdrivers
+package yottadb
 
 type ReadRequest struct {
 	Path string

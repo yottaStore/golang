@@ -2,9 +2,9 @@ package handlers
 
 import (
 	"encoding/json"
+	"libs/iodrivers"
 	"log"
 	"net/http"
-	"yottafs/ioDrivers"
 )
 
 type ReadRequest struct {
@@ -18,7 +18,7 @@ type ReadResponse struct {
 	Options interface{} `json:"Options"`
 }
 
-func ReadHandlerFactory(ioDriver ioDrivers.IoDriverInterface) (func(http.ResponseWriter, *http.Request), error) {
+func ReadHandlerFactory(ioDriver iodrivers.IoDriverInterface) (func(http.ResponseWriter, *http.Request), error) {
 
 	handler := func(w http.ResponseWriter, r *http.Request) {
 
@@ -30,7 +30,7 @@ func ReadHandlerFactory(ioDriver ioDrivers.IoDriverInterface) (func(http.Respons
 			return
 		}
 
-		ioReq := ioDrivers.IoReadRequest{
+		ioReq := iodrivers.IoReadRequest{
 			Path: req.Path,
 		}
 

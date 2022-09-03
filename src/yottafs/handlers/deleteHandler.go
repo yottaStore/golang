@@ -2,15 +2,15 @@ package handlers
 
 import (
 	"encoding/json"
+	"libs/iodrivers"
 	"log"
 	"net/http"
-	"yottafs/ioDrivers"
 )
 
-func DeleteHandlerFactory(ioDriver ioDrivers.IoDriverInterface) (func(http.ResponseWriter, *http.Request), error) {
+func DeleteHandlerFactory(ioDriver iodrivers.IoDriverInterface) (func(http.ResponseWriter, *http.Request), error) {
 
 	handler := func(w http.ResponseWriter, r *http.Request) {
-		var req YfsWriteRequest
+		var req WriteRequest
 		decoder := json.NewDecoder(r.Body)
 		if err := decoder.Decode(&req); err != nil {
 			w.WriteHeader(http.StatusBadRequest)
@@ -18,7 +18,7 @@ func DeleteHandlerFactory(ioDriver ioDrivers.IoDriverInterface) (func(http.Respo
 			return
 		}
 
-		ioReq := ioDrivers.IoWriteRequest{
+		ioReq := iodrivers.IoWriteRequest{
 			Path:       req.Path,
 			Data:       req.Data,
 			CreatePath: req.CreatePath,
