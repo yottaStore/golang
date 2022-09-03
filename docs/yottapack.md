@@ -52,8 +52,8 @@ If with schema
 ## Type byte
 
 - 1 bit isArray
-- 1 bit isNested
-- 1 bit extended
+- 1 bit isMap
+- 1 bit reserved
 - 5 bit type (32 types)
 
 ### List of types
@@ -67,14 +67,15 @@ If with schema
 - BigInt
 - Floats (2)
 - BigDecimal
-- Time (3)
+- Time (2)
+- Geolocation
 - Dynamic
 - Lookup
 - Padding
 - Reserved (9)
 - Extended (2 bytes) 
 
-Total: 31
+Total: 32
 
 ## Length encoding
 
