@@ -1,10 +1,10 @@
 package main
 
 import (
-	"gossip"
 	"log"
 	"net/http"
 	"os"
+	"yottafs/iodrivers/direct"
 	"yottafs/net"
 )
 
@@ -15,15 +15,15 @@ func versionHandler(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 
-	// Parse config
+	// TODO: Parse config
 
-	//
+	ioDriver, err := direct.New("/tmp/yottafs")
 
-	readHandler, err := net.ReadHandlerFactory(0)
+	readHandler, err := net.ReadHandlerFactory(ioDriver)
 	if err != nil {
 		log.Fatal(err)
 	}
-	writeHandler, err := net.ReadHandlerFactory(0)
+	writeHandler, err := net.WriteHandlerFactory(ioDriver)
 	if err != nil {
 		log.Fatal(err)
 	}

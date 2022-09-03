@@ -2,7 +2,9 @@ package net
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
+	"yottafs/iodrivers"
 )
 
 type ReadRequest struct {
@@ -16,7 +18,7 @@ type ReadResponse struct {
 	Options interface{} `json:"Options"`
 }
 
-func ReadHandlerFactory(ioDriver interface{}) (func(http.ResponseWriter, *http.Request), error) {
+func ReadHandlerFactory(ioDriver iodrivers.IoDriverInterface) (func(http.ResponseWriter, *http.Request), error) {
 
 	handler := func(w http.ResponseWriter, r *http.Request) {
 
@@ -27,6 +29,20 @@ func ReadHandlerFactory(ioDriver interface{}) (func(http.ResponseWriter, *http.R
 			w.Write([]byte("Malformed YottaFs read request"))
 		}
 
+		ioReq := iodrivers.IoReadRequest{
+			Path: req.Path,
+		}
+
+		resp, err := ioDriver.Read(ioReq)
+		if err != nil {
+			log.Fatal(err)
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte("YottaFs read failed for: " + req.Path))
+		}
+
+		w.WriteHeader(http.StatusOK)
+		w.Header().Set("Content-Type", "application/octet-stream")
+		w.Write(resp.Data)
 	}
 
 	return handler, nil
