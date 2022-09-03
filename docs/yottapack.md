@@ -65,9 +65,13 @@ Total: 28
 
 1+ byte of u8. Like utf8
 
-0 - 254: 1 byte
-255 - 2^16-2: 2 byte
-....
+1st byte signal if you should read also next byte.
+
+- 0 -> 128: 1 byte
+- 128+1 -> 2^14-1: 2 bytes (first byte is 1, 8th byte is 0)
+- 2^14+1 -> 2^21-1: 3 bytes (first byte is 1, 8th byte is 1, 
+16th byte is 1)
+- and so on....
 
 ## Separators
 

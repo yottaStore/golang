@@ -8,7 +8,7 @@ import (
 	"yottafs/ioDrivers"
 )
 
-type YfsWriteRequest struct {
+type WriteRequest struct {
 	Path       string `json:"Path"`
 	Data       []byte `json:"Data"`
 	Append     bool
@@ -18,7 +18,7 @@ type YfsWriteRequest struct {
 func WriteHandlerFactory(ioDriver ioDrivers.IoDriverInterface) (func(http.ResponseWriter, *http.Request), error) {
 
 	handler := func(w http.ResponseWriter, r *http.Request) {
-		var req YfsWriteRequest
+		var req WriteRequest
 		decoder := json.NewDecoder(r.Body)
 		if err := decoder.Decode(&req); err != nil {
 			w.WriteHeader(http.StatusBadRequest)
