@@ -15,14 +15,21 @@ Yottapack is a bandwidth and cpu efficient
 - 1+ size byte (needed for streaming)
 - (optional): Heads encoding
 
-### Heads encoding
+### Fat heads encoding
 
-Not needed if schemaless or streaming. Encode strings
+Not needed if schema or streaming. Encode strings
 representing the name of fields, (and nested fields?)
 
 - 1 type byte (is it needed?)
 - 1+ byte size
 - N+ chars for value
+
+### Light heads encoding
+
+If with schema
+
+- 1+ byte size for each record
+- 0 for some, if order is guaranteed
 
 ## Data
 
@@ -32,34 +39,42 @@ representing the name of fields, (and nested fields?)
 
 # Special bytes
 
-## Intro
+## Intro byte
 
 1 byte for versioning and flags
+
+## Forbidden sequences
+
+- 0x00, 0x00, ETX
+- 0x00, ETX, EOT
+
 
 ## Type byte
 
 - 1 bit isArray
 - 1 bit isNested
-- 1 bit reserved
+- 1 bit extended
 - 5 bit type (32 types)
 
 ### List of types
 
 - Char
 - Binary
+- Hex
 - Bool
 - Nil
 - Integers ( 2 * 4 )
 - BigInt
-- BigDecimal
 - Floats (2)
-- Time ( 3 )
+- BigDecimal
+- Time (3)
 - Dynamic
 - Lookup
-- User defined ( 6 )
-- Extended (2 bytes)
+- Padding
+- Reserved (9)
+- Extended (2 bytes) 
 
-Total: 28
+Total: 31
 
 ## Length encoding
 
