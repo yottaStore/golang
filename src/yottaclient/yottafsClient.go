@@ -56,3 +56,29 @@ func YfsWrite(path string, data []byte, node string) error {
 
 	return nil
 }
+
+func YfsAppend(path string, data []byte, node string) error {
+
+	values := map[string]interface{}{"Path": path, "Data": data, "Append": true}
+	json_data, err := json.Marshal(values)
+
+	if err != nil {
+		return err
+	}
+
+	resp, err := http.Post(node+"/yottafs/write",
+		"application/json",
+		bytes.NewBuffer(json_data))
+	if err != nil {
+		return err
+	}
+
+	buff, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
+
+	log.Println(string(buff))
+
+	return nil
+}

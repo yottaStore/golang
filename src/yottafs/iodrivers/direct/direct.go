@@ -1,7 +1,9 @@
 package direct
 
 import (
+	"golang.org/x/sys/unix"
 	"yottafs/iodrivers"
+	"yottafs/iodrivers/direct/src"
 )
 
 type Driver struct {
@@ -14,7 +16,7 @@ func (d Driver) Read(req iodrivers.IoReadRequest) (iodrivers.IoReadResponse, err
 
 	var resp iodrivers.IoReadResponse
 	path := d.NameSpace + "/data" + req.Path
-	buff, err := read(path)
+	buff, err := src.Read(path)
 	if err != nil {
 		return resp, err
 	}
@@ -29,7 +31,7 @@ func (d Driver) Write(req iodrivers.IoWriteRequest) (iodrivers.IoWriteResponse, 
 
 	var resp iodrivers.IoWriteResponse
 	path := d.NameSpace + "/data" + req.Path
-	err := write(path, req.Data)
+	err := src.Write(path, req.Data)
 	if err != nil {
 		return resp, err
 	}
@@ -41,7 +43,7 @@ func (d Driver) Append(req iodrivers.IoWriteRequest) (iodrivers.IoWriteResponse,
 
 	var resp iodrivers.IoWriteResponse
 	path := d.NameSpace + "/data" + req.Path
-	err := appendTo(path, req.Data)
+	err := src.AppendTo(path, req.Data)
 	if err != nil {
 		return resp, err
 	}
@@ -52,7 +54,7 @@ func (d Driver) Append(req iodrivers.IoWriteRequest) (iodrivers.IoWriteResponse,
 func (d Driver) Delete(req iodrivers.IoWriteRequest) error {
 
 	path := d.NameSpace + "/data" + req.Path
-	err := delete(path)
+	err := src.Delete(path)
 	if err != nil {
 		return err
 	}
@@ -61,6 +63,14 @@ func (d Driver) Delete(req iodrivers.IoWriteRequest) error {
 }
 
 func New(nameSpace string) (iodrivers.IoDriverInterface, error) {
+
+	if err := unix.Access(nameSpace, unix.O_RDWR); err != nil {
+		return nil, err
+	}
+
+	if err := unix.Access(nameSpace+"/data", unix.O_RDWR); err != nil {
+		return nil, err
+	}
 
 	ioDriver := Driver{
 		NameSpace:     nameSpace,

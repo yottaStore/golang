@@ -1,4 +1,4 @@
-package net
+package handlers
 
 import (
 	"encoding/json"
@@ -27,6 +27,7 @@ func ReadHandlerFactory(ioDriver iodrivers.IoDriverInterface) (func(http.Respons
 		if err := decoder.Decode(&req); err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write([]byte("Malformed YottaFs read request"))
+			return
 		}
 
 		ioReq := iodrivers.IoReadRequest{
@@ -35,9 +36,10 @@ func ReadHandlerFactory(ioDriver iodrivers.IoDriverInterface) (func(http.Respons
 
 		resp, err := ioDriver.Read(ioReq)
 		if err != nil {
-			log.Fatal(err)
+			log.Println("Error: ", err)
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte("YottaFs read failed for: " + req.Path))
+			return
 		}
 
 		w.WriteHeader(http.StatusOK)

@@ -14,9 +14,9 @@ type IoWriteResponse struct {
 }
 
 type IoWriteRequest struct {
-	Path   string
-	Data   []byte
-	Method string
+	Path       string
+	Data       []byte
+	CreatePath bool
 }
 
 type IoDriverInterface interface {

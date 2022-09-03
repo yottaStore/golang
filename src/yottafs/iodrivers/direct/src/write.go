@@ -1,11 +1,11 @@
-package direct
+package src
 
 import (
 	"errors"
 	"golang.org/x/sys/unix"
 )
 
-func write(path string, data []byte) error {
+func Write(path string, data []byte) error {
 
 	if len(data) == 0 {
 		return nil
@@ -14,7 +14,9 @@ func write(path string, data []byte) error {
 	fd, err := unix.Open(path, unix.O_RDWR|unix.O_CREAT|unix.O_TRUNC|unix.O_DIRECT, 0766)
 	defer unix.Close(fd)
 	if err == unix.ENOENT {
-		err = createDirPath(path)
+		if err := createDirPath(path); err != nil {
+			return err
+		}
 		fd, err = unix.Open(path, unix.O_RDWR|unix.O_CREAT|unix.O_TRUNC|unix.O_DIRECT, 0766)
 	}
 
@@ -34,7 +36,7 @@ func write(path string, data []byte) error {
 
 }
 
-func compareAndSwap(path string, data []byte, aba string) error {
+func CompareAndSwap(path string, data []byte, aba string) error {
 
 	return errors.New("method not implemented")
 }

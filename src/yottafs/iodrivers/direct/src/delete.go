@@ -1,11 +1,11 @@
-package direct
+package src
 
 import (
 	"fmt"
 	"golang.org/x/sys/unix"
 )
 
-func delete(path string) error {
+func Delete(path string) error {
 	err := unix.Unlink(path)
 	if err == unix.ENOENT {
 		fmt.Println("File already didn't exist")

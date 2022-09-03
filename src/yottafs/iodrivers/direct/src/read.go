@@ -1,11 +1,11 @@
-package direct
+package src
 
 import (
 	"fmt"
 	"golang.org/x/sys/unix"
 )
 
-func read(path string) ([]byte, error) {
+func Read(path string) ([]byte, error) {
 
 	fd, err := unix.Open(path, unix.O_RDONLY|unix.O_DIRECT, 0666)
 	defer unix.Close(fd)
