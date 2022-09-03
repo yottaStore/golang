@@ -14,6 +14,8 @@ func versionHandler(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 
+	log.Println("Starting yottastore...")
+
 	http.HandleFunc("/", versionHandler)
 	http.HandleFunc("/gossip/", yottanet.YottanetHandler)
 

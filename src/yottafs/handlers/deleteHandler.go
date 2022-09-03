@@ -2,20 +2,12 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 	"yottafs/ioDrivers"
 )
 
-type YfsWriteRequest struct {
-	Path       string `json:"Path"`
-	Data       []byte `json:"Data"`
-	Append     bool
-	CreatePath bool
-}
-
-func WriteHandlerFactory(ioDriver ioDrivers.IoDriverInterface) (func(http.ResponseWriter, *http.Request), error) {
+func DeleteHandlerFactory(ioDriver ioDrivers.IoDriverInterface) (func(http.ResponseWriter, *http.Request), error) {
 
 	handler := func(w http.ResponseWriter, r *http.Request) {
 		var req YfsWriteRequest
@@ -32,23 +24,15 @@ func WriteHandlerFactory(ioDriver ioDrivers.IoDriverInterface) (func(http.Respon
 			CreatePath: req.CreatePath,
 		}
 
-		var err error
-		if req.Append {
-			fmt.Println("Appending")
-			_, err = ioDriver.Append(ioReq)
-		} else {
-			_, err = ioDriver.Write(ioReq)
-		}
-
-		if err != nil {
+		if err := ioDriver.Delete(ioReq); err != nil {
 			log.Println("Error: ", err)
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte("YottaFs write failed for: " + req.Path))
+			w.Write([]byte("YottaFs delete failed for: " + req.Path))
 			return
 		}
 
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("Write successful"))
+		w.Write([]byte("Delete successful"))
 	}
 
 	return handler, nil

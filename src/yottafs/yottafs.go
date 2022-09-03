@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"os"
 	"yottafs/handlers"
-	"yottafs/iodrivers/direct"
+	"yottafs/ioDrivers/direct"
 	"yottanet"
 )
 
@@ -16,13 +16,19 @@ func versionHandler(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 
-	// TODO: Parse config
+	log.Println("Starting yottafs...")
 
-	ioDriver, err := direct.New("/tmp/yottafs")
+	// TODO: Parse config
+	nameSpace := "/tmp/yottafs"
+	// driver := "direct"
+
+	// TODO: Switch between drivers
+	ioDriver, err := direct.New(nameSpace)
 	if err != nil {
 		log.Fatal("Error instantiating driver: ", err)
 	}
 
+	// TODO: aggregate handlers
 	readHandler, err := handlers.ReadHandlerFactory(ioDriver)
 	if err != nil {
 		log.Fatal("Error instantiating read handler: ", err)
@@ -31,9 +37,14 @@ func main() {
 	if err != nil {
 		log.Fatal("Error instantiating write handler: ", err)
 	}
+	deleteHandler, err := handlers.DeleteHandlerFactory(ioDriver)
+	if err != nil {
+		log.Fatal("Error instantiating delete handler: ", err)
+	}
 
 	http.HandleFunc("/yottafs/read", readHandler)
 	http.HandleFunc("/yottafs/write", writeHandler)
+	http.HandleFunc("/yottafs/delete", deleteHandler)
 
 	http.HandleFunc("/", versionHandler)
 	http.HandleFunc("/gossip/", yottanet.YottanetHandler)

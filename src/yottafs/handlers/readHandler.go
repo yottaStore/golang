@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-	"yottafs/iodrivers"
+	"yottafs/ioDrivers"
 )
 
 type ReadRequest struct {
@@ -18,7 +18,7 @@ type ReadResponse struct {
 	Options interface{} `json:"Options"`
 }
 
-func ReadHandlerFactory(ioDriver iodrivers.IoDriverInterface) (func(http.ResponseWriter, *http.Request), error) {
+func ReadHandlerFactory(ioDriver ioDrivers.IoDriverInterface) (func(http.ResponseWriter, *http.Request), error) {
 
 	handler := func(w http.ResponseWriter, r *http.Request) {
 
@@ -30,7 +30,7 @@ func ReadHandlerFactory(ioDriver iodrivers.IoDriverInterface) (func(http.Respons
 			return
 		}
 
-		ioReq := iodrivers.IoReadRequest{
+		ioReq := ioDrivers.IoReadRequest{
 			Path: req.Path,
 		}
 

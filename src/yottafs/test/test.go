@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"yottaclient"
 )
@@ -23,7 +22,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println(string(buff))
+	log.Println(string(buff))
 
 	if err := yottaclient.YfsAppend(
 		path, appendData, node); err != nil {
@@ -35,5 +34,19 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println(string(buff))
+	log.Println(string(buff))
+
+	err = yottaclient.YfsDelete(
+		path, node)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	buff, err = yottaclient.YfsRead(
+		path, node)
+	if err != nil {
+		log.Println("Delete successful!\n")
+		log.Println(err)
+	}
+	log.Println("After delete: ", string(buff))
 }

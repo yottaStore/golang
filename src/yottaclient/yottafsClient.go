@@ -3,6 +3,7 @@ package yottaclient
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"io"
 	"log"
 	"net/http"
@@ -28,6 +29,10 @@ func YfsRead(path string, node string) ([]byte, error) {
 		return nil, err
 	}
 
+	if resp.StatusCode != http.StatusOK {
+		return nil, errors.New(string(buff))
+	}
+
 	return buff, nil
 }
 
@@ -50,6 +55,9 @@ func YfsWrite(path string, data []byte, node string) error {
 	buff, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return err
+	}
+	if resp.StatusCode != http.StatusOK {
+		return errors.New(string(buff))
 	}
 
 	log.Println(string(buff))
@@ -79,6 +87,40 @@ func YfsAppend(path string, data []byte, node string) error {
 	}
 
 	log.Println(string(buff))
+
+	if resp.StatusCode != http.StatusOK {
+		return errors.New(string(buff))
+	}
+
+	return nil
+}
+
+func YfsDelete(path string, node string) error {
+
+	values := map[string]interface{}{"Path": path}
+	json_data, err := json.Marshal(values)
+
+	if err != nil {
+		return err
+	}
+
+	resp, err := http.Post(node+"/yottafs/delete",
+		"application/json",
+		bytes.NewBuffer(json_data))
+	if err != nil {
+		return err
+	}
+
+	buff, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
+
+	log.Println(string(buff))
+
+	if resp.StatusCode != http.StatusOK {
+		return errors.New(string(buff))
+	}
 
 	return nil
 }

@@ -3,7 +3,6 @@ package src
 import (
 	"bytes"
 	"errors"
-	"fmt"
 	"golang.org/x/sys/unix"
 )
 
@@ -32,7 +31,7 @@ func AppendTo(path string, data []byte) error {
 	if terminationIndex < 0 {
 		panic("Termination index not found!")
 	}
-	fmt.Println("Termination index is: ", terminationIndex)
+	//fmt.Println("Termination index is: ", terminationIndex)
 
 	writeSize := (len(data) + terminationIndex - 1) / BlockSize
 	writeBuffer := CallocAlignedBlock(writeSize)

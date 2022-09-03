@@ -6,6 +6,7 @@ import (
 )
 
 func Delete(path string) error {
+	fmt.Println("Deleting ...")
 	err := unix.Unlink(path)
 	if err == unix.ENOENT {
 		fmt.Println("File already didn't exist")
