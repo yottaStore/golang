@@ -1,25 +1,34 @@
 package main
 
 import (
-	"libs/rendezvous"
+	"fmt"
 	"log"
+	"rendezvous"
 )
 
 func main() {
 
-	recordString := "account@driver:tableName/recordName:recordRow"
-	nodes := []string{"hello", "world"}
+	recordString := "account@driver:tableName/recordName/recordRow"
+	nodesMap := [][]string{{"eu-west-1", "eu-east-1"}, {"london", "frankfurt"}}
+
+	finder := rendezvous.Finder{
+		HashKey: "83838383",
+	}
 
 	parsedRecord, err := rendezvous.ParseRecord(recordString)
 	if err != nil {
 		log.Fatalln(err)
 	}
-	rendezvousFunction := rendezvous.NewRendezvous("83838jdjdhha")
 
-	node, err := rendezvousFunction(parsedRecord, nodes)
+	nodes, err := finder.GetCollectionNodes(parsedRecord, nodesMap[0], 2)
 	if err != nil {
 		log.Fatalln(err)
 	}
+	fmt.Println(nodes)
+	shards, err := finder.GetRecordNodeS(parsedRecord, nodes, 1)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	fmt.Println(shards)
 
-	log.Println(node)
 }

@@ -3,14 +3,11 @@ package rendezvous
 import (
 	"fmt"
 	"github.com/zeebo/xxh3"
+	"sort"
 )
 
-const (
-	hashKey = "949949494djjdjdjd^"
-)
-
-func Uint16(u xxh3.Uint128) [8]uint16 {
-	return [8]uint16{
+func Uint16(u xxh3.Uint128) []uint16 {
+	return []uint16{
 		uint16(u.Hi >> 0x30), uint16(u.Hi >> 0x20),
 		uint16(u.Hi >> 0x10), uint16(u.Hi),
 		uint16(u.Lo >> 0x30), uint16(u.Lo >> 0x20),
@@ -18,29 +15,43 @@ func Uint16(u xxh3.Uint128) [8]uint16 {
 	}
 }
 
-func NewRendezvous(hashKey string) func(ParsedRecord, []string) (string, error) {
-
-	return func(record ParsedRecord, nodes []string) (string, error) {
-
-		tmp := xxh3.HashString128(record.RecordIdentifier + hashKey)
-		tmpArray := Uint16(tmp)
-
-		fmt.Println(tmp, tmpArray)
-
-		max := uint16(0)
-		maxIndex := 0
-
-		for idx, value := range tmpArray {
-			if value > max {
-				maxIndex = idx
-				max = value
-			}
-		}
-
-		nodeIndex := maxIndex % len(nodes)
-
-		return nodes[nodeIndex], nil
-	}
+type Finder struct {
+	HashKey string
 }
 
+type NodeMap []string
 
+func findNodes(record string, nodes NodeMap, f Finder, count int) (NodeMap, error) {
+
+	hashedRecord := xxh3.HashString128(record + f.HashKey)
+	tmpArray := NewNodeTree(Uint16(hashedRecord))
+
+	fmt.Println(tmpArray)
+	sort.Sort(tmpArray)
+	fmt.Println(tmpArray)
+
+	idxs := tmpArray.idxs[:count]
+	pickedNodes := make(NodeMap, count)
+
+	for i := 0; i < count; i++ {
+		index := idxs[i] % len(nodes)
+		pickedNodes[i] = nodes[index]
+	}
+
+	return pickedNodes, nil
+}
+
+func (f Finder) ParseRecord(record string) (ParsedRecord, error) {
+	parsedRecord, err := ParseRecord(record)
+	return parsedRecord, err
+}
+
+func (f Finder) GetCollectionNodes(record ParsedRecord, nodes NodeMap, count int) (NodeMap, error) {
+	result, err := findNodes(record.TableIdentifier, nodes, f, count)
+	return result, err
+}
+
+func (f Finder) GetRecordNodeS(record ParsedRecord, nodes NodeMap, count int) (NodeMap, error) {
+	result, err := findNodes(record.RecordIdentifier, nodes, f, count)
+	return result, err
+}
