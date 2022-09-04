@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-	"yottastore/pkgs/yottadb"
+	"yottadb"
 )
 
 func DeleteHandlerFactory(dbDriver yottadb.Interface) (func(http.ResponseWriter, *http.Request), error) {
@@ -19,9 +19,9 @@ func DeleteHandlerFactory(dbDriver yottadb.Interface) (func(http.ResponseWriter,
 		}
 
 		ioReq := yottadb.WriteRequest{
-			Path:       req.Path,
-			Data:       req.Data,
-			CreatePath: req.CreatePath,
+			Path:             req.Path,
+			Data:             req.Data,
+			CreateCollection: req.CreatePath,
 		}
 
 		if err := dbDriver.Delete(ioReq); err != nil {

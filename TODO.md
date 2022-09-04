@@ -5,6 +5,7 @@
 - Setup monolithic docker
 - Setup tests
 - Setup CI/CD
+- Config
 
 # Mid term
 

@@ -10,7 +10,7 @@ func main() {
 
 	pr, pw := io.Pipe()
 
-	path := "/home/mamluk/yotta/yottaStore-go/svcs/pkgs/yottafs/iodrivers/direct/test/test.txt"
+	path := "/home/mamluk/yotta/yottaStore-go/svcs/pkgs/yfs/iodrivers/direct/test/test.txt"
 	go read.Read(path, *pw)
 	b := make([]byte, 4096)
 	for {

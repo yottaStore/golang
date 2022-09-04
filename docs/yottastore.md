@@ -2,4 +2,4 @@
 
 Record type:
 
-account@driver:collectionName/recordName/rowName
+account@[driver:]collectionName/recordName[/rowName]

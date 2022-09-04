@@ -2,7 +2,7 @@ package rendezvous
 
 import "github.com/zeebo/xxh3"
 
-func New(nodes []string) func(string) []byte {
+func NewHash(nodes []string) func(string) []byte {
 
 	return func(key string) []byte {
 

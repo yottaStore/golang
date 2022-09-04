@@ -20,7 +20,7 @@ var (
 
 // Example record
 //
-// account@driver:tableName/recordName/recordRow/subRecordRow
+// account@[driver:]tableName/recordName[/recordRow[/subRecordRow]]
 // account@tableName/recordName
 
 func ParseRecord(recordString string) (ParsedRecord, error) {
@@ -55,6 +55,7 @@ func ParseRecord(recordString string) (ParsedRecord, error) {
 		return parsedRecord, MalformedRecordErr
 	}
 
+	// Should we return error on missing driver?
 	if colonIndex == -1 {
 		colonIndex = atIndex
 		recordString = recordString[:atIndex+1] + "kv:" + recordString[atIndex+1:]

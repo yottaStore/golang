@@ -32,7 +32,7 @@ func HttpHandlerFactory(ioDriver iodrivers.IoDriverInterface) (handler func(http
 		fmt.Println(storeReq)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte("Malformed yottafs request"))
+			w.Write([]byte("Malformed yfs request"))
 			return
 		}
 

@@ -1,11 +1,13 @@
-module yottastore
+module store
 
 go 1.19
 
-require yottanet v0.0.1
+require (
+	yottadb v0.0.1
+	yottaself v0.0.1
+)
 
 replace (
-	libs v0.0.1 => ./../../libs
-	yottanet v0.0.1 => ./../yottanet
-
+	yottadb v0.0.1 => ./../../libs/yottadb
+	yottaself v0.0.1 => ./../yottaself
 )

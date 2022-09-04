@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-	"yottastore/pkgs/yottadb"
+	"yottadb"
 )
 
 type ReadRequest struct {

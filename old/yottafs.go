@@ -19,7 +19,7 @@ func main() {
 	}
 
 	versionHandler := func(w http.ResponseWriter, r *http.Request) {
-		helloString := []byte("Hello from yottafs-go v 0.0.1!")
+		helloString := []byte("Hello from yfs-go v 0.0.1!")
 		w.Write(helloString)
 	}
 

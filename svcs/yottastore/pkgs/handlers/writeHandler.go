@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"yottastore/pkgs/yottadb"
+	"yottadb"
 )
 
 type WriteRequest struct {
@@ -27,9 +27,9 @@ func WriteHandlerFactory(dbDriver yottadb.Interface) (func(http.ResponseWriter, 
 		}
 
 		ioReq := yottadb.WriteRequest{
-			Path:       req.Path,
-			Data:       req.Data,
-			CreatePath: req.CreatePath,
+			Path:             req.Path,
+			Data:             req.Data,
+			CreateCollection: req.CreatePath,
 		}
 
 		var err error
