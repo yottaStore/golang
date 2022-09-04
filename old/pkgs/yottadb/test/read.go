@@ -7,7 +7,7 @@ import (
 
 func main() {
 
-	path := "/home/mamluk/Projects/yottaStore-go/src/yottadb/test/record.txt"
+	path := "/home/mamluk/Projects/yottaStore-go/svcs/yottadb/test/record.txt"
 
 	item, _ := keyvalue.Read(path)
 

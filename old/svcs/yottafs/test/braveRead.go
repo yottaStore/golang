@@ -7,7 +7,7 @@ import (
 
 func main() {
 
-	path := "/home/mamluk/yotta/yottaStore-go/src/pkgs/yottafs/test/readTest.txt"
+	path := "/home/mamluk/yotta/yottaStore-go/svcs/pkgs/yottafs/test/readTest.txt"
 	fd, err := unix.Open(path, unix.O_RDONLY|unix.O_DIRECT, 0666)
 	defer unix.Close(fd)
 
