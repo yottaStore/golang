@@ -19,15 +19,15 @@ func DeleteHandlerFactory(dbDriver yottadb.Interface) (func(http.ResponseWriter,
 		}
 
 		ioReq := yottadb.WriteRequest{
-			Path:             req.Path,
-			Data:             req.Data,
+			Path:             req.Record,
+			Data:             []byte(req.Data),
 			CreateCollection: req.CreatePath,
 		}
 
 		if err := dbDriver.Delete(ioReq); err != nil {
 			log.Println("Error: ", err)
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte("YottaFs delete failed for: " + req.Path))
+			w.Write([]byte("YottaFs delete failed for: " + req.Record))
 			return
 		}
 

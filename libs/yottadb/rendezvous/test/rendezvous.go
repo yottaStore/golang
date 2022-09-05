@@ -20,7 +20,7 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	nodes, err := finder.FindNodes(parsedRecord, nodesMap[0], 2)
+	nodes, err := finder.FindPool(parsedRecord, nodesMap[0], 2)
 	if err != nil {
 		log.Fatalln(err)
 	}

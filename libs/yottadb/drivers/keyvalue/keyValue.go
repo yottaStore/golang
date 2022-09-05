@@ -20,24 +20,34 @@ func (d Driver) Read(req yottadb.ReadRequest) (yottadb.ReadResponse, error) {
 
 	var resp yottadb.ReadResponse
 	// Find nodes
-	parsedRecord, err := d.Finder.ParseRecord(req.Path)
+	// TODO: fix rendezvous
+	// TODO: improve API shape
+	// TODO: check collection for size
+	opts := rendezvous.RendezvousOptions{
+		Replication: 1,
+		Sharding:    1,
+	}
+	shards, nodes, parsedRecord, err := d.Finder.FindRecord(req.Path, *d.Nodes, opts)
 	if err != nil {
 		return resp, err
 	}
 
-	// TODO: fix rendezvous
-	nodes, err := d.Finder.FindNodes(parsedRecord, *d.Nodes, 1)
-	// Find shard
-	node := nodes[1]
+	// TODO: pick a shard at random and verify others
+	node := shards[0]
+
+	fmt.Println("Record: ", parsedRecord)
+	fmt.Println("Node tree: ", nodes)
+	fmt.Println("Shards pool:", shards)
+	fmt.Println("Node picked: ", node)
 
 	// Issue read
-	values := map[string]string{"Path": req.Path}
+	values := map[string]interface{}{"Path": parsedRecord.RecordIdentifier}
 	json_data, err := json.Marshal(values)
 	if err != nil {
 		return resp, err
 	}
-	url := node + "/read/"
-	result, err := http.Post(url, "application/json",
+	fmt.Println("Json data: ", string(json_data))
+	result, err := http.Post(node+"/yottafs/read", "application/json",
 		bytes.NewBuffer(json_data))
 	if err != nil {
 		return resp, err
@@ -55,24 +65,33 @@ func (d Driver) Write(req yottadb.WriteRequest) (yottadb.WriteResponse, error) {
 	var resp yottadb.WriteResponse
 
 	// Find nodes
-	parsedRecord, err := d.Finder.ParseRecord(req.Path)
+	opts := rendezvous.RendezvousOptions{
+		Replication: 1,
+		Sharding:    1,
+	}
+	shards, nodes, parsedRecord, err := d.Finder.FindRecord(req.Path, *d.Nodes, opts)
 	if err != nil {
 		return resp, err
 	}
 
-	nodes, err := d.Finder.FindNodes(parsedRecord, *d.Nodes, 1)
-	// Find shard
-	node := nodes[1]
+	// TODO: pick all shards
+	node := shards[0]
+
+	fmt.Println("Record: ", parsedRecord)
+	fmt.Println("Node tree: ", nodes)
+	fmt.Println("Shards pool:", shards)
+	fmt.Println("Node picked: ", node)
 
 	// Issue write
-	values := ""
+	values := map[string]interface{}{"Path": parsedRecord.RecordIdentifier, "Data": req.Data}
 	json_data, err := json.Marshal(values)
 	if err != nil {
 		return resp, err
 	}
 
 	fmt.Println("Json data: ", string(json_data))
-	result, err := http.Post(node, "application/json",
+	fmt.Println(node)
+	result, err := http.Post(node+"/yottafs/write", "application/json",
 		bytes.NewBuffer(json_data))
 	if err != nil {
 		return resp, err

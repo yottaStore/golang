@@ -74,8 +74,8 @@ func ParseRecord(recordString string) (ParsedRecord, error) {
 	Driver := recordString[atIndex+1 : colonIndex]
 	TableName := recordString[colonIndex+1 : slashIndexs[0]]
 	RecordName := recordString[slashIndexs[0]+1 : slashIndexs[1]]
-	TableIdentifier := Account + "/" + recordString[colonIndex+1:slashIndexs[0]]
-	RecordIdentifier := Account + "/" + recordString[colonIndex+1:slashIndexs[1]]
+	TableIdentifier := "/" + Account + "/" + recordString[colonIndex+1:slashIndexs[0]]
+	RecordIdentifier := "/" + Account + "/" + recordString[colonIndex+1:slashIndexs[1]]
 	RecordRows := recordString[slashIndexs[1]+1:]
 
 	parsedRecord = ParsedRecord{

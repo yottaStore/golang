@@ -21,7 +21,7 @@ func main() {
 	// TODO: parse config
 
 	// TODO: gossip peers
-	nodes := []string{"http://localhost:8080"}
+	nodes := []string{"http://localhost:8081"}
 
 	// TODO: Switch between drivers
 	dbDriver, err := keyvalue.New(&nodes, "")
