@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"os"
 	"store/pkgs/handlers"
-	"yottadb/keyvalue"
+	"yottadb/drivers/keyvalue"
 	"yottaself"
 )
 
@@ -24,7 +24,7 @@ func main() {
 	nodes := []string{"http://localhost:8080"}
 
 	// TODO: Switch between drivers
-	dbDriver, err := keyvalue.New(&nodes)
+	dbDriver, err := keyvalue.New(&nodes, "")
 	if err != nil {
 		log.Fatal("Error instantiating driver: ", err)
 	}

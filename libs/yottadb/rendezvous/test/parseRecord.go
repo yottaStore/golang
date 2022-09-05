@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"libs/rendezvous"
+	"yottadb/rendezvous"
 )
 
 func main() {

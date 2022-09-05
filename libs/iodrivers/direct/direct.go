@@ -3,8 +3,8 @@ package direct
 import (
 	"fmt"
 	"golang.org/x/sys/unix"
-	"libs/iodrivers"
-	"libs/iodrivers/direct/src"
+	"iodrivers"
+	"iodrivers/direct/src"
 )
 
 type Driver struct {

@@ -7,8 +7,8 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"rendezvous"
 	"yottadb"
+	"yottadb/rendezvous"
 )
 
 type Driver struct {
@@ -26,7 +26,7 @@ func (d Driver) Read(req yottadb.ReadRequest) (yottadb.ReadResponse, error) {
 	}
 
 	// TODO: fix rendezvous
-	nodes, err := d.Finder.GetRecordNodeS(parsedRecord, *d.Nodes, 1)
+	nodes, err := d.Finder.FindNodes(parsedRecord, *d.Nodes, 1)
 	// Find shard
 	node := nodes[1]
 
@@ -60,7 +60,7 @@ func (d Driver) Write(req yottadb.WriteRequest) (yottadb.WriteResponse, error) {
 		return resp, err
 	}
 
-	nodes, err := d.Finder.GetRecordNodeS(parsedRecord, *d.Nodes, 1)
+	nodes, err := d.Finder.FindNodes(parsedRecord, *d.Nodes, 1)
 	// Find shard
 	node := nodes[1]
 

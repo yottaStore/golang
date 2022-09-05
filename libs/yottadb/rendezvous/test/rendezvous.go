@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
-	"rendezvous"
+	"yottadb/rendezvous"
 )
 
 func main() {
@@ -20,12 +20,12 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	nodes, err := finder.GetCollectionNodes(parsedRecord, nodesMap[0], 2)
+	nodes, err := finder.FindNodes(parsedRecord, nodesMap[0], 2)
 	if err != nil {
 		log.Fatalln(err)
 	}
 	fmt.Println(nodes)
-	shards, err := finder.GetRecordNodeS(parsedRecord, nodes, 1)
+	shards, err := finder.FindShard(parsedRecord, nodes, 1)
 	if err != nil {
 		log.Fatalln(err)
 	}

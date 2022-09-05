@@ -46,12 +46,12 @@ func (f Finder) ParseRecord(record string) (ParsedRecord, error) {
 	return parsedRecord, err
 }
 
-func (f Finder) GetCollectionNodes(record ParsedRecord, nodes NodeMap, count int) (NodeMap, error) {
+func (f Finder) FindNodes(record ParsedRecord, nodes NodeMap, count int) (NodeMap, error) {
 	result, err := findNodes(record.TableIdentifier, nodes, f, count)
 	return result, err
 }
 
-func (f Finder) GetRecordNodeS(record ParsedRecord, nodes NodeMap, count int) (NodeMap, error) {
+func (f Finder) FindShard(record ParsedRecord, nodes NodeMap, count int) (NodeMap, error) {
 	result, err := findNodes(record.RecordIdentifier, nodes, f, count)
 	return result, err
 }

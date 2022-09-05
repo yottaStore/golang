@@ -2,12 +2,8 @@ module yottadb
 
 go 1.19
 
-require (
-	rendezvous v0.0.1
-
-)
 
 
-replace (
-	rendezvous v0.0.1 => ./../rendezvous
-)
+require github.com/zeebo/xxh3 v1.0.2
+
+require github.com/klauspost/cpuid/v2 v2.0.9 // indirect
