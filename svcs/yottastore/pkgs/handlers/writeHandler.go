@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"yottastore/pkgs/yottadb"
+	"yottadb"
 )
 
 type WriteRequest struct {
-	Path       string `json:"Path"`
+	Record     string `json:"Record"`
 	Data       []byte `json:"Data"`
 	Append     bool
 	CreatePath bool
@@ -26,10 +26,12 @@ func WriteHandlerFactory(dbDriver yottadb.Interface) (func(http.ResponseWriter, 
 			return
 		}
 
+		fmt.Println("Request: ", req)
+
 		ioReq := yottadb.WriteRequest{
-			Path:       req.Path,
-			Data:       req.Data,
-			CreatePath: req.CreatePath,
+			Path:             req.Record,
+			Data:             req.Data,
+			CreateCollection: req.CreatePath,
 		}
 
 		var err error
@@ -43,7 +45,7 @@ func WriteHandlerFactory(dbDriver yottadb.Interface) (func(http.ResponseWriter, 
 		if err != nil {
 			log.Println("Error: ", err)
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte("YottaStore write failed for: " + req.Path))
+			w.Write([]byte("YottaStore write failed for: " + req.Record))
 			return
 		}
 

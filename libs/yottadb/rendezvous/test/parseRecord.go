@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"yottaStore/yottaStore-go/src/pkgs/rendezvous"
+	"yottadb/rendezvous"
 )
 
 func main() {

@@ -2,9 +2,9 @@ package handlers
 
 import (
 	"encoding/json"
+	"iodrivers"
 	"log"
 	"net/http"
-	"yottafs/pkgs/iodrivers"
 )
 
 func DeleteHandlerFactory(ioDriver iodrivers.IoDriverInterface) (func(http.ResponseWriter, *http.Request), error) {

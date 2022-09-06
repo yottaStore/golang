@@ -1,3 +1,3 @@
-module yottaself/v2
+module yottaself
 
 go 1.19

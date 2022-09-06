@@ -4,16 +4,16 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-	"yottastore/pkgs/yottadb"
+	"yottadb"
 )
 
 type ReadRequest struct {
-	Path    string      `json:"Path"`
+	Record  string      `json:"Record"`
 	Options interface{} `json:"Options"`
 }
 
 type ReadResponse struct {
-	Path    string      `json:"Path"`
+	Record  string      `json:"Record"`
 	Data    string      `json:"Data"`
 	Options interface{} `json:"Options"`
 }
@@ -31,16 +31,18 @@ func ReadHandlerFactory(driverInterface yottadb.Interface) (func(http.ResponseWr
 		}
 
 		ioReq := yottadb.ReadRequest{
-			Path: req.Path,
+			Path: req.Record,
 		}
 
 		resp, err := driverInterface.Read(ioReq)
 		if err != nil {
 			log.Println("Error: ", err)
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte("YottaStore read failed for: " + req.Path))
+			w.Write([]byte("YottaStore read failed for: " + req.Record))
 			return
 		}
+
+		log.Println("Data is: ", string(resp.Data))
 
 		w.WriteHeader(http.StatusOK)
 		w.Header().Set("Content-Type", "application/octet-stream")

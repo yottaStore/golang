@@ -1,12 +1,12 @@
 package main
 
 import (
+	"iodrivers/direct"
 	"log"
 	"net/http"
 	"os"
 	"yottafs/pkgs/handlers"
-	"yottafs/pkgs/iodrivers/direct"
-	"yottanet"
+	"yottaself"
 )
 
 func versionHandler(w http.ResponseWriter, r *http.Request) {
@@ -47,7 +47,7 @@ func main() {
 	http.HandleFunc("/yottafs/delete", deleteHandler)
 
 	http.HandleFunc("/", versionHandler)
-	http.HandleFunc("/gossip/", yottanet.YottanetHandler)
+	http.HandleFunc("/gossip/", yottaself.YottanetHandler)
 
 	port := os.Getenv("PORT")
 	if port == "" {

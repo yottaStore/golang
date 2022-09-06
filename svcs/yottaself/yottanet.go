@@ -1,4 +1,4 @@
-package yottanet
+package yottaself
 
 import "net/http"
 

@@ -3,9 +3,9 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
+	"iodrivers"
 	"log"
 	"net/http"
-	"yottafs/pkgs/iodrivers"
 )
 
 type WriteRequest struct {

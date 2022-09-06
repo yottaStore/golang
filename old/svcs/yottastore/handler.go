@@ -40,7 +40,7 @@ func HttpHandlerFactory[T any](nodes *[]string, config HandlerConfig[T]) (func(h
 		if err != nil {
 			log.Println(err)
 			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte("Malformed yottastore request"))
+			w.Write([]byte("Malformed store request"))
 			return
 		}
 

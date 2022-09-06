@@ -4,9 +4,9 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"yottanet"
-	"yottastore/pkgs/handlers"
-	"yottastore/pkgs/yottadb/keyvalue"
+	"store/pkgs/handlers"
+	"yottadb/drivers/keyvalue"
+	"yottaself"
 )
 
 func versionHandler(w http.ResponseWriter, r *http.Request) {
@@ -21,10 +21,10 @@ func main() {
 	// TODO: parse config
 
 	// TODO: gossip peers
-	nodes := []string{"http://localhost:8080"}
+	nodes := []string{"http://localhost:8081"}
 
 	// TODO: Switch between drivers
-	dbDriver, err := keyvalue.New(&nodes)
+	dbDriver, err := keyvalue.New(&nodes, "")
 	if err != nil {
 		log.Fatal("Error instantiating driver: ", err)
 	}
@@ -48,7 +48,7 @@ func main() {
 	http.HandleFunc("/yottastore/delete", deleteHandler)
 
 	http.HandleFunc("/", versionHandler)
-	http.HandleFunc("/gossip/", yottanet.YottanetHandler)
+	http.HandleFunc("/gossip/", yottaself.YottanetHandler)
 
 	port := os.Getenv("PORT")
 	if port == "" {

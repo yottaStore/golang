@@ -27,7 +27,7 @@ func Write(record string, data interface{}) {
 
 func WriteNew(record string, node string, data []byte) (interface{}, error) {
 
-	/*WriteOptions := yottafs.WriteOptions{
+	/*WriteOptions := yfs.WriteOptions{
 		CreateDir: true,
 	}*/
 
