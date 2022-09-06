@@ -8,15 +8,13 @@ import (
 	"io"
 	"net/http"
 	"yottadb"
+	"yottadb/drivers/keyvalue"
 	"yottadb/rendezvous"
 )
 
-type Driver struct {
-	Nodes  *[]string
-	Finder rendezvous.Finder
-}
+type DocumentDriver yottadb.DbDriver
 
-func (d Driver) Read(req yottadb.ReadRequest) (yottadb.ReadResponse, error) {
+func (d DocumentDriver) Read(req yottadb.ReadRequest) (yottadb.ReadResponse, error) {
 
 	var resp yottadb.ReadResponse
 	// Find nodes
@@ -44,9 +42,22 @@ func (d Driver) Read(req yottadb.ReadRequest) (yottadb.ReadResponse, error) {
 	return resp, nil
 }
 
-func (d Driver) Write(req yottadb.WriteRequest) (yottadb.WriteResponse, error) {
+func (d DocumentDriver) Write(req yottadb.WriteRequest) (yottadb.WriteResponse, error) {
 
 	var resp yottadb.WriteResponse
+
+	collReq := yottadb.ReadRequest{
+		Path: "kkk",
+		Mode: "random",
+	}
+	collectionData, err := d.BaseDriver.Read(collReq)
+	if err != nil {
+		return resp, err
+	}
+
+	fmt.Println("Collection data: ", string(collectionData.Data))
+
+	// TODO: use collection data as options
 
 	// Find nodes
 	opts := rendezvous.RendezvousOptions{
@@ -70,14 +81,14 @@ func (d Driver) Write(req yottadb.WriteRequest) (yottadb.WriteResponse, error) {
 
 }
 
-func (d Driver) Update(req yottadb.WriteRequest) (yottadb.WriteResponse, error) {
+func (d DocumentDriver) Update(req yottadb.WriteRequest) (yottadb.WriteResponse, error) {
 
 	var resp yottadb.WriteResponse
 
 	return resp, errors.New("Method not implemented yet")
 }
 
-func (d Driver) Append(req yottadb.WriteRequest) (yottadb.WriteResponse, error) {
+func (d DocumentDriver) Append(req yottadb.WriteRequest) (yottadb.WriteResponse, error) {
 
 	var resp yottadb.WriteResponse
 
@@ -102,7 +113,7 @@ func (d Driver) Append(req yottadb.WriteRequest) (yottadb.WriteResponse, error) 
 	return resp, nil
 }
 
-func (d Driver) Delete(req yottadb.WriteRequest) error {
+func (d DocumentDriver) Delete(req yottadb.WriteRequest) error {
 
 	// Find nodes
 	opts := rendezvous.RendezvousOptions{
@@ -143,7 +154,7 @@ func (d Driver) Delete(req yottadb.WriteRequest) error {
 	return nil
 }
 
-func (d Driver) GetCollection(req yottadb.ReadRequest) (yottadb.ReadResponse, error) {
+func (d DocumentDriver) GetCollection(req yottadb.ReadRequest) (yottadb.ReadResponse, error) {
 
 	var resp yottadb.ReadResponse
 	// Find nodes
@@ -171,7 +182,7 @@ func (d Driver) GetCollection(req yottadb.ReadRequest) (yottadb.ReadResponse, er
 	return resp, nil
 }
 
-func (d Driver) CreateCollection(req yottadb.WriteRequest) (yottadb.WriteResponse, error) {
+func (d DocumentDriver) CreateCollection(req yottadb.WriteRequest) (yottadb.WriteResponse, error) {
 
 	var resp yottadb.WriteResponse
 
@@ -197,14 +208,14 @@ func (d Driver) CreateCollection(req yottadb.WriteRequest) (yottadb.WriteRespons
 
 }
 
-func (d Driver) UpdateCollection(req yottadb.WriteRequest) (yottadb.WriteResponse, error) {
+func (d DocumentDriver) UpdateCollection(req yottadb.WriteRequest) (yottadb.WriteResponse, error) {
 
 	var resp yottadb.WriteResponse
 
 	return resp, errors.New("Method not implemented yet")
 }
 
-func (d Driver) DeleteCollection(req yottadb.WriteRequest) error {
+func (d DocumentDriver) DeleteCollection(req yottadb.WriteRequest) error {
 
 	// Find nodes
 	opts := rendezvous.RendezvousOptions{
@@ -251,9 +262,15 @@ func New(nodes *[]string, hashKey string) (yottadb.Interface, error) {
 		hashKey,
 	}
 
-	dbDriver := Driver{
-		nodes,
-		finder,
+	kvDriver, err := keyvalue.New(nodes, hashKey)
+	if err != nil {
+		return nil, err
+	}
+
+	dbDriver := DocumentDriver{
+		Nodes:      nodes,
+		Finder:     finder,
+		BaseDriver: kvDriver,
 	}
 
 	return dbDriver, nil

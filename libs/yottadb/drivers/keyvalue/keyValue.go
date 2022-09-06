@@ -11,12 +11,9 @@ import (
 	"yottadb/rendezvous"
 )
 
-type Driver struct {
-	Nodes  *[]string
-	Finder rendezvous.Finder
-}
+type KVDriver yottadb.DbDriver
 
-func (d Driver) Read(req yottadb.ReadRequest) (yottadb.ReadResponse, error) {
+func (d KVDriver) Read(req yottadb.ReadRequest) (yottadb.ReadResponse, error) {
 
 	var resp yottadb.ReadResponse
 	// Find nodes
@@ -60,7 +57,7 @@ func (d Driver) Read(req yottadb.ReadRequest) (yottadb.ReadResponse, error) {
 	return resp, nil
 }
 
-func (d Driver) Write(req yottadb.WriteRequest) (yottadb.WriteResponse, error) {
+func (d KVDriver) Write(req yottadb.WriteRequest) (yottadb.WriteResponse, error) {
 
 	var resp yottadb.WriteResponse
 
@@ -109,14 +106,14 @@ func (d Driver) Write(req yottadb.WriteRequest) (yottadb.WriteResponse, error) {
 
 }
 
-func (d Driver) Update(req yottadb.WriteRequest) (yottadb.WriteResponse, error) {
+func (d KVDriver) Update(req yottadb.WriteRequest) (yottadb.WriteResponse, error) {
 
 	var resp yottadb.WriteResponse
 
 	return resp, errors.New("Method not implemented yet")
 }
 
-func (d Driver) Append(req yottadb.WriteRequest) (yottadb.WriteResponse, error) {
+func (d KVDriver) Append(req yottadb.WriteRequest) (yottadb.WriteResponse, error) {
 
 	var resp yottadb.WriteResponse
 
@@ -164,7 +161,7 @@ func (d Driver) Append(req yottadb.WriteRequest) (yottadb.WriteResponse, error) 
 	return resp, nil
 }
 
-func (d Driver) Delete(req yottadb.WriteRequest) error {
+func (d KVDriver) Delete(req yottadb.WriteRequest) error {
 
 	// Find nodes
 	opts := rendezvous.RendezvousOptions{
@@ -211,9 +208,9 @@ func New(nodes *[]string, hashKey string) (yottadb.Interface, error) {
 		hashKey,
 	}
 
-	dbDriver := Driver{
-		nodes,
-		finder,
+	dbDriver := KVDriver{
+		Nodes:  nodes,
+		Finder: finder,
 	}
 
 	return dbDriver, nil

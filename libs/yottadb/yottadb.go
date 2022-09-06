@@ -1,5 +1,7 @@
 package yottadb
 
+import "yottadb/rendezvous"
+
 type ReadRequest struct {
 	Path string
 	Mode string
@@ -24,4 +26,10 @@ type Interface interface {
 	Update(WriteRequest) (WriteResponse, error)
 	Append(WriteRequest) (WriteResponse, error)
 	Delete(WriteRequest) error
+}
+
+type DbDriver struct {
+	Nodes      *[]string
+	Finder     rendezvous.Finder
+	BaseDriver Interface
 }
