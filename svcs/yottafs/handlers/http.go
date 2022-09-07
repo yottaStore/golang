@@ -26,6 +26,7 @@ func HttpHandlerFactory(d iodriver.Interface) (func(http.ResponseWriter, *http.R
 		decoder := json.NewDecoder(r.Body)
 		err := decoder.Decode(&req)
 		if err != nil {
+			log.Println(req, err)
 			w.WriteHeader(http.StatusBadRequest)
 			if _, err := w.Write([]byte("Malformed YottaFs request")); err != nil {
 				log.Println("ERROR: ", err)

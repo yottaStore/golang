@@ -1,4 +1,4 @@
-package yfs
+package yottadb
 
 import (
 	"bytes"
@@ -22,7 +22,7 @@ func (c Client) Read(path string) ([]byte, error) {
 		return nil, err
 	}
 
-	resp, err := http.Post(c.Url+"/yottafs/",
+	resp, err := http.Post(c.Url+"/yottadb/",
 		"application/json",
 		bytes.NewBuffer(json_data))
 	if err != nil {
@@ -51,7 +51,7 @@ func (c Client) Write(path string, data []byte) ([]byte, error) {
 		return nil, err
 	}
 
-	resp, err := http.Post(c.Url+"/yottafs/",
+	resp, err := http.Post(c.Url+"/yottadb/",
 		"application/json",
 		bytes.NewBuffer(json_data))
 	if err != nil {
@@ -68,6 +68,7 @@ func (c Client) Write(path string, data []byte) ([]byte, error) {
 	}
 
 	return buff, nil
+
 }
 
 func (c Client) Delete(path string, data []byte) ([]byte, error) {
@@ -79,7 +80,7 @@ func (c Client) Delete(path string, data []byte) ([]byte, error) {
 		return nil, err
 	}
 
-	resp, err := http.Post(c.Url+"/yottafs/",
+	resp, err := http.Post(c.Url+"/yottadb/",
 		"application/json",
 		bytes.NewBuffer(json_data))
 	if err != nil {
@@ -96,6 +97,7 @@ func (c Client) Delete(path string, data []byte) ([]byte, error) {
 	}
 
 	return buff, nil
+
 }
 
 func New(url string) (Client, error) {

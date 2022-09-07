@@ -17,4 +17,7 @@ type Response struct {
 }
 
 type Interface interface {
+	Read(Request) (Response, error)
+	Write(Request) (Response, error)
+	Delete(Request) (Response, error)
 }
