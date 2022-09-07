@@ -8,16 +8,6 @@ import (
 	"yottafs/iodriver"
 )
 
-func handleHttpError2(reason string, statusCode int, err error, w http.ResponseWriter) {
-	if err != nil {
-		w.WriteHeader(statusCode)
-		if _, err := w.Write([]byte(reason)); err != nil {
-			log.Println("ERROR: ", err)
-		}
-	}
-
-}
-
 func HttpHandlerFactory(d iodriver.Interface) (func(http.ResponseWriter, *http.Request), error) {
 
 	handler := func(w http.ResponseWriter, r *http.Request) {

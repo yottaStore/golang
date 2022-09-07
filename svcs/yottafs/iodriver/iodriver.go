@@ -19,7 +19,7 @@ const (
 type Request struct {
 	Path    string        `json:"Path"`
 	Method  RequestMethod `json:"Method"`
-	Data    []byte        `json:"Data"`
+	Data    string        `json:"Data"`
 	Options interface{}   `json:"Options"`
 }
 
