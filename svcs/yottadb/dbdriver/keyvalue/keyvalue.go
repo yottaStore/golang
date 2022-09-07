@@ -3,6 +3,7 @@ package keyvalue
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -68,8 +69,52 @@ func (d Driver) Read(req dbdriver.Request) (dbdriver.Response, error) {
 	return resp, nil
 }
 
-func (d Driver) Write() {
+func (d Driver) Write(req dbdriver.Request) (dbdriver.Response, error) {
 
+	var resp dbdriver.Response
+
+	// Find nodes
+	opts := rendezvous.RendezvousOptions{
+		Replication: 1,
+		Sharding:    1,
+	}
+	shards, nodes, parsedRecord, err := d.Finder.FindRecord(req.Path, *d.NodeTree, opts)
+	if err != nil {
+		return resp, err
+	}
+
+	// TODO: pick all shards
+	node := shards[0]
+
+	fmt.Println("Record: ", parsedRecord)
+	fmt.Println("Node tree: ", nodes)
+	fmt.Println("Shards pool:", shards)
+	fmt.Println("Node picked: ", node)
+
+	// Issue write
+	values := map[string]interface{}{"Path": parsedRecord.RecordIdentifier, "Data": req.Data}
+	json_data, err := json.Marshal(values)
+	if err != nil {
+		return resp, err
+	}
+
+	fmt.Println("Json data: ", string(json_data))
+	fmt.Println(node)
+	result, err := http.Post(node+"/yottafs/write", "application/json",
+		bytes.NewBuffer(json_data))
+	if err != nil {
+		return resp, err
+	}
+
+	buff, err := io.ReadAll(result.Body)
+	if err != nil {
+		return resp, err
+	}
+	if result.StatusCode != http.StatusOK {
+		return resp, errors.New(string(buff))
+	}
+
+	return resp, nil
 }
 
 func (d Driver) Delete() {
