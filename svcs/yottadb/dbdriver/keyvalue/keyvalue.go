@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"yottadb/dbdriver"
 	"yottadb/rendezvous"
@@ -17,9 +18,16 @@ type Driver struct {
 	NodeTree *[]string
 }
 
-func New() (dbdriver.Interface, error) {
+func New(hashKey string, nodeTree *[]string) (dbdriver.Interface, error) {
 
-	var d Driver
+	f := rendezvous.Finder{
+		HashKey: hashKey,
+	}
+
+	d := Driver{
+		Finder:   f,
+		NodeTree: nodeTree,
+	}
 
 	return d, nil
 
@@ -63,7 +71,11 @@ func (d Driver) Read(req dbdriver.Request) (dbdriver.Response, error) {
 	}
 	body, err := io.ReadAll(result.Body)
 
-	resp.Data = body
+	if result.StatusCode != http.StatusOK {
+		return resp, errors.New(string(body))
+	}
+
+	resp.Data = string(body)
 
 	// Return result
 	return resp, nil
@@ -78,8 +90,13 @@ func (d Driver) Write(req dbdriver.Request) (dbdriver.Response, error) {
 		Replication: 1,
 		Sharding:    1,
 	}
+
+	log.Println(req.Path)
+	log.Println(d.Finder)
+
 	shards, nodes, parsedRecord, err := d.Finder.FindRecord(req.Path, *d.NodeTree, opts)
 	if err != nil {
+		log.Println("Error: ", err)
 		return resp, err
 	}
 

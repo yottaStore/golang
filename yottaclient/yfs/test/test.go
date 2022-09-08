@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -15,11 +14,11 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	payload := "helloworld"
+	payload := "#$@!\nhello"
 
-	data := make([]byte, 30)
-	base64.StdEncoding.Encode(data, []byte(payload))
-	//data := []byte(payload)
+	//data := make([]byte, 30)
+	//base64.StdEncoding.Encode(data, []byte(payload))
+	data := []byte(payload)
 
 	resp, err := client.Write("/test.txt", data)
 	if err != nil {
@@ -43,7 +42,7 @@ func main() {
 	}
 
 	res := make([]byte, 30)
-	_, err = base64.StdEncoding.Decode(res, parsedResp.Data)
+	//_, err = base64.StdEncoding.Decode(res, parsedResp.Data)
 
 	fmt.Println(parsedResp.Path)
 	fmt.Println(parsedResp.Method)

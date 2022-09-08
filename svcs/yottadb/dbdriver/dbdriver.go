@@ -4,7 +4,7 @@ type Request struct {
 	Path    string      `json:"Path"`
 	Method  string      `json:"Method"`
 	Driver  string      `json:"Driver"`
-	Data    []byte      `json:"Data"`
+	Data    string      `json:"Data"`
 	Options interface{} `json:"Options"`
 }
 
@@ -12,7 +12,7 @@ type Response struct {
 	Path     string
 	Method   string
 	Driver   string
-	Data     []byte
+	Data     string
 	AbaToken string
 }
 

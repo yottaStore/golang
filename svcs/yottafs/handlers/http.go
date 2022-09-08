@@ -32,6 +32,7 @@ func HttpHandlerFactory(d iodriver.Interface) (func(http.ResponseWriter, *http.R
 				if _, err := w.Write([]byte("Read request failed")); err != nil {
 					log.Println("ERROR: ", err)
 				}
+				return
 			}
 
 			w.WriteHeader(http.StatusOK)
@@ -48,6 +49,7 @@ func HttpHandlerFactory(d iodriver.Interface) (func(http.ResponseWriter, *http.R
 				if _, err := w.Write([]byte("Write request failed")); err != nil {
 					log.Println("ERROR: ", err)
 				}
+				return
 			}
 
 			w.WriteHeader(http.StatusOK)
@@ -63,6 +65,7 @@ func HttpHandlerFactory(d iodriver.Interface) (func(http.ResponseWriter, *http.R
 				if _, err := w.Write([]byte("Delete request failed")); err != nil {
 					log.Println("ERROR: ", err)
 				}
+				return
 			}
 
 		case iodriver.Append:

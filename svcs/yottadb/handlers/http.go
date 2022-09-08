@@ -7,16 +7,6 @@ import (
 	"yottadb/dbdriver"
 )
 
-func handleHttpError(reason string, statusCode int, err error, w http.ResponseWriter) {
-	if err != nil {
-		w.WriteHeader(statusCode)
-		if _, err := w.Write([]byte(reason)); err != nil {
-			log.Println("ERROR: ", err)
-		}
-	}
-
-}
-
 func HttpHandlerFactory(d dbdriver.Interface) (func(http.ResponseWriter, *http.Request), error) {
 
 	handler := func(w http.ResponseWriter, r *http.Request) {
@@ -26,6 +16,7 @@ func HttpHandlerFactory(d dbdriver.Interface) (func(http.ResponseWriter, *http.R
 		err := decoder.Decode(&req)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
+			log.Println("Request error: ", err)
 			if _, err := w.Write([]byte("Malformed YottaFs request")); err != nil {
 				log.Println("ERROR: ", err)
 			}
@@ -41,24 +32,25 @@ func HttpHandlerFactory(d dbdriver.Interface) (func(http.ResponseWriter, *http.R
 				if _, err := w.Write([]byte("Read request failed")); err != nil {
 					log.Println("ERROR: ", err)
 				}
+				return
 			}
-
 			w.WriteHeader(http.StatusOK)
-			if _, err = w.Write(resp.Data); err != nil {
+			if _, err = w.Write([]byte(resp.Data)); err != nil {
 				log.Println("ERROR: ", err)
 			}
 
 		case "write":
 			resp, err := d.Write(req)
 			if err != nil {
+				log.Println("Error: ", err)
 				w.WriteHeader(http.StatusInternalServerError)
 				if _, err := w.Write([]byte("Write request failed")); err != nil {
 					log.Println("ERROR: ", err)
 				}
+				return
 			}
-
 			w.WriteHeader(http.StatusOK)
-			if _, err = w.Write(resp.Data); err != nil {
+			if _, err = w.Write([]byte(resp.Data)); err != nil {
 				log.Println("ERROR: ", err)
 			}
 
@@ -69,10 +61,11 @@ func HttpHandlerFactory(d dbdriver.Interface) (func(http.ResponseWriter, *http.R
 				if _, err := w.Write([]byte("Delete request failed")); err != nil {
 					log.Println("ERROR: ", err)
 				}
+				return
 			}
 
 			w.WriteHeader(http.StatusOK)
-			if _, err = w.Write(resp.Data); err != nil {
+			if _, err = w.Write([]byte(resp.Data)); err != nil {
 				log.Println("ERROR: ", err)
 			}
 

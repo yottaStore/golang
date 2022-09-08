@@ -28,7 +28,7 @@ func (c Client) Read(path string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-
+	
 	buff, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
@@ -71,32 +71,32 @@ func (c Client) Write(path string, data []byte) ([]byte, error) {
 
 }
 
-func (c Client) Delete(path string, data []byte) ([]byte, error) {
+func (c Client) Delete(path string) error {
 	values := map[string]string{
 		"Path":   path,
 		"Method": "delete"}
 	json_data, err := json.Marshal(values)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	resp, err := http.Post(c.Url+"/yottadb/",
 		"application/json",
 		bytes.NewBuffer(json_data))
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	buff, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, errors.New(string(buff))
+		return errors.New(string(buff))
 	}
 
-	return buff, nil
+	return nil
 
 }
 
