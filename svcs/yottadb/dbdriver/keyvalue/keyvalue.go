@@ -39,10 +39,9 @@ func (d Driver) Read(req dbdriver.Request) (dbdriver.Response, error) {
 	// Find nodes
 	// TODO: fix rendezvous
 	// TODO: improve API shape
-	// TODO: check collection for size
 	opts := rendezvous.RendezvousOptions{
-		Replication: 1,
-		Sharding:    1,
+		Replication: req.Rendezvous.Replication,
+		Sharding:    req.Rendezvous.Sharding,
 	}
 	shards, nodes, parsedRecord, err := d.Finder.FindRecord(req.Path, *d.NodeTree, opts)
 	if err != nil {
@@ -87,8 +86,8 @@ func (d Driver) Write(req dbdriver.Request) (dbdriver.Response, error) {
 
 	// Find nodes
 	opts := rendezvous.RendezvousOptions{
-		Replication: 1,
-		Sharding:    1,
+		Replication: req.Rendezvous.Replication,
+		Sharding:    req.Rendezvous.Sharding,
 	}
 
 	log.Println(req.Path)
@@ -143,8 +142,8 @@ func (d Driver) Delete(req dbdriver.Request) (dbdriver.Response, error) {
 
 	// Find nodes
 	opts := rendezvous.RendezvousOptions{
-		Replication: 1,
-		Sharding:    1,
+		Replication: req.Rendezvous.Replication,
+		Sharding:    req.Rendezvous.Sharding,
 	}
 	shards, nodes, parsedRecord, err := d.Finder.FindRecord(req.Path, *d.NodeTree, opts)
 	if err != nil {

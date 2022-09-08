@@ -7,45 +7,18 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"yottadb/dbdriver"
 )
 
 type Client struct {
 	Url string
 }
 
-func (c Client) Read(path string) ([]byte, error) {
-	values := map[string]string{
-		"Path":   path,
-		"Method": "read"}
-	json_data, err := json.Marshal(values)
-	if err != nil {
-		return nil, err
-	}
-
-	resp, err := http.Post(c.Url+"/yottadb/",
-		"application/json",
-		bytes.NewBuffer(json_data))
-	if err != nil {
-		return nil, err
-	}
-	
-	buff, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
-	}
-
-	if resp.StatusCode != http.StatusOK {
-		return nil, errors.New(string(buff))
-	}
-
-	return buff, nil
-}
-
-func (c Client) Write(path string, data []byte) ([]byte, error) {
-	values := map[string]string{
-		"Path":   path,
-		"Method": "write",
-		"Data":   string(data)}
+func (c Client) Read(path string, opts dbdriver.RendezvousOpts) ([]byte, error) {
+	values := map[string]interface{}{
+		"Path":    path,
+		"Method":  "read",
+		"Options": opts}
 	json_data, err := json.Marshal(values)
 	if err != nil {
 		return nil, err
@@ -68,13 +41,44 @@ func (c Client) Write(path string, data []byte) ([]byte, error) {
 	}
 
 	return buff, nil
+}
+
+func (c Client) Write(path string, data []byte, opts dbdriver.RendezvousOpts) ([]byte, error) {
+	values := map[string]interface{}{
+		"Path":    path,
+		"Method":  "write",
+		"Data":    string(data),
+		"Options": opts}
+	json_data, err := json.Marshal(values)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := http.Post(c.Url+"/yottadb/",
+		"application/json",
+		bytes.NewBuffer(json_data))
+	if err != nil {
+		return nil, err
+	}
+
+	buff, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, errors.New(string(buff))
+	}
+
+	return buff, nil
 
 }
 
-func (c Client) Delete(path string) error {
-	values := map[string]string{
-		"Path":   path,
-		"Method": "delete"}
+func (c Client) Delete(path string, opts dbdriver.RendezvousOpts) error {
+	values := map[string]interface{}{
+		"Path":    path,
+		"Method":  "delete",
+		"Options": opts}
 	json_data, err := json.Marshal(values)
 	if err != nil {
 		return err

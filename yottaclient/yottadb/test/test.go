@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"yottaclient/yottadb"
+	"yottadb/dbdriver"
 )
 
 func main() {
@@ -16,13 +17,16 @@ func main() {
 
 	recordPath := "testAccount@testCollection/testRecord"
 	data := []byte("helloworld")
+	opts := dbdriver.RendezvousOpts{
+		Sharding:    1,
+		Replication: 1}
 
-	resp, err := client.Write(recordPath, data)
+	resp, err := client.Write(recordPath, data, opts)
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	resp, err = client.Read(recordPath)
+	resp, err = client.Read(recordPath, opts)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -46,14 +50,19 @@ func main() {
 	fmt.Println(string(parsedResp.Data))
 	fmt.Println(string(res))
 
-	err = client.Delete(recordPath)
+	err = client.Delete(recordPath, opts)
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	_, err = client.Read(recordPath)
+	_, err = client.Read(recordPath, opts)
 	if err == nil {
 		log.Fatalln("Record shouldn't exist")
+	}
+
+	_, err = client.Write(recordPath, data, opts)
+	if err != nil {
+		log.Fatalln(err)
 	}
 
 }

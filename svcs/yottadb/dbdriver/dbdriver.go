@@ -1,11 +1,16 @@
 package dbdriver
 
+type RendezvousOpts struct {
+	Sharding    int
+	Replication int
+}
+
 type Request struct {
-	Path    string      `json:"Path"`
-	Method  string      `json:"Method"`
-	Driver  string      `json:"Driver"`
-	Data    string      `json:"Data"`
-	Options interface{} `json:"Options"`
+	Path       string         `json:"Path"`
+	Method     string         `json:"Method"`
+	Driver     string         `json:"Driver"`
+	Data       string         `json:"Data"`
+	Rendezvous RendezvousOpts `json:"Rendezvous"`
 }
 
 type Response struct {
