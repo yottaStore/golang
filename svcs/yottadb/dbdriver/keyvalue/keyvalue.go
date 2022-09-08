@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -43,7 +42,12 @@ func (d Driver) Read(req dbdriver.Request) (dbdriver.Response, error) {
 		Replication: req.Rendezvous.Replication,
 		Sharding:    req.Rendezvous.Sharding,
 	}
-	shards, nodes, parsedRecord, err := d.Finder.FindRecord(req.Path, *d.NodeTree, opts)
+
+	if opts.Sharding == 0 || opts.Replication == 0 {
+		log.Println("Error with rendezvous options")
+	}
+
+	shards, _, parsedRecord, err := d.Finder.FindRecord(req.Path, *d.NodeTree, opts)
 	if err != nil {
 		return resp, err
 	}
@@ -51,10 +55,10 @@ func (d Driver) Read(req dbdriver.Request) (dbdriver.Response, error) {
 	// TODO: pick a shard at random and verify others
 	node := shards[0]
 
-	fmt.Println("Record: ", parsedRecord)
+	/*fmt.Println("Record: ", parsedRecord)
 	fmt.Println("Node tree: ", nodes)
 	fmt.Println("Shards pool:", shards)
-	fmt.Println("Node picked: ", node)
+	fmt.Println("Node picked: ", node)*/
 
 	// Issue read
 	values := map[string]interface{}{"Path": parsedRecord.RecordIdentifier, "Method": "read"}
@@ -62,7 +66,7 @@ func (d Driver) Read(req dbdriver.Request) (dbdriver.Response, error) {
 	if err != nil {
 		return resp, err
 	}
-	fmt.Println("Json data: ", string(json_data))
+	//log.Println("Json data: ", string(json_data))
 	result, err := http.Post(node+"/yottafs/", "application/json",
 		bytes.NewBuffer(json_data))
 	if err != nil {
@@ -90,10 +94,11 @@ func (d Driver) Write(req dbdriver.Request) (dbdriver.Response, error) {
 		Sharding:    req.Rendezvous.Sharding,
 	}
 
+	/*log.Println(opts)
 	log.Println(req.Path)
-	log.Println(d.Finder)
+	log.Println(d.Finder)*/
 
-	shards, nodes, parsedRecord, err := d.Finder.FindRecord(req.Path, *d.NodeTree, opts)
+	shards, _, parsedRecord, err := d.Finder.FindRecord(req.Path, *d.NodeTree, opts)
 	if err != nil {
 		log.Println("Error: ", err)
 		return resp, err
@@ -102,10 +107,10 @@ func (d Driver) Write(req dbdriver.Request) (dbdriver.Response, error) {
 	// TODO: pick all shards
 	node := shards[0]
 
-	fmt.Println("Record: ", parsedRecord)
+	/*fmt.Println("Record: ", parsedRecord)
 	fmt.Println("Node tree: ", nodes)
 	fmt.Println("Shards pool:", shards)
-	fmt.Println("Node picked: ", node)
+	fmt.Println("Node picked: ", node)*/
 
 	// Issue write
 	values := map[string]interface{}{
@@ -117,8 +122,8 @@ func (d Driver) Write(req dbdriver.Request) (dbdriver.Response, error) {
 		return resp, err
 	}
 
-	fmt.Println("Json data: ", string(json_data))
-	fmt.Println(node)
+	//log.Println("Json data: ", string(json_data))
+	//fmt.Println(node)
 	result, err := http.Post(node+"/yottafs/", "application/json",
 		bytes.NewBuffer(json_data))
 	if err != nil {
@@ -145,7 +150,7 @@ func (d Driver) Delete(req dbdriver.Request) (dbdriver.Response, error) {
 		Replication: req.Rendezvous.Replication,
 		Sharding:    req.Rendezvous.Sharding,
 	}
-	shards, nodes, parsedRecord, err := d.Finder.FindRecord(req.Path, *d.NodeTree, opts)
+	shards, _, parsedRecord, err := d.Finder.FindRecord(req.Path, *d.NodeTree, opts)
 	if err != nil {
 		return resp, err
 	}
@@ -153,10 +158,10 @@ func (d Driver) Delete(req dbdriver.Request) (dbdriver.Response, error) {
 	// TODO: pick all shards
 	node := shards[0]
 
-	fmt.Println("Record: ", parsedRecord)
+	/*fmt.Println("Record: ", parsedRecord)
 	fmt.Println("Node tree: ", nodes)
 	fmt.Println("Shards pool:", shards)
-	fmt.Println("Node picked: ", node)
+	fmt.Println("Node picked: ", node)*/
 
 	// Issue write
 	values := map[string]interface{}{
@@ -167,8 +172,8 @@ func (d Driver) Delete(req dbdriver.Request) (dbdriver.Response, error) {
 		return resp, err
 	}
 
-	fmt.Println("Json data: ", string(json_data))
-	fmt.Println(node)
+	//log.Println("Json data: ", string(json_data))
+	//fmt.Println(node)
 	result, err := http.Post(node+"/yottafs/", "application/json",
 		bytes.NewBuffer(json_data))
 	if err != nil {

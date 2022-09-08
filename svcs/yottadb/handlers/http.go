@@ -5,9 +5,22 @@ import (
 	"log"
 	"net/http"
 	"yottadb/dbdriver"
+	"yottadb/dbdriver/keyvalue"
 )
 
-func HttpHandlerFactory(d dbdriver.Interface) (func(http.ResponseWriter, *http.Request), error) {
+type Config struct {
+	NodeTree *[]string
+	Port     string
+	HashKey  string
+}
+
+func HttpHandlerFactory(config Config) (func(http.ResponseWriter, *http.Request), error) {
+
+	d, err := keyvalue.New(config.HashKey, config.NodeTree)
+	if err != nil {
+		log.Println("Error instantiating driver: ", err)
+		return nil, err
+	}
 
 	handler := func(w http.ResponseWriter, r *http.Request) {
 
@@ -22,6 +35,8 @@ func HttpHandlerFactory(d dbdriver.Interface) (func(http.ResponseWriter, *http.R
 			}
 			return
 		}
+
+		log.Println("Request: ", req)
 
 		switch req.Method {
 

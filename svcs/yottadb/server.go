@@ -4,7 +4,6 @@ import (
 	"errors"
 	"log"
 	"net/http"
-	"yottadb/dbdriver/keyvalue"
 	"yottadb/handlers"
 )
 
@@ -16,13 +15,7 @@ func versionHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-type Config struct {
-	NodeTree *[]string
-	Port     string
-	HashKey  string
-}
-
-func StartServer(config Config) error {
+func StartServer(config handlers.Config) error {
 
 	log.Println("Starting yottadb...")
 
@@ -30,16 +23,9 @@ func StartServer(config Config) error {
 		return errors.New("Invalid config")
 	}
 
-	// TODO: Switch between dbdriver
-	driver, err := keyvalue.New(config.HashKey, config.NodeTree)
-	if err != nil {
-		log.Println("Error instantiating driver: ", err)
-		return err
-	}
-
 	// TODO: Write config to disk
 
-	httpHandler, err := handlers.HttpHandlerFactory(driver)
+	httpHandler, err := handlers.HttpHandlerFactory(config)
 	if err != nil {
 		log.Println("Error instantiating handler: ", err)
 		return err

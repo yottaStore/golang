@@ -16,9 +16,9 @@ type Client struct {
 
 func (c Client) Read(path string, opts dbdriver.RendezvousOpts) ([]byte, error) {
 	values := map[string]interface{}{
-		"Path":    path,
-		"Method":  "read",
-		"Options": opts}
+		"Path":       path,
+		"Method":     "read",
+		"Rendezvous": opts}
 	json_data, err := json.Marshal(values)
 	if err != nil {
 		return nil, err
@@ -45,10 +45,10 @@ func (c Client) Read(path string, opts dbdriver.RendezvousOpts) ([]byte, error) 
 
 func (c Client) Write(path string, data []byte, opts dbdriver.RendezvousOpts) ([]byte, error) {
 	values := map[string]interface{}{
-		"Path":    path,
-		"Method":  "write",
-		"Data":    string(data),
-		"Options": opts}
+		"Path":       path,
+		"Method":     "write",
+		"Data":       string(data),
+		"Rendezvous": opts}
 	json_data, err := json.Marshal(values)
 	if err != nil {
 		return nil, err
@@ -76,9 +76,9 @@ func (c Client) Write(path string, data []byte, opts dbdriver.RendezvousOpts) ([
 
 func (c Client) Delete(path string, opts dbdriver.RendezvousOpts) error {
 	values := map[string]interface{}{
-		"Path":    path,
-		"Method":  "delete",
-		"Options": opts}
+		"Path":       path,
+		"Method":     "delete",
+		"Rendezvous": opts}
 	json_data, err := json.Marshal(values)
 	if err != nil {
 		return err

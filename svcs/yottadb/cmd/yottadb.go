@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"yottadb"
+	"yottadb/handlers"
 )
 
 func main() {
@@ -10,7 +11,7 @@ func main() {
 	hashKey := "SCtnOxT8NgNRXFkO"
 	nodeTree := []string{"http://localhost:8081"}
 
-	conf := yottadb.Config{
+	conf := handlers.Config{
 		Port:     "8080",
 		NodeTree: &nodeTree,
 		HashKey:  hashKey,

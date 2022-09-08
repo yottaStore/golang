@@ -2,7 +2,6 @@ package rendezvous
 
 import (
 	"github.com/zeebo/xxh3"
-	"log"
 	"sort"
 )
 
@@ -41,17 +40,14 @@ func findNodes(record string, nodes NodeMap, f Finder, opts RendezvousOptions) (
 
 	hashedRecord := xxh3.HashString128(record + f.HashKey)
 	tmpArray := NewNodeTree(Uint16(hashedRecord))
-
-	log.Println(tmpArray)
 	sort.Sort(tmpArray)
-	log.Println(tmpArray)
 
 	idxs := tmpArray.idxs[:opts.Sharding]
 	pickedNodes := make(NodeMap, opts.Sharding)
 
 	for i := 0; i < opts.Replication; i++ {
 		index := idxs[i] % len(nodes)
-		log.Println("Index: ", index)
+		pickedNodes[i] = nodes[index]
 		pickedNodes[i] = nodes[index]
 	}
 
@@ -81,7 +77,8 @@ func (f Finder) FindShard(record ParsedRecord, nodes NodeMap, count int) (NodeMa
 
 func (f Finder) FindRecord(record string, nodes NodeMap, opts RendezvousOptions) (NodeMap, NodeMap, ParsedRecord, error) {
 
-	log.Println("Start find record")
+	//log.Println("Start find record")
+	//log.Println(opts)
 
 	var parsedRecord ParsedRecord
 	parsedRecord, err := ParseRecord(record)
@@ -89,21 +86,21 @@ func (f Finder) FindRecord(record string, nodes NodeMap, opts RendezvousOptions)
 		return nil, nil, parsedRecord, err
 	}
 
-	log.Println("Nodes:", nodes)
+	//log.Println("Nodes:", nodes)
 
 	pool, err := findNodes(parsedRecord.TableIdentifier, nodes, f, opts)
 	if err != nil {
 		return nil, nil, parsedRecord, err
 	}
 
-	log.Println("Pool:", pool)
+	//log.Println("Pool:", pool)
 
 	shards, err := findNodes(parsedRecord.RecordIdentifier, pool, f, opts)
 	if err != nil {
 		return nil, nil, parsedRecord, err
 	}
 
-	log.Println("Shards: ", shards)
+	//log.Println("Shards: ", shards)
 
 	return shards, pool, parsedRecord, nil
 
