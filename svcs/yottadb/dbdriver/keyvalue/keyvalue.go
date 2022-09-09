@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -45,9 +46,10 @@ func (d Driver) Read(req dbdriver.Request) (dbdriver.Response, error) {
 
 	if opts.Sharding == 0 || opts.Replication == 0 {
 		log.Println("Error with rendezvous options")
+		return resp, errors.New("Error with rendezvous options")
 	}
 
-	shards, _, parsedRecord, err := d.Finder.FindRecord(req.Path, *d.NodeTree, opts)
+	shards, nodes, parsedRecord, err := d.Finder.FindRecord(req.Path, *d.NodeTree, opts)
 	if err != nil {
 		return resp, err
 	}
@@ -55,10 +57,10 @@ func (d Driver) Read(req dbdriver.Request) (dbdriver.Response, error) {
 	// TODO: pick a shard at random and verify others
 	node := shards[0]
 
-	/*fmt.Println("Record: ", parsedRecord)
+	fmt.Println("Record: ", parsedRecord)
 	fmt.Println("Node tree: ", nodes)
 	fmt.Println("Shards pool:", shards)
-	fmt.Println("Node picked: ", node)*/
+	fmt.Println("Node picked: ", node)
 
 	// Issue read
 	values := map[string]interface{}{"Path": parsedRecord.RecordIdentifier, "Method": "read"}
@@ -88,15 +90,17 @@ func (d Driver) Write(req dbdriver.Request) (dbdriver.Response, error) {
 
 	var resp dbdriver.Response
 
+	log.Println(req)
+
 	// Find nodes
 	opts := rendezvous.RendezvousOptions{
 		Replication: req.Rendezvous.Replication,
 		Sharding:    req.Rendezvous.Sharding,
 	}
 
-	/*log.Println(opts)
+	log.Println(opts)
 	log.Println(req.Path)
-	log.Println(d.Finder)*/
+	log.Println(d.Finder)
 
 	shards, _, parsedRecord, err := d.Finder.FindRecord(req.Path, *d.NodeTree, opts)
 	if err != nil {

@@ -1,7 +1,9 @@
 package document
 
 import (
+	"encoding/base64"
 	"encoding/json"
+	"log"
 	"strings"
 	"yottadb/dbdriver"
 	"yottadb/dbdriver/keyvalue"
@@ -9,40 +11,65 @@ import (
 )
 
 type Driver struct {
-	KVdriver keyvalue.Driver
+	KVdriver dbdriver.Interface
 	Finder   rendezvous.Finder
 	NodeTree *[]string
 }
 
-type CollectionResponse struct {
+type CollectionRecord struct {
 	Sharding    int
 	Replication int
 }
 
 const (
-	collectionPath        = "yotta@collections/"
+	collectionPath        = "yotta@collections"
 	collectionSharding    = 1
 	collectionReplication = 1
 )
 
-func (d Driver) ReadRecord(req dbdriver.Request) (dbdriver.Response, error) {
+func (d Driver) ReadDocument(req dbdriver.Request) (dbdriver.Response, error) {
 
 	var resp dbdriver.Response
-	collectionName := strings.Split(req.Path, "/")[1]
-
-	cReq := dbdriver.Request{
-		Path: collectionPath + collectionName,
+	parsedRecord, err := d.Finder.ParseRecord(req.Path)
+	if err != nil {
+		return resp, err
 	}
+
+	cOpts := dbdriver.RendezvousOpts{
+		Sharding:    collectionSharding,
+		Replication: collectionReplication,
+	}
+	cReq := dbdriver.Request{
+		Path:       collectionPath + parsedRecord.CollectionPointer,
+		Rendezvous: cOpts}
 
 	cResp, err := d.KVdriver.Read(cReq)
 	if err != nil {
 		return resp, err
 	}
 
-	var cJson CollectionResponse
-	if err := json.Unmarshal([]byte(cResp.Data), &cJson); err != nil {
+	var cResult dbdriver.Response
+	err = json.Unmarshal([]byte(cResp.Data), &cResult)
+	if err != nil {
 		return resp, err
 	}
+
+	log.Println("Result: ", cResult)
+
+	cRecord := strings.Replace(cResult.Data, "A", "", -1)
+	cRecord = strings.Replace(cRecord, "=", "", -1)
+
+	cData, err := base64.StdEncoding.DecodeString(cRecord)
+	if err != nil {
+		return resp, err
+	}
+
+	var cJson CollectionRecord
+	if err := json.Unmarshal(cData, &cJson); err != nil {
+		return resp, err
+	}
+
+	log.Println("Cjson: ", cJson)
 
 	req.Rendezvous.Sharding = cJson.Sharding
 	req.Rendezvous.Replication = cJson.Replication
@@ -56,24 +83,50 @@ func (d Driver) ReadRecord(req dbdriver.Request) (dbdriver.Response, error) {
 
 }
 
-func (d Driver) WriteRecord(req dbdriver.Request) (dbdriver.Response, error) {
+func (d Driver) WriteDocument(req dbdriver.Request) (dbdriver.Response, error) {
 
 	var resp dbdriver.Response
-	collectionName := strings.Split(req.Path, "/")[1]
+	parsedRecord, err := d.Finder.ParseRecord(req.Path)
+	if err != nil {
+		return resp, err
+	}
+
+	cOpts := dbdriver.RendezvousOpts{
+		Sharding:    collectionSharding,
+		Replication: collectionReplication,
+	}
 
 	cReq := dbdriver.Request{
-		Path: collectionPath + collectionName,
-	}
+		Path:       collectionPath + parsedRecord.CollectionPointer,
+		Rendezvous: cOpts}
 
 	cResp, err := d.KVdriver.Read(cReq)
 	if err != nil {
 		return resp, err
 	}
 
-	var cJson CollectionResponse
-	if err := json.Unmarshal([]byte(cResp.Data), &cJson); err != nil {
+	var cResult dbdriver.Response
+	err = json.Unmarshal([]byte(cResp.Data), &cResult)
+	if err != nil {
 		return resp, err
 	}
+
+	log.Println("Result: ", cResult)
+
+	cRecord := strings.Replace(cResult.Data, "A", "", -1)
+	cRecord = strings.Replace(cRecord, "=", "", -1)
+
+	cData, err := base64.StdEncoding.DecodeString(cRecord)
+	if err != nil {
+		return resp, err
+	}
+
+	var cJson CollectionRecord
+	if err := json.Unmarshal(cData, &cJson); err != nil {
+		return resp, err
+	}
+
+	log.Println("Cjson: ", cJson)
 
 	req.Rendezvous.Sharding = cJson.Sharding
 	req.Rendezvous.Replication = cJson.Replication
@@ -87,28 +140,53 @@ func (d Driver) WriteRecord(req dbdriver.Request) (dbdriver.Response, error) {
 
 }
 
-func (d Driver) UpdateRecord() {
+func (d Driver) UpdateDocument() {
 
 }
 
-func (d Driver) DeleteRecord(req dbdriver.Request) (dbdriver.Response, error) {
+func (d Driver) DeleteDocument(req dbdriver.Request) (dbdriver.Response, error) {
 
 	var resp dbdriver.Response
-	collectionName := strings.Split(req.Path, "/")[0]
-
-	cReq := dbdriver.Request{
-		Path: collectionPath + collectionName,
+	parsedRecord, err := d.Finder.ParseRecord(req.Path)
+	if err != nil {
+		return resp, err
 	}
+
+	cOpts := dbdriver.RendezvousOpts{
+		Sharding:    collectionSharding,
+		Replication: collectionReplication,
+	}
+	cReq := dbdriver.Request{
+		Path:       collectionPath + parsedRecord.CollectionPointer,
+		Rendezvous: cOpts}
 
 	cResp, err := d.KVdriver.Read(cReq)
 	if err != nil {
 		return resp, err
 	}
 
-	var cJson CollectionResponse
-	if err := json.Unmarshal([]byte(cResp.Data), &cJson); err != nil {
+	var cResult dbdriver.Response
+	err = json.Unmarshal([]byte(cResp.Data), &cResult)
+	if err != nil {
 		return resp, err
 	}
+
+	log.Println("Result: ", cResult)
+
+	cRecord := strings.Replace(cResult.Data, "A", "", -1)
+	cRecord = strings.Replace(cRecord, "=", "", -1)
+
+	cData, err := base64.StdEncoding.DecodeString(cRecord)
+	if err != nil {
+		return resp, err
+	}
+
+	var cJson CollectionRecord
+	if err := json.Unmarshal(cData, &cJson); err != nil {
+		return resp, err
+	}
+
+	log.Println("Cjson: ", cJson)
 
 	req.Rendezvous.Sharding = cJson.Sharding
 	req.Rendezvous.Replication = cJson.Replication
@@ -127,11 +205,25 @@ func (d Driver) CreateCollection(req dbdriver.Request) (dbdriver.Response, error
 	// TODO: check if collection exists already
 	var resp dbdriver.Response
 
-	req.Path = ""
+	parsedRecord, err := d.Finder.ParseRecord(req.Path)
+
+	req.Path = collectionPath + parsedRecord.CollectionPointer
 	req.Rendezvous.Sharding = collectionSharding
 	req.Rendezvous.Replication = collectionReplication
 
-	resp, err := d.KVdriver.Write(req)
+	recordData := CollectionRecord{
+		Sharding:    1,
+		Replication: 1,
+	}
+
+	buff, err := json.Marshal(recordData)
+	if err != nil {
+		return resp, err
+	}
+
+	req.Data = string(buff)
+
+	resp, err = d.KVdriver.Write(req)
 	if err != nil {
 		return resp, err
 	}
@@ -144,7 +236,22 @@ func (d Driver) UpdateCollection() {
 
 }
 
-func (d Driver) DeleteCollection() {
+func (d Driver) DeleteCollection(req dbdriver.Request) (dbdriver.Response, error) {
+
+	var resp dbdriver.Response
+
+	parsedRecord, err := d.Finder.ParseRecord(req.Path)
+
+	req.Path = collectionPath + parsedRecord.CollectionPointer
+	req.Rendezvous.Sharding = collectionSharding
+	req.Rendezvous.Replication = collectionReplication
+
+	resp, err = d.KVdriver.Delete(req)
+	if err != nil {
+		return resp, err
+	}
+
+	return resp, nil
 
 }
 
@@ -154,9 +261,15 @@ func New(hashKey string, nodeTree *[]string) (Driver, error) {
 		HashKey: hashKey,
 	}
 
+	kvDriver, err := keyvalue.New(hashKey, nodeTree)
+
 	d := Driver{
 		Finder:   f,
 		NodeTree: nodeTree,
+		KVdriver: kvDriver,
+	}
+	if err != nil {
+		return d, err
 	}
 
 	return d, nil

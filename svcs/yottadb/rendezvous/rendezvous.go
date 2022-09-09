@@ -63,7 +63,7 @@ func (f Finder) FindPool(record ParsedRecord, nodes NodeMap, count int) (NodeMap
 	opts := RendezvousOptions{
 		Sharding: count,
 	}
-	result, err := findNodes(record.TableIdentifier, nodes, f, opts)
+	result, err := findNodes(record.CollectionIdentifier, nodes, f, opts)
 	return result, err
 }
 
@@ -88,7 +88,7 @@ func (f Finder) FindRecord(record string, nodes NodeMap, opts RendezvousOptions)
 
 	//log.Println("Nodes:", nodes)
 
-	pool, err := findNodes(parsedRecord.TableIdentifier, nodes, f, opts)
+	pool, err := findNodes(parsedRecord.CollectionIdentifier, nodes, f, opts)
 	if err != nil {
 		return nil, nil, parsedRecord, err
 	}

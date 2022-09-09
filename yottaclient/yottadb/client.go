@@ -104,6 +104,154 @@ func (c Client) Delete(path string, opts dbdriver.RendezvousOpts) error {
 
 }
 
+func (c Client) ReadDocument(path string, opts dbdriver.RendezvousOpts) ([]byte, error) {
+	values := map[string]interface{}{
+		"Path":       path,
+		"Method":     "readDocument",
+		"Rendezvous": opts}
+	json_data, err := json.Marshal(values)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := http.Post(c.Url+"/yottadb/",
+		"application/json",
+		bytes.NewBuffer(json_data))
+	if err != nil {
+		return nil, err
+	}
+
+	buff, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, errors.New(string(buff))
+	}
+
+	return buff, nil
+}
+
+func (c Client) WriteDocument(path string, data []byte, opts dbdriver.RendezvousOpts) ([]byte, error) {
+	values := map[string]interface{}{
+		"Path":       path,
+		"Method":     "writeDocument",
+		"Data":       string(data),
+		"Rendezvous": opts}
+	json_data, err := json.Marshal(values)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := http.Post(c.Url+"/yottadb/",
+		"application/json",
+		bytes.NewBuffer(json_data))
+	if err != nil {
+		return nil, err
+	}
+
+	buff, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, errors.New(string(buff))
+	}
+
+	return buff, nil
+
+}
+
+func (c Client) DeleteDocument(path string, opts dbdriver.RendezvousOpts) error {
+	values := map[string]interface{}{
+		"Path":       path,
+		"Method":     "deleteDocument",
+		"Rendezvous": opts}
+	json_data, err := json.Marshal(values)
+	if err != nil {
+		return err
+	}
+
+	resp, err := http.Post(c.Url+"/yottadb/",
+		"application/json",
+		bytes.NewBuffer(json_data))
+	if err != nil {
+		return err
+	}
+
+	buff, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return errors.New(string(buff))
+	}
+
+	return nil
+
+}
+
+func (c Client) CreateCollection(path string) ([]byte, error) {
+	values := map[string]interface{}{
+		"Path":   path,
+		"Method": "createCollection"}
+	json_data, err := json.Marshal(values)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := http.Post(c.Url+"/yottadb/",
+		"application/json",
+		bytes.NewBuffer(json_data))
+	if err != nil {
+		return nil, err
+	}
+
+	buff, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, errors.New(string(buff))
+	}
+
+	return buff, nil
+
+}
+
+func (c Client) DeleteCollection(path string) error {
+	values := map[string]interface{}{
+		"Path":   path,
+		"Method": "deleteCollection"}
+	json_data, err := json.Marshal(values)
+	if err != nil {
+		return err
+	}
+
+	resp, err := http.Post(c.Url+"/yottadb/",
+		"application/json",
+		bytes.NewBuffer(json_data))
+	if err != nil {
+		return err
+	}
+
+	buff, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return errors.New(string(buff))
+	}
+
+	return nil
+
+}
+
 func New(url string) (Client, error) {
 
 	client := Client{

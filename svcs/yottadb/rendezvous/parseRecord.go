@@ -5,13 +5,14 @@ import (
 )
 
 type ParsedRecord struct {
-	Account          string
-	Driver           string
-	TableName        string
-	RecordName       string
-	TableIdentifier  string
-	RecordIdentifier string
-	RecordRows       string
+	Account              string
+	Driver               string
+	CollectionName       string
+	RecordName           string
+	CollectionIdentifier string
+	CollectionPointer    string
+	RecordIdentifier     string
+	RecordRows           string
 }
 
 var (
@@ -72,18 +73,20 @@ func ParseRecord(recordString string) (ParsedRecord, error) {
 
 	Account := recordString[:atIndex]
 	Driver := recordString[atIndex+1 : colonIndex]
-	TableName := recordString[colonIndex+1 : slashIndexs[0]]
+	CollectionName := recordString[colonIndex+1 : slashIndexs[0]]
 	RecordName := recordString[slashIndexs[0]+1 : slashIndexs[1]]
-	TableIdentifier := "/" + Account + "/" + recordString[colonIndex+1:slashIndexs[0]]
+	CollectionIdentifier := "/" + Account + "/" + CollectionName
+	CollectionPointer := "/" + Account + "-" + CollectionName
 	RecordIdentifier := "/" + Account + "/" + recordString[colonIndex+1:slashIndexs[1]]
 	RecordRows := recordString[slashIndexs[1]+1:]
 
 	parsedRecord = ParsedRecord{
 		Account,
 		Driver,
-		TableName,
+		CollectionName,
 		RecordName,
-		TableIdentifier,
+		CollectionIdentifier,
+		CollectionPointer,
 		RecordIdentifier,
 		RecordRows,
 	}

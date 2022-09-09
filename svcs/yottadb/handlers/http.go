@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"yottadb/dbdriver"
+	"yottadb/dbdriver/document"
 	"yottadb/dbdriver/keyvalue"
 )
 
@@ -16,7 +17,8 @@ type Config struct {
 
 func HttpHandlerFactory(config Config) (func(http.ResponseWriter, *http.Request), error) {
 
-	d, err := keyvalue.New(config.HashKey, config.NodeTree)
+	dd, err := document.New(config.HashKey, config.NodeTree)
+	kvd, err := keyvalue.New(config.HashKey, config.NodeTree)
 	if err != nil {
 		log.Println("Error instantiating driver: ", err)
 		return nil, err
@@ -40,8 +42,8 @@ func HttpHandlerFactory(config Config) (func(http.ResponseWriter, *http.Request)
 
 		switch req.Method {
 
-		case "read":
-			resp, err := d.Read(req)
+		case "readDocument":
+			resp, err := dd.ReadDocument(req)
 			if err != nil {
 				w.WriteHeader(http.StatusInternalServerError)
 				if _, err := w.Write([]byte("Read request failed")); err != nil {
@@ -54,8 +56,8 @@ func HttpHandlerFactory(config Config) (func(http.ResponseWriter, *http.Request)
 				log.Println("ERROR: ", err)
 			}
 
-		case "write":
-			resp, err := d.Write(req)
+		case "writeDocument":
+			resp, err := dd.WriteDocument(req)
 			if err != nil {
 				log.Println("Error: ", err)
 				w.WriteHeader(http.StatusInternalServerError)
@@ -69,8 +71,80 @@ func HttpHandlerFactory(config Config) (func(http.ResponseWriter, *http.Request)
 				log.Println("ERROR: ", err)
 			}
 
-		case "delete":
-			resp, err := d.Delete(req)
+		case "deleteDocument":
+			resp, err := dd.DeleteDocument(req)
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+				if _, err := w.Write([]byte("Delete request failed")); err != nil {
+					log.Println("ERROR: ", err)
+				}
+				return
+			}
+
+			w.WriteHeader(http.StatusOK)
+			if _, err = w.Write([]byte(resp.Data)); err != nil {
+				log.Println("ERROR: ", err)
+			}
+
+		case "createCollection":
+			resp, err := dd.CreateCollection(req)
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+				if _, err := w.Write([]byte("Create collection request failed")); err != nil {
+					log.Println("ERROR: ", err)
+				}
+				return
+			}
+			w.WriteHeader(http.StatusOK)
+			if _, err = w.Write([]byte(resp.Data)); err != nil {
+				log.Println("ERROR: ", err)
+			}
+
+		case "deleteCollection":
+			resp, err := dd.DeleteCollection(req)
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+				if _, err := w.Write([]byte("Delete collection request failed")); err != nil {
+					log.Println("ERROR: ", err)
+				}
+				return
+			}
+			w.WriteHeader(http.StatusOK)
+			if _, err = w.Write([]byte(resp.Data)); err != nil {
+				log.Println("ERROR: ", err)
+			}
+
+		case "readKV":
+			resp, err := kvd.Read(req)
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+				if _, err := w.Write([]byte("Read request failed")); err != nil {
+					log.Println("ERROR: ", err)
+				}
+				return
+			}
+			w.WriteHeader(http.StatusOK)
+			if _, err = w.Write([]byte(resp.Data)); err != nil {
+				log.Println("ERROR: ", err)
+			}
+
+		case "writeKV":
+			resp, err := kvd.Write(req)
+			if err != nil {
+				log.Println("Error: ", err)
+				w.WriteHeader(http.StatusInternalServerError)
+				if _, err := w.Write([]byte("Write request failed")); err != nil {
+					log.Println("ERROR: ", err)
+				}
+				return
+			}
+			w.WriteHeader(http.StatusOK)
+			if _, err = w.Write([]byte(resp.Data)); err != nil {
+				log.Println("ERROR: ", err)
+			}
+
+		case "deleteKV":
+			resp, err := kvd.Delete(req)
 			if err != nil {
 				w.WriteHeader(http.StatusInternalServerError)
 				if _, err := w.Write([]byte("Delete request failed")); err != nil {
