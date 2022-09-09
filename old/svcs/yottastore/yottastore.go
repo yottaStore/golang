@@ -1,5 +1,0 @@
-package yottastore
-
-func New() {
-
-}
