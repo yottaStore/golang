@@ -1,9 +1,8 @@
-package keyvalue
+package document
 
 import (
 	"bytes"
 	"errors"
-	"fmt"
 	"github.com/fxamacker/cbor/v2"
 	"io"
 	"log"
@@ -12,21 +11,24 @@ import (
 	"yottadb/rendezvous"
 )
 
-type Driver struct {
-	dbdriver.Interface
+const (
+	CollectionSharding    = 1
+	CollectionReplication = 1
+)
+
+type Collection struct {
+	Replication int
+	Sharding    int
+}
+
+type CollDriver struct {
 	NodeTree *[]string
 	HashKey  string
 }
 
-type CReq struct {
-	Path   string
-	Method string
-	Data   []byte
-}
+func NewColl(hashKey string, nodeTree *[]string) (CollDriver, error) {
 
-func New(hashKey string, nodeTree *[]string) (Driver, error) {
-
-	d := Driver{
+	d := CollDriver{
 		HashKey:  hashKey,
 		NodeTree: nodeTree,
 	}
@@ -35,21 +37,16 @@ func New(hashKey string, nodeTree *[]string) (Driver, error) {
 
 }
 
-func (d Driver) Read(req dbdriver.Request) (dbdriver.Response, error) {
+func (d CollDriver) Read(req dbdriver.Request) (dbdriver.Response, error) {
 
 	var resp dbdriver.Response
 	// Find nodes
 	// TODO: fix rendezvous
 	// TODO: improve API shape
 	opts := rendezvous.RendezvousOptions{
-		Replication: req.Rendezvous.Replication,
-		Sharding:    req.Rendezvous.Sharding,
+		Replication: CollectionReplication,
+		Sharding:    CollectionSharding,
 		HashKey:     d.HashKey,
-	}
-
-	if opts.Sharding == 0 || opts.Replication == 0 {
-		log.Println("Error with rendezvous options")
-		return resp, errors.New("Error with rendezvous options")
 	}
 
 	shards, _, parsedRecord, err := rendezvous.FindRecord(req.Path, *d.NodeTree, opts)
@@ -59,11 +56,6 @@ func (d Driver) Read(req dbdriver.Request) (dbdriver.Response, error) {
 
 	// TODO: pick a shard at random and verify others
 	node := shards[0]
-
-	/*fmt.Println("Record: ", parsedRecord)
-	fmt.Println("Node tree: ", nodes)
-	fmt.Println("Shards pool:", shards)
-	fmt.Println("Node picked: ", node)*/
 
 	// Issue read
 	buff, err := cbor.Marshal(CReq{
@@ -92,7 +84,7 @@ func (d Driver) Read(req dbdriver.Request) (dbdriver.Response, error) {
 	return resp, nil
 }
 
-func (d Driver) Write(req dbdriver.Request) (dbdriver.Response, error) {
+func (d CollDriver) Write(req dbdriver.Request) (dbdriver.Response, error) {
 
 	log.Println("Writing...")
 
@@ -102,8 +94,8 @@ func (d Driver) Write(req dbdriver.Request) (dbdriver.Response, error) {
 
 	// Find nodes
 	opts := rendezvous.RendezvousOptions{
-		Replication: req.Rendezvous.Replication,
-		Sharding:    req.Rendezvous.Sharding,
+		Replication: CollectionReplication,
+		Sharding:    CollectionSharding,
 		HashKey:     d.HashKey,
 	}
 
@@ -116,18 +108,7 @@ func (d Driver) Write(req dbdriver.Request) (dbdriver.Response, error) {
 	// TODO: pick all shards
 	node := shards[0]
 
-	/*fmt.Println("Record: ", parsedRecord)
-	fmt.Println("Node tree: ", nodes)
-	fmt.Println("Shards pool:", shards)*/
-	fmt.Println("Node picked: ", node)
-
 	// Issue write
-	/*values := map[string]interface{}{
-		"Path":   parsedRecord.RecordIdentifier,
-		"Method": "write",
-		"Data":   req.Data}
-	json_data, err := json.Marshal(values)*/
-
 	buff, err := cbor.Marshal(CReq{
 		Path:   parsedRecord.RecordIdentifier,
 		Method: "write",
@@ -153,16 +134,17 @@ func (d Driver) Write(req dbdriver.Request) (dbdriver.Response, error) {
 	return resp, nil
 }
 
-func (d Driver) Delete(req dbdriver.Request) (dbdriver.Response, error) {
+func (d CollDriver) Delete(req dbdriver.Request) (dbdriver.Response, error) {
 
 	var resp dbdriver.Response
 
 	// Find nodes
 	opts := rendezvous.RendezvousOptions{
-		Replication: req.Rendezvous.Replication,
-		Sharding:    req.Rendezvous.Sharding,
+		Replication: CollectionReplication,
+		Sharding:    CollectionSharding,
 		HashKey:     d.HashKey,
 	}
+
 	shards, _, parsedRecord, err := rendezvous.FindRecord(req.Path, *d.NodeTree, opts)
 	if err != nil {
 		return resp, err
@@ -170,11 +152,6 @@ func (d Driver) Delete(req dbdriver.Request) (dbdriver.Response, error) {
 
 	// TODO: pick all shards
 	node := shards[0]
-
-	/*fmt.Println("Record: ", parsedRecord)
-	fmt.Println("Node tree: ", nodes)
-	fmt.Println("Shards pool:", shards)
-	fmt.Println("Node picked: ", node)*/
 
 	// Issue write
 	buff, err := cbor.Marshal(CReq{
@@ -187,8 +164,6 @@ func (d Driver) Delete(req dbdriver.Request) (dbdriver.Response, error) {
 		return resp, err
 	}
 
-	//log.Println("Json data: ", string(json_data))
-	//fmt.Println(node)
 	result, err := http.Post(node+"/yottafs/", "application/octet-stream",
 		bytes.NewBuffer(buff))
 	if err != nil {

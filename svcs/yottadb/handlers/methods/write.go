@@ -1,5 +1,0 @@
-package methods
-
-func Write() {
-
-}

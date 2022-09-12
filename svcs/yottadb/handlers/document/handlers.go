@@ -1,5 +1,0 @@
-package document
-
-func Handler() {
-
-}

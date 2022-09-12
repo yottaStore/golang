@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/fxamacker/cbor/v2"
 	"log"
 	"yottaclient/yottadb"
 	"yottadb/dbdriver"
@@ -15,21 +16,15 @@ func main() {
 	}
 
 	recordPath := "testAccount@testCollection/testRecord"
-	data := []byte("helloworld")
+	data := []byte("helloworld @(#(#!")
 	opts := dbdriver.RendezvousOpts{
 		Sharding:    1,
 		Replication: 1}
-
-	log.Println("writing")
 
 	resp, err := client.Write(recordPath, data, opts)
 	if err != nil {
 		log.Fatalln(err)
 	}
-
-	log.Println(resp)
-
-	log.Println("Reading")
 
 	resp, err = client.Read(recordPath, opts)
 	if err != nil {
@@ -42,12 +37,10 @@ func main() {
 		Data   []byte
 	}
 
-	log.Println("parsing")
-
-	/*err = json.Unmarshal(resp, &parsedResp)
+	err = cbor.Unmarshal(resp, &parsedResp)
 	if err != nil {
 		log.Fatal(err)
-	}*/
+	}
 
 	res := make([]byte, 30)
 	//_, err = base64.StdEncoding.Decode(res, parsedResp.Data)

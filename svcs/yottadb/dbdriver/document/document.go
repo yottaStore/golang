@@ -1,277 +1,220 @@
 package document
 
 import (
-	"encoding/base64"
-	"encoding/json"
+	"bytes"
+	"errors"
+	"github.com/fxamacker/cbor/v2"
+	"io"
 	"log"
-	"strings"
+	"net/http"
 	"yottadb/dbdriver"
 	"yottadb/dbdriver/keyvalue"
 	"yottadb/rendezvous"
 )
 
 type Driver struct {
-	KVdriver dbdriver.Interface
-	Finder   rendezvous.Finder
-	NodeTree *[]string
+	NodeTree         *[]string
+	HashKey          string
+	CollectionDriver CollDriver
+	KVDriver         keyvalue.Driver
 }
 
-type CollectionRecord struct {
-	Sharding    int
-	Replication int
-}
-
-const (
-	collectionPath        = "yotta@collections"
-	collectionSharding    = 1
-	collectionReplication = 1
-)
-
-func (d Driver) ReadDocument(req dbdriver.Request) (dbdriver.Response, error) {
-
-	var resp dbdriver.Response
-	parsedRecord, err := d.Finder.ParseRecord(req.Path)
-	if err != nil {
-		return resp, err
-	}
-
-	cOpts := dbdriver.RendezvousOpts{
-		Sharding:    collectionSharding,
-		Replication: collectionReplication,
-	}
-	cReq := dbdriver.Request{
-		Path:       collectionPath + parsedRecord.CollectionPointer,
-		Rendezvous: cOpts}
-
-	cResp, err := d.KVdriver.Read(cReq)
-	if err != nil {
-		return resp, err
-	}
-
-	var cResult dbdriver.Response
-	err = json.Unmarshal([]byte(cResp.Data), &cResult)
-	if err != nil {
-		return resp, err
-	}
-
-	log.Println("Result: ", cResult)
-
-	cRecord := strings.Replace(cResult.Data, "A", "", -1)
-	cRecord = strings.Replace(cRecord, "=", "", -1)
-
-	cData, err := base64.StdEncoding.DecodeString(cRecord)
-	if err != nil {
-		return resp, err
-	}
-
-	var cJson CollectionRecord
-	if err := json.Unmarshal(cData, &cJson); err != nil {
-		return resp, err
-	}
-
-	log.Println("Cjson: ", cJson)
-
-	req.Rendezvous.Sharding = cJson.Sharding
-	req.Rendezvous.Replication = cJson.Replication
-
-	resp, err = d.KVdriver.Read(req)
-	if err != nil {
-		return resp, err
-	}
-
-	return resp, nil
-
-}
-
-func (d Driver) WriteDocument(req dbdriver.Request) (dbdriver.Response, error) {
-
-	var resp dbdriver.Response
-	parsedRecord, err := d.Finder.ParseRecord(req.Path)
-	if err != nil {
-		return resp, err
-	}
-
-	cOpts := dbdriver.RendezvousOpts{
-		Sharding:    collectionSharding,
-		Replication: collectionReplication,
-	}
-
-	cReq := dbdriver.Request{
-		Path:       collectionPath + parsedRecord.CollectionPointer,
-		Rendezvous: cOpts}
-
-	cResp, err := d.KVdriver.Read(cReq)
-	if err != nil {
-		return resp, err
-	}
-
-	var cResult dbdriver.Response
-	err = json.Unmarshal([]byte(cResp.Data), &cResult)
-	if err != nil {
-		return resp, err
-	}
-
-	log.Println("Result: ", cResult)
-
-	cRecord := strings.Replace(cResult.Data, "A", "", -1)
-	cRecord = strings.Replace(cRecord, "=", "", -1)
-
-	cData, err := base64.StdEncoding.DecodeString(cRecord)
-	if err != nil {
-		return resp, err
-	}
-
-	var cJson CollectionRecord
-	if err := json.Unmarshal(cData, &cJson); err != nil {
-		return resp, err
-	}
-
-	log.Println("Cjson: ", cJson)
-
-	req.Rendezvous.Sharding = cJson.Sharding
-	req.Rendezvous.Replication = cJson.Replication
-
-	resp, err = d.KVdriver.Write(req)
-	if err != nil {
-		return resp, err
-	}
-
-	return resp, nil
-
-}
-
-func (d Driver) UpdateDocument() {
-
-}
-
-func (d Driver) DeleteDocument(req dbdriver.Request) (dbdriver.Response, error) {
-
-	var resp dbdriver.Response
-	parsedRecord, err := d.Finder.ParseRecord(req.Path)
-	if err != nil {
-		return resp, err
-	}
-
-	cOpts := dbdriver.RendezvousOpts{
-		Sharding:    collectionSharding,
-		Replication: collectionReplication,
-	}
-	cReq := dbdriver.Request{
-		Path:       collectionPath + parsedRecord.CollectionPointer,
-		Rendezvous: cOpts}
-
-	cResp, err := d.KVdriver.Read(cReq)
-	if err != nil {
-		return resp, err
-	}
-
-	var cResult dbdriver.Response
-	err = json.Unmarshal([]byte(cResp.Data), &cResult)
-	if err != nil {
-		return resp, err
-	}
-
-	log.Println("Result: ", cResult)
-
-	cRecord := strings.Replace(cResult.Data, "A", "", -1)
-	cRecord = strings.Replace(cRecord, "=", "", -1)
-
-	cData, err := base64.StdEncoding.DecodeString(cRecord)
-	if err != nil {
-		return resp, err
-	}
-
-	var cJson CollectionRecord
-	if err := json.Unmarshal(cData, &cJson); err != nil {
-		return resp, err
-	}
-
-	log.Println("Cjson: ", cJson)
-
-	req.Rendezvous.Sharding = cJson.Sharding
-	req.Rendezvous.Replication = cJson.Replication
-
-	resp, err = d.KVdriver.Delete(req)
-	if err != nil {
-		return resp, err
-	}
-
-	return resp, nil
-
-}
-
-func (d Driver) CreateCollection(req dbdriver.Request) (dbdriver.Response, error) {
-
-	// TODO: check if collection exists already
-	var resp dbdriver.Response
-
-	parsedRecord, err := d.Finder.ParseRecord(req.Path)
-
-	req.Path = collectionPath + parsedRecord.CollectionPointer
-	req.Rendezvous.Sharding = collectionSharding
-	req.Rendezvous.Replication = collectionReplication
-
-	recordData := CollectionRecord{
-		Sharding:    1,
-		Replication: 1,
-	}
-
-	buff, err := json.Marshal(recordData)
-	if err != nil {
-		return resp, err
-	}
-
-	req.Data = string(buff)
-
-	resp, err = d.KVdriver.Write(req)
-	if err != nil {
-		return resp, err
-	}
-
-	return resp, nil
-
-}
-
-func (d Driver) UpdateCollection() {
-
-}
-
-func (d Driver) DeleteCollection(req dbdriver.Request) (dbdriver.Response, error) {
-
-	var resp dbdriver.Response
-
-	parsedRecord, err := d.Finder.ParseRecord(req.Path)
-
-	req.Path = collectionPath + parsedRecord.CollectionPointer
-	req.Rendezvous.Sharding = collectionSharding
-	req.Rendezvous.Replication = collectionReplication
-
-	resp, err = d.KVdriver.Delete(req)
-	if err != nil {
-		return resp, err
-	}
-
-	return resp, nil
-
+type CReq struct {
+	Path   string
+	Method string
+	Data   []byte
 }
 
 func New(hashKey string, nodeTree *[]string) (Driver, error) {
 
-	f := rendezvous.Finder{
-		HashKey: hashKey,
-	}
+	var d Driver
 
-	kvDriver, err := keyvalue.New(hashKey, nodeTree)
-
-	d := Driver{
-		Finder:   f,
-		NodeTree: nodeTree,
-		KVdriver: kvDriver,
-	}
+	cd, err := NewColl(hashKey, nodeTree)
 	if err != nil {
 		return d, err
 	}
 
+	kvd, err := keyvalue.New(hashKey, nodeTree)
+	if err != nil {
+		return d, err
+	}
+
+	d = Driver{
+		HashKey:          hashKey,
+		NodeTree:         nodeTree,
+		CollectionDriver: cd,
+		KVDriver:         kvd}
+
 	return d, nil
+
+}
+
+func (d Driver) Read(req dbdriver.Request) (dbdriver.Response, error) {
+
+	var resp dbdriver.Response
+	// Find nodes
+	// TODO: fix rendezvous
+	// TODO: improve API shape
+
+	// Get collection detail
+
+	coll, err := d.CollectionDriver.Read(req)
+	if err != nil {
+		return resp, err
+	}
+	log.Println(coll)
+
+	// Use collection as input
+
+	opts := rendezvous.RendezvousOptions{
+		Replication: 1,
+		Sharding:    1,
+		HashKey:     d.HashKey,
+	}
+
+	shards, _, parsedRecord, err := rendezvous.FindRecord(req.Path, *d.NodeTree, opts)
+	if err != nil {
+		return resp, err
+	}
+
+	// TODO: pick a shard at random and verify others
+	node := shards[0]
+
+	// Issue read
+	buff, err := cbor.Marshal(CReq{
+		Path:   parsedRecord.RecordIdentifier,
+		Method: "read"})
+	if err != nil {
+		return resp, err
+	}
+	if err != nil {
+		return resp, err
+	}
+	result, err := http.Post(node+"/yottafs/", "application/octet-stream",
+		bytes.NewBuffer(buff))
+	if err != nil {
+		return resp, err
+	}
+	body, err := io.ReadAll(result.Body)
+
+	if result.StatusCode != http.StatusOK {
+		return resp, errors.New(string(body))
+	}
+
+	resp.Data = body
+
+	// Return result
+	return resp, nil
+}
+
+func (d Driver) Write(req dbdriver.Request) (dbdriver.Response, error) {
+
+	log.Println("Writing...")
+	log.Println(req)
+
+	var resp dbdriver.Response
+
+	// Get collection detail
+
+	coll, err := d.CollectionDriver.Read(req)
+	if err != nil {
+		return resp, err
+	}
+
+	log.Println(coll)
+
+	// Find nodes
+	opts := rendezvous.RendezvousOptions{
+		Replication: 1,
+		Sharding:    1,
+		HashKey:     d.HashKey,
+	}
+
+	shards, _, parsedRecord, err := rendezvous.FindRecord(req.Path, *d.NodeTree, opts)
+	if err != nil {
+		log.Println("Error: ", err)
+		return resp, err
+	}
+
+	// TODO: pick all shards
+	node := shards[0]
+
+	// Issue write
+	buff, err := cbor.Marshal(CReq{
+		Path:   parsedRecord.RecordIdentifier,
+		Method: "write",
+		Data:   []byte(req.Data)})
+	if err != nil {
+		return resp, err
+	}
+
+	result, err := http.Post(node+"/yottafs/", "application/octet-stream",
+		bytes.NewBuffer(buff))
+	if err != nil {
+		return resp, err
+	}
+
+	buff, err = io.ReadAll(result.Body)
+	if err != nil {
+		return resp, err
+	}
+	if result.StatusCode != http.StatusOK {
+		return resp, errors.New(string(buff))
+	}
+
+	return resp, nil
+}
+
+func (d Driver) Delete(req dbdriver.Request) (dbdriver.Response, error) {
+
+	var resp dbdriver.Response
+
+	coll, err := d.CollectionDriver.Read(req)
+	if err != nil {
+		return resp, err
+	}
+	log.Println(coll)
+
+	// Find nodes
+	opts := rendezvous.RendezvousOptions{
+		Replication: 1,
+		Sharding:    1,
+		HashKey:     d.HashKey,
+	}
+
+	shards, _, parsedRecord, err := rendezvous.FindRecord(req.Path, *d.NodeTree, opts)
+	if err != nil {
+		return resp, err
+	}
+
+	// TODO: pick all shards
+	node := shards[0]
+
+	// Issue write
+	buff, err := cbor.Marshal(CReq{
+		Path:   parsedRecord.RecordIdentifier,
+		Method: "delete"})
+	if err != nil {
+		return resp, err
+	}
+	if err != nil {
+		return resp, err
+	}
+
+	result, err := http.Post(node+"/yottafs/", "application/octet-stream",
+		bytes.NewBuffer(buff))
+	if err != nil {
+		return resp, err
+	}
+
+	buff, err = io.ReadAll(result.Body)
+	if err != nil {
+		return resp, err
+	}
+	if result.StatusCode != http.StatusOK {
+		return resp, errors.New(string(buff))
+	}
+
+	return resp, nil
 
 }

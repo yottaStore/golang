@@ -5,8 +5,7 @@ import (
 	"log"
 	"net/http"
 	"yottadb/dbdriver"
-	KVD "yottadb/dbdriver/keyvalue"
-	"yottadb/handlers/keyvalue"
+	"yottadb/dbdriver/keyvalue"
 )
 
 type Config struct {
@@ -18,7 +17,7 @@ type Config struct {
 func HttpHandlerFactory(config Config) (func(http.ResponseWriter, *http.Request), error) {
 
 	//dd, err := document.New(config.HashKey, config.NodeTree)
-	kvd, err := KVD.New(config.HashKey, config.NodeTree)
+	kvd, err := keyvalue.New(config.HashKey, config.NodeTree)
 	if err != nil {
 		log.Println("Error instantiating driver: ", err)
 		return nil, err

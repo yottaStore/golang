@@ -1,4 +1,4 @@
-package keyvalue
+package document
 
 import (
 	"log"
@@ -21,11 +21,11 @@ func Handler(w http.ResponseWriter, req dbdriver.Request, kvd keyvalue.Driver) {
 			return
 		}
 		w.WriteHeader(http.StatusOK)
-		if _, err = w.Write([]byte(resp.Data)); err != nil {
+		if _, err = w.Write(resp.Data); err != nil {
 			log.Println("ERROR: ", err)
 		}
 
-	case "write":
+	case "create":
 		resp, err := kvd.Write(req)
 		if err != nil {
 			log.Println("Error: ", err)

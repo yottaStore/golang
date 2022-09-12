@@ -17,7 +17,7 @@ type Response struct {
 	Path     string
 	Method   string
 	Driver   string
-	Data     string
+	Data     []byte
 	AbaToken string
 }
 
