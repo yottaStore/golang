@@ -37,6 +37,57 @@ func NewColl(hashKey string, nodeTree *[]string) (CollDriver, error) {
 
 }
 
+func (d CollDriver) Create(req dbdriver.Request) (dbdriver.Response, error) {
+
+	var resp dbdriver.Response
+
+	// Find nodes
+	opts := rendezvous.RendezvousOptions{
+		Replication: CollectionReplication,
+		Sharding:    CollectionSharding,
+		HashKey:     d.HashKey,
+	}
+
+	shards, _, parsedRecord, err := rendezvous.FindRecord(req.Path, *d.NodeTree, opts)
+	if err != nil {
+		log.Println("Error: ", err)
+		return resp, err
+	}
+
+	// TODO: pick all shards
+	node := shards[0]
+
+	data, err := cbor.Marshal(Collection{
+		Sharding:    1,
+		Replication: 1,
+	})
+
+	// Issue write
+	buff, err := cbor.Marshal(CReq{
+		Path:   parsedRecord.CollectionPointer,
+		Method: "write",
+		Data:   data})
+	if err != nil {
+		return resp, err
+	}
+
+	result, err := http.Post(node+"/yottafs/", "application/octet-stream",
+		bytes.NewBuffer(buff))
+	if err != nil {
+		return resp, err
+	}
+
+	buff, err = io.ReadAll(result.Body)
+	if err != nil {
+		return resp, err
+	}
+	if result.StatusCode != http.StatusOK {
+		return resp, errors.New(string(buff))
+	}
+
+	return resp, nil
+}
+
 func (d CollDriver) Read(req dbdriver.Request) (dbdriver.Response, error) {
 
 	var resp dbdriver.Response
@@ -59,11 +110,8 @@ func (d CollDriver) Read(req dbdriver.Request) (dbdriver.Response, error) {
 
 	// Issue read
 	buff, err := cbor.Marshal(CReq{
-		Path:   parsedRecord.RecordIdentifier,
+		Path:   parsedRecord.CollectionPointer,
 		Method: "read"})
-	if err != nil {
-		return resp, err
-	}
 	if err != nil {
 		return resp, err
 	}
@@ -84,13 +132,9 @@ func (d CollDriver) Read(req dbdriver.Request) (dbdriver.Response, error) {
 	return resp, nil
 }
 
-func (d CollDriver) Write(req dbdriver.Request) (dbdriver.Response, error) {
-
-	log.Println("Writing...")
+func (d CollDriver) Update(req dbdriver.Request) (dbdriver.Response, error) {
 
 	var resp dbdriver.Response
-
-	log.Println(req)
 
 	// Find nodes
 	opts := rendezvous.RendezvousOptions{
@@ -110,9 +154,9 @@ func (d CollDriver) Write(req dbdriver.Request) (dbdriver.Response, error) {
 
 	// Issue write
 	buff, err := cbor.Marshal(CReq{
-		Path:   parsedRecord.RecordIdentifier,
-		Method: "write",
-		Data:   []byte(req.Data)})
+		Path:   parsedRecord.CollectionIdentifier,
+		Method: "update",
+		Data:   req.Data})
 	if err != nil {
 		return resp, err
 	}
@@ -155,11 +199,8 @@ func (d CollDriver) Delete(req dbdriver.Request) (dbdriver.Response, error) {
 
 	// Issue write
 	buff, err := cbor.Marshal(CReq{
-		Path:   parsedRecord.RecordIdentifier,
+		Path:   parsedRecord.CollectionPointer,
 		Method: "delete"})
-	if err != nil {
-		return resp, err
-	}
 	if err != nil {
 		return resp, err
 	}

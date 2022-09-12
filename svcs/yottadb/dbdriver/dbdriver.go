@@ -6,11 +6,11 @@ type RendezvousOpts struct {
 }
 
 type Request struct {
-	Path       string         `json:"Path"`
-	Method     string         `json:"Method"`
-	Driver     string         `json:"Driver"`
-	Data       string         `json:"Data"`
-	Rendezvous RendezvousOpts `json:"Rendezvous"`
+	Path       string
+	Method     string
+	Driver     string
+	Data       []byte
+	Rendezvous RendezvousOpts
 }
 
 type Response struct {
@@ -19,10 +19,4 @@ type Response struct {
 	Driver   string
 	Data     []byte
 	AbaToken string
-}
-
-type Interface interface {
-	Read(Request) (Response, error)
-	Write(Request) (Response, error)
-	Delete(Request) (Response, error)
 }

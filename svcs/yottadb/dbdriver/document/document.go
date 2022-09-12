@@ -49,84 +49,28 @@ func New(hashKey string, nodeTree *[]string) (Driver, error) {
 
 }
 
-func (d Driver) Read(req dbdriver.Request) (dbdriver.Response, error) {
-
-	var resp dbdriver.Response
-	// Find nodes
-	// TODO: fix rendezvous
-	// TODO: improve API shape
-
-	// Get collection detail
-
-	coll, err := d.CollectionDriver.Read(req)
-	if err != nil {
-		return resp, err
-	}
-	log.Println(coll)
-
-	// Use collection as input
-
-	opts := rendezvous.RendezvousOptions{
-		Replication: 1,
-		Sharding:    1,
-		HashKey:     d.HashKey,
-	}
-
-	shards, _, parsedRecord, err := rendezvous.FindRecord(req.Path, *d.NodeTree, opts)
-	if err != nil {
-		return resp, err
-	}
-
-	// TODO: pick a shard at random and verify others
-	node := shards[0]
-
-	// Issue read
-	buff, err := cbor.Marshal(CReq{
-		Path:   parsedRecord.RecordIdentifier,
-		Method: "read"})
-	if err != nil {
-		return resp, err
-	}
-	if err != nil {
-		return resp, err
-	}
-	result, err := http.Post(node+"/yottafs/", "application/octet-stream",
-		bytes.NewBuffer(buff))
-	if err != nil {
-		return resp, err
-	}
-	body, err := io.ReadAll(result.Body)
-
-	if result.StatusCode != http.StatusOK {
-		return resp, errors.New(string(body))
-	}
-
-	resp.Data = body
-
-	// Return result
-	return resp, nil
-}
-
-func (d Driver) Write(req dbdriver.Request) (dbdriver.Response, error) {
-
-	log.Println("Writing...")
-	log.Println(req)
+func (d Driver) Create(req dbdriver.Request) (dbdriver.Response, error) {
 
 	var resp dbdriver.Response
 
 	// Get collection detail
 
-	coll, err := d.CollectionDriver.Read(req)
+	collBuff, err := d.CollectionDriver.Read(req)
 	if err != nil {
 		return resp, err
 	}
 
-	log.Println(coll)
+	var coll Collection
+	err = cbor.Unmarshal(collBuff.Data, &coll)
+	if err != nil {
+		log.Println("Error: ", err)
+		return resp, err
+	}
 
 	// Find nodes
 	opts := rendezvous.RendezvousOptions{
-		Replication: 1,
-		Sharding:    1,
+		Replication: coll.Replication,
+		Sharding:    coll.Sharding,
 		HashKey:     d.HashKey,
 	}
 
@@ -165,20 +109,152 @@ func (d Driver) Write(req dbdriver.Request) (dbdriver.Response, error) {
 	return resp, nil
 }
 
+func (d Driver) Read(req dbdriver.Request) (dbdriver.Response, error) {
+
+	var resp dbdriver.Response
+	// Find nodes
+	// TODO: fix rendezvous
+	// TODO: improve API shape
+
+	// Get collection detail
+
+	collBuff, err := d.CollectionDriver.Read(req)
+	if err != nil {
+		return resp, err
+	}
+
+	var coll Collection
+	err = cbor.Unmarshal(collBuff.Data, &coll)
+	if err != nil {
+		log.Println("Error: ", err)
+		return resp, err
+	}
+
+	// Find nodes
+	opts := rendezvous.RendezvousOptions{
+		Replication: coll.Replication,
+		Sharding:    coll.Sharding,
+		HashKey:     d.HashKey,
+	}
+
+	shards, _, parsedRecord, err := rendezvous.FindRecord(req.Path, *d.NodeTree, opts)
+	if err != nil {
+		return resp, err
+	}
+
+	// TODO: pick a shard at random and verify others
+	node := shards[0]
+
+	// Issue read
+	buff, err := cbor.Marshal(CReq{
+		Path:   parsedRecord.RecordIdentifier,
+		Method: "read"})
+	if err != nil {
+		return resp, err
+	}
+	if err != nil {
+		return resp, err
+	}
+	result, err := http.Post(node+"/yottafs/", "application/octet-stream",
+		bytes.NewBuffer(buff))
+	if err != nil {
+		return resp, err
+	}
+	body, err := io.ReadAll(result.Body)
+
+	if result.StatusCode != http.StatusOK {
+		return resp, errors.New(string(body))
+	}
+
+	resp.Data = body
+
+	// Return result
+	return resp, nil
+}
+
+func (d Driver) Update(req dbdriver.Request) (dbdriver.Response, error) {
+
+	log.Println("Writing...")
+	log.Println(req)
+
+	var resp dbdriver.Response
+
+	// Get collection detail
+
+	collBuff, err := d.CollectionDriver.Read(req)
+	if err != nil {
+		return resp, err
+	}
+
+	var coll Collection
+	err = cbor.Unmarshal(collBuff.Data, &coll)
+	if err != nil {
+		log.Println("Error: ", err)
+		return resp, err
+	}
+
+	// Find nodes
+	opts := rendezvous.RendezvousOptions{
+		Replication: coll.Replication,
+		Sharding:    coll.Sharding,
+		HashKey:     d.HashKey,
+	}
+
+	shards, _, parsedRecord, err := rendezvous.FindRecord(req.Path, *d.NodeTree, opts)
+	if err != nil {
+		log.Println("Error: ", err)
+		return resp, err
+	}
+
+	// TODO: pick all shards
+	node := shards[0]
+
+	// Issue write
+	buff, err := cbor.Marshal(CReq{
+		Path:   parsedRecord.RecordIdentifier,
+		Method: "update",
+		Data:   req.Data})
+	if err != nil {
+		return resp, err
+	}
+
+	result, err := http.Post(node+"/yottafs/", "application/octet-stream",
+		bytes.NewBuffer(buff))
+	if err != nil {
+		return resp, err
+	}
+
+	buff, err = io.ReadAll(result.Body)
+	if err != nil {
+		return resp, err
+	}
+	if result.StatusCode != http.StatusOK {
+		return resp, errors.New(string(buff))
+	}
+
+	return resp, nil
+}
+
 func (d Driver) Delete(req dbdriver.Request) (dbdriver.Response, error) {
 
 	var resp dbdriver.Response
 
-	coll, err := d.CollectionDriver.Read(req)
+	collBuff, err := d.CollectionDriver.Read(req)
 	if err != nil {
 		return resp, err
 	}
-	log.Println(coll)
+
+	var coll Collection
+	err = cbor.Unmarshal(collBuff.Data, &coll)
+	if err != nil {
+		log.Println("Error: ", err)
+		return resp, err
+	}
 
 	// Find nodes
 	opts := rendezvous.RendezvousOptions{
-		Replication: 1,
-		Sharding:    1,
+		Replication: coll.Replication,
+		Sharding:    coll.Sharding,
 		HashKey:     d.HashKey,
 	}
 

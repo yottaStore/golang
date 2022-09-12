@@ -4,7 +4,10 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"path"
+	"strings"
 	"yottadb/dbdriver"
+	"yottadb/dbdriver/document"
 	"yottadb/dbdriver/keyvalue"
 )
 
@@ -14,9 +17,21 @@ type Config struct {
 	HashKey  string
 }
 
+// ShiftPath splits off the first component of p, which will be cleaned of
+// relative components before processing. head will never contain a slash and
+// tail will always be a rooted path without trailing slash.
+func ShiftPath(p string) (head, tail string) {
+	p = path.Clean("/" + p)
+	i := strings.Index(p[1:], "/") + 1
+	if i <= 0 {
+		return p[1:], "/"
+	}
+	return p[1:i], p[i:]
+}
+
 func HttpHandlerFactory(config Config) (func(http.ResponseWriter, *http.Request), error) {
 
-	//dd, err := document.New(config.HashKey, config.NodeTree)
+	dd, err := document.New(config.HashKey, config.NodeTree)
 	kvd, err := keyvalue.New(config.HashKey, config.NodeTree)
 	if err != nil {
 		log.Println("Error instantiating driver: ", err)
@@ -42,11 +57,17 @@ func HttpHandlerFactory(config Config) (func(http.ResponseWriter, *http.Request)
 		switch req.Driver {
 
 		case "document":
+			document.HttpHandler(w, req, dd)
 
 		case "collection":
+			document.HttpHandler(w, req, dd)
 
 		case "keyvalue":
-			keyvalue.Handler(w, req, kvd)
+			keyvalue.HttpHandler(w, req, kvd)
+
+		case "columnar":
+
+		case "pubsub":
 
 		default:
 			w.WriteHeader(http.StatusBadRequest)

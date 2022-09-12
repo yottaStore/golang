@@ -6,7 +6,7 @@ import (
 	"yottadb/dbdriver"
 )
 
-func Handler(w http.ResponseWriter, req dbdriver.Request, kvd Driver) {
+func HttpHandler(w http.ResponseWriter, req dbdriver.Request, kvd Driver) {
 
 	switch req.Method {
 

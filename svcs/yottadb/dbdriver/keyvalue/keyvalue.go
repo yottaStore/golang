@@ -13,7 +13,6 @@ import (
 )
 
 type Driver struct {
-	dbdriver.Interface
 	NodeTree *[]string
 	HashKey  string
 }
