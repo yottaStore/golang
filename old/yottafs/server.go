@@ -36,6 +36,8 @@ func StartServer(config Config) error {
 
 	log.Println("Starting yottafs...")
 
+	var ioDriver iodriver.Interface
+
 	// TODO: Switch between dbdriver
 	ioDriver, err := driverPicker(config.NameSpace, config.Driver)
 	if err != nil {

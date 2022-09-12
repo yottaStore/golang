@@ -2,9 +2,9 @@ package yfs
 
 import (
 	"bytes"
-	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/fxamacker/cbor/v2"
 	"io"
 	"net/http"
 )
@@ -17,7 +17,7 @@ func (c Client) Read(path string) ([]byte, error) {
 	values := map[string]string{
 		"Path":   path,
 		"Method": "read"}
-	json_data, err := json.Marshal(values)
+	json_data, err := cbor.Marshal(values)
 	if err != nil {
 		return nil, err
 	}
@@ -42,11 +42,11 @@ func (c Client) Read(path string) ([]byte, error) {
 }
 
 func (c Client) Write(path string, data []byte) ([]byte, error) {
-	values := map[string]string{
+	values := map[string]interface{}{
 		"Path":   path,
 		"Method": "write",
-		"Data":   string(data)}
-	json_data, err := json.Marshal(values)
+		"Data":   data}
+	json_data, err := cbor.Marshal(values)
 	if err != nil {
 		return nil, err
 	}
@@ -74,7 +74,7 @@ func (c Client) Delete(path string, data []byte) ([]byte, error) {
 	values := map[string]string{
 		"Path":   path,
 		"Method": "delete"}
-	json_data, err := json.Marshal(values)
+	json_data, err := cbor.Marshal(values)
 	if err != nil {
 		return nil, err
 	}

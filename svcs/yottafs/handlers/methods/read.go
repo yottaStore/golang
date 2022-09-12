@@ -1,8 +1,8 @@
 package methods
 
 import (
-	"encoding/json"
 	"errors"
+	"github.com/fxamacker/cbor/v2"
 	"yottafs/iodriver"
 )
 
@@ -14,7 +14,7 @@ func Read(ioReq iodriver.Request, driver iodriver.Interface) ([]byte, error) {
 		return nil, errors.New("Read failed")
 	}
 
-	buff, err := json.Marshal(resp)
+	buff, err := cbor.Marshal(resp)
 	if err != nil {
 		return nil, errors.New("Read failed")
 	}

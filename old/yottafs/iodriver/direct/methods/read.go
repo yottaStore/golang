@@ -1,7 +1,6 @@
 package methods
 
 import (
-	"github.com/fxamacker/cbor/v2"
 	"golang.org/x/sys/unix"
 	"yottafs/iodriver"
 )
@@ -30,17 +29,11 @@ func Read(path string) (iodriver.Response, error) {
 		return resp, err
 	}
 
-	var dataBlock iodriver.DataBlock
-	err = cbor.Unmarshal(file, &dataBlock)
-	if err != nil {
-		return resp, err
-	}
-
 	aba := formatAba(stat.Mtim.Unix())
 
 	resp = iodriver.Response{
 		Path:     path,
-		Data:     dataBlock.Data,
+		Data:     file,
 		AbaToken: aba,
 	}
 

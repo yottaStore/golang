@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"github.com/fxamacker/cbor/v2"
+	"encoding/json"
 	"log"
 	"net/http"
 	"yottafs/handlers/methods"
@@ -13,9 +13,8 @@ func HttpHandlerFactory(d iodriver.Interface) (func(http.ResponseWriter, *http.R
 	handler := func(w http.ResponseWriter, r *http.Request) {
 
 		var req iodriver.Request
-		decoder := cbor.NewDecoder(r.Body)
+		decoder := json.NewDecoder(r.Body)
 		err := decoder.Decode(&req)
-
 		if err != nil {
 			log.Println(req, err)
 			w.WriteHeader(http.StatusBadRequest)

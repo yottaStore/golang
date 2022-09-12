@@ -2,7 +2,6 @@ package methods
 
 import (
 	"errors"
-	"github.com/fxamacker/cbor/v2"
 	"golang.org/x/sys/unix"
 	"log"
 	"yottafs/iodriver"
@@ -16,9 +15,6 @@ func Write(path string, data []byte, createDir bool) (iodriver.Response, error) 
 
 	if len(data) == 0 {
 		return resp, errors.New("Empty write request")
-	}
-	if len(data) > 4000 {
-		return resp, errors.New("Write too big")
 	}
 
 	fd, err := unix.Open(path, unix.O_RDWR|unix.O_CREAT|unix.O_TRUNC|unix.O_DIRECT, 0766)
@@ -34,15 +30,9 @@ func Write(path string, data []byte, createDir bool) (iodriver.Response, error) 
 		return resp, err
 	}
 
-	buff, err := cbor.Marshal(iodriver.DataBlock{data})
-	if err != nil {
-		return resp, err
-	}
-
-	writeSize := (len(buff)-1)/BlockSize + 1
+	writeSize := (len(data)-1)/BlockSize + 1
 	file := CallocAlignedBlock(writeSize)
-
-	copy(file, buff)
+	copy(file, data)
 	_, readErr := unix.Write(fd, file)
 	if readErr != nil {
 		return resp, readErr

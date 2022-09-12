@@ -17,10 +17,10 @@ const (
 )
 
 type Request struct {
-	Path    string        `cbor:"Path"`
-	Method  RequestMethod `cbor:"Method"`
-	Data    []byte        `cbor:"Data"`
-	Options interface{}   `cbor:"Options"`
+	Path    string        `json:"Path"`
+	Method  RequestMethod `json:"Method"`
+	Data    string        `json:"Data"`
+	Options interface{}   `json:"Options"`
 }
 
 type Response struct {
@@ -28,10 +28,6 @@ type Response struct {
 	Method   RequestMethod
 	Data     []byte
 	AbaToken string
-}
-
-type DataBlock struct {
-	Data []byte
 }
 
 type Interface interface {
