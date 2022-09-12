@@ -18,7 +18,8 @@ func (c Client) Read(path string, opts dbdriver.RendezvousOpts) ([]byte, error) 
 	values := map[string]interface{}{
 		"Path":       path,
 		"Method":     "read",
-		"Rendezvous": opts}
+		"Rendezvous": opts,
+		"Driver":     "keyvalue"}
 	json_data, err := json.Marshal(values)
 	if err != nil {
 		return nil, err
@@ -47,6 +48,7 @@ func (c Client) Write(path string, data []byte, opts dbdriver.RendezvousOpts) ([
 	values := map[string]interface{}{
 		"Path":       path,
 		"Method":     "write",
+		"Driver":     "keyvalue",
 		"Data":       string(data),
 		"Rendezvous": opts}
 	json_data, err := json.Marshal(values)
@@ -78,6 +80,7 @@ func (c Client) Delete(path string, opts dbdriver.RendezvousOpts) error {
 	values := map[string]interface{}{
 		"Path":       path,
 		"Method":     "delete",
+		"Driver":     "keyvalue",
 		"Rendezvous": opts}
 	json_data, err := json.Marshal(values)
 	if err != nil {

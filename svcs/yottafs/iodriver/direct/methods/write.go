@@ -22,7 +22,12 @@ func Write(path string, data []byte, createDir bool) (iodriver.Response, error) 
 	}
 
 	fd, err := unix.Open(path, unix.O_RDWR|unix.O_CREAT|unix.O_TRUNC|unix.O_DIRECT, 0766)
-	defer unix.Close(fd)
+	defer func(fd int) {
+		err := unix.Close(fd)
+		if err != nil {
+			log.Println("Error closing file: ", err)
+		}
+	}(fd)
 	if err == unix.ENOENT && createDir {
 		if err := createDirPath(path); err != nil {
 			return resp, err

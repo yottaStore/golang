@@ -1,0 +1,5 @@
+package document
+
+func Handler() {
+
+}

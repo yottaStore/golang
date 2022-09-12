@@ -1,0 +1,5 @@
+package methods
+
+func Read() {
+
+}
