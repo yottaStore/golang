@@ -67,6 +67,8 @@ func (d Driver) Create(req dbdriver.Request) (dbdriver.Response, error) {
 		return resp, err
 	}
 
+	log.Println("Colelction: ", coll)
+
 	// Find nodes
 	opts := rendezvous.RendezvousOptions{
 		Replication: coll.Replication,
@@ -79,6 +81,8 @@ func (d Driver) Create(req dbdriver.Request) (dbdriver.Response, error) {
 		log.Println("Error: ", err)
 		return resp, err
 	}
+
+	log.Println("Shards:", shards)
 
 	// TODO: pick all shards
 	node := shards[0]

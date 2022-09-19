@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"yottadb/dbdriver"
 )
@@ -137,15 +138,20 @@ func (c Client) ReadDocument(path string, opts dbdriver.RendezvousOpts) ([]byte,
 }
 
 func (c Client) WriteDocument(path string, data []byte, opts dbdriver.RendezvousOpts) ([]byte, error) {
+
 	values := map[string]interface{}{
 		"Path":       path,
-		"Method":     "writeDocument",
-		"Data":       string(data),
+		"Driver":     "document",
+		"Method":     "create",
+		"Data":       data,
 		"Rendezvous": opts}
+
 	json_data, err := json.Marshal(values)
 	if err != nil {
 		return nil, err
 	}
+
+	log.Println("Json data: ", string(json_data))
 
 	resp, err := http.Post(c.Url+"/yottadb/",
 		"application/json",
@@ -170,7 +176,8 @@ func (c Client) WriteDocument(path string, data []byte, opts dbdriver.Rendezvous
 func (c Client) DeleteDocument(path string, opts dbdriver.RendezvousOpts) error {
 	values := map[string]interface{}{
 		"Path":       path,
-		"Method":     "deleteDocument",
+		"Driver":     "document",
+		"Method":     "delete",
 		"Rendezvous": opts}
 	json_data, err := json.Marshal(values)
 	if err != nil {
@@ -200,7 +207,8 @@ func (c Client) DeleteDocument(path string, opts dbdriver.RendezvousOpts) error 
 func (c Client) CreateCollection(path string) ([]byte, error) {
 	values := map[string]interface{}{
 		"Path":   path,
-		"Method": "createCollection"}
+		"Method": "create",
+		"Driver": "collection"}
 	json_data, err := json.Marshal(values)
 	if err != nil {
 		return nil, err
@@ -229,7 +237,8 @@ func (c Client) CreateCollection(path string) ([]byte, error) {
 func (c Client) DeleteCollection(path string) error {
 	values := map[string]interface{}{
 		"Path":   path,
-		"Method": "deleteCollection"}
+		"Driver": "collection",
+		"Method": "delete"}
 	json_data, err := json.Marshal(values)
 	if err != nil {
 		return err
