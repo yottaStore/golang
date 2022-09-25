@@ -1,4 +1,4 @@
-package yfs
+package ydb
 
 import (
 	"bytes"
@@ -9,27 +9,49 @@ import (
 	"net/http"
 )
 
+type Request struct {
+	Record     string
+	Data       []byte
+	Rendezvous Options
+}
+
+type Options struct {
+	Replication int
+	Sharding    int
+}
+
 type Client struct {
 	Url string
 }
 
 func (c Client) Read(record string) ([]byte, error) {
-	values := map[string]string{
-		"Record": record,
-		"Method": "read"}
-	json_data, err := cbor.Marshal(values)
+	// TODO: switch from interface to yottadb.Request
+
+	// var req keyval.Request
+
+	req := Request{
+		Record: record,
+		Rendezvous: Options{
+			1, 1,
+		},
+	}
+
+	/*values := map[string]string{
+	"Record": record,
+	"Method": "read"}*/
+	buff, err := cbor.Marshal(req)
 	if err != nil {
 		return nil, err
 	}
 
-	resp, err := http.Post(c.Url+"/yottafs/read",
+	resp, err := http.Post(c.Url+"/yottadb/keyval/read",
 		"application/json",
-		bytes.NewBuffer(json_data))
+		bytes.NewBuffer(buff))
 	if err != nil {
 		return nil, err
 	}
 
-	buff, err := io.ReadAll(resp.Body)
+	buff, err = io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
 	}
@@ -41,24 +63,27 @@ func (c Client) Read(record string) ([]byte, error) {
 	return buff, nil
 }
 
-func (c Client) Write(record string, data []byte) ([]byte, error) {
-	values := map[string]interface{}{
-		"Record": record,
-		"Method": "write",
-		"Data":   data}
-	json_data, err := cbor.Marshal(values)
+func (c Client) Create(record string, data []byte) ([]byte, error) {
+	req := Request{
+		Record: record,
+		Data:   data,
+		Rendezvous: Options{
+			1, 1,
+		},
+	}
+	buff, err := cbor.Marshal(req)
 	if err != nil {
 		return nil, err
 	}
 
-	resp, err := http.Post(c.Url+"/yottafs/create",
+	resp, err := http.Post(c.Url+"/yottadb/keyval/create",
 		"application/json",
-		bytes.NewBuffer(json_data))
+		bytes.NewBuffer(buff))
 	if err != nil {
 		return nil, err
 	}
 
-	buff, err := io.ReadAll(resp.Body)
+	buff, err = io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
 	}
@@ -70,23 +95,26 @@ func (c Client) Write(record string, data []byte) ([]byte, error) {
 	return buff, nil
 }
 
-func (c Client) Delete(record string, data []byte) ([]byte, error) {
-	values := map[string]string{
-		"Record": record,
-		"Method": "delete"}
-	json_data, err := cbor.Marshal(values)
+func (c Client) Delete(record string) ([]byte, error) {
+	req := Request{
+		Record: record,
+		Rendezvous: Options{
+			1, 1,
+		},
+	}
+	buff, err := cbor.Marshal(req)
 	if err != nil {
 		return nil, err
 	}
 
-	resp, err := http.Post(c.Url+"/yottafs/delete",
+	resp, err := http.Post(c.Url+"/yottadb/keyval/delete",
 		"application/json",
-		bytes.NewBuffer(json_data))
+		bytes.NewBuffer(buff))
 	if err != nil {
 		return nil, err
 	}
 
-	buff, err := io.ReadAll(resp.Body)
+	buff, err = io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
 	}
@@ -104,7 +132,7 @@ func New(url string) (Client, error) {
 		url,
 	}
 
-	resp, err := http.Get(url)
+	resp, err := http.Get(url + "/version")
 	if err != nil {
 		return client, err
 	}

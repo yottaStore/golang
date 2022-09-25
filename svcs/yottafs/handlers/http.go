@@ -4,15 +4,24 @@ import (
 	"github.com/fxamacker/cbor/v2"
 	"log"
 	"net/http"
+	"strings"
 	"yottafs/handlers/methods"
-	"yottafs/iodriver"
+	"yottafs/iodrivers"
 )
 
-func HttpHandlerFactory(d iodriver.Interface) (func(http.ResponseWriter, *http.Request), error) {
+func findMethod(path string) string {
+
+	tmp := strings.Split(path, "/")
+	return tmp[len(tmp)-1]
+}
+
+func HttpHandlerFactory(d iodrivers.Interface) (func(http.ResponseWriter, *http.Request), error) {
 
 	handler := func(w http.ResponseWriter, r *http.Request) {
 
-		var req iodriver.Request
+		log.Println("New request")
+
+		var req iodrivers.Request
 		decoder := cbor.NewDecoder(r.Body)
 		err := decoder.Decode(&req)
 
@@ -25,8 +34,12 @@ func HttpHandlerFactory(d iodriver.Interface) (func(http.ResponseWriter, *http.R
 			return
 		}
 
-		switch req.Method {
-		case iodriver.Read:
+		method := findMethod(r.URL.Path)
+
+		log.Println("New request with method: ", method)
+
+		switch method {
+		case "read":
 			buff, err := methods.Read(req, d)
 			if err != nil {
 				w.WriteHeader(http.StatusInternalServerError)
@@ -43,8 +56,8 @@ func HttpHandlerFactory(d iodriver.Interface) (func(http.ResponseWriter, *http.R
 				log.Println("ERROR: ", err)
 			}
 
-		case iodriver.Write:
-			buff, err := methods.Write(req, d)
+		case "create":
+			buff, err := methods.Create(req, d)
 			if err != nil {
 				w.WriteHeader(http.StatusInternalServerError)
 				if _, err := w.Write([]byte("Write request failed")); err != nil {
@@ -59,7 +72,7 @@ func HttpHandlerFactory(d iodriver.Interface) (func(http.ResponseWriter, *http.R
 			if err != nil {
 				log.Println("ERROR: ", err)
 			}
-		case iodriver.Delete:
+		case "delete":
 			err := d.Delete(req)
 			if err != nil {
 				w.WriteHeader(http.StatusInternalServerError)
@@ -69,7 +82,7 @@ func HttpHandlerFactory(d iodriver.Interface) (func(http.ResponseWriter, *http.R
 				return
 			}
 
-		case iodriver.Append:
+		case "append":
 
 		default:
 			if err != nil {

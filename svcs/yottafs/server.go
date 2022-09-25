@@ -5,61 +5,74 @@ import (
 	"log"
 	"net/http"
 	"yottafs/handlers"
-	"yottafs/iodriver"
-	"yottafs/iodriver/direct"
+	"yottafs/iodrivers"
+	"yottafs/iodrivers/direct"
+	"yottafs/iodrivers/dummy"
 )
 
-func driverPicker(namespace string, driver string) (iodriver.Interface, error) {
-
-	switch driver {
-	case iodriver.Dummy:
-		return nil, errors.New("Not implemented yet")
-	case iodriver.Direct:
-		d, err := direct.New(namespace)
-		return d, err
-	}
-	return nil, errors.New("Driver not found")
-}
-
-func versionHandler(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("Hello from yottafs-go v 0.0.1!"))
-}
-
 type Config struct {
-	NameSpace string
+	Namespace string
 	Driver    string
 	Port      string
 }
 
-func StartServer(config Config) error {
+func pickDriver(c Config) (iodrivers.Interface, error) {
+
+	switch c.Driver {
+	case "dummy":
+		return dummy.New()
+	case "direct":
+		return direct.New(c.Namespace)
+	default:
+		return nil, errors.New("")
+
+	}
+
+}
+
+func versionHandler(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
+	_, err := w.Write([]byte("Hello from yottafs-go v 0.0.1!"))
+	if err != nil {
+		log.Println("Error: version handler failed: ", err)
+	}
+}
+
+func notFoundHandler(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusBadRequest)
+	_, err := w.Write([]byte("Error: Endpoint not found"))
+	if err != nil {
+		log.Println("Error: not found handler failed: ", err)
+	}
+}
+
+func StartServer(c Config) error {
 
 	log.Println("Starting yottafs...")
 
-	// TODO: Switch between dbdriver
-	ioDriver, err := driverPicker(config.NameSpace, config.Driver)
+	d, err := pickDriver(c)
 	if err != nil {
 		log.Println("Error instantiating driver: ", err)
 		return err
 	}
 
-	// TODO: Write config to disk
-
-	httpHandler, err := handlers.HttpHandlerFactory(ioDriver)
+	httpHandler, err := handlers.HttpHandlerFactory(d)
 	if err != nil {
 		log.Println("Error instantiating handler: ", err)
 		return err
 	}
 
-	http.HandleFunc("/", versionHandler)
+	http.HandleFunc("/version", versionHandler)
 	http.HandleFunc("/yottafs/", httpHandler)
+	http.HandleFunc("/", notFoundHandler)
 
 	// Start HTTP server.
-	log.Printf("listening on port %s", config.Port)
-	if err := http.ListenAndServe(":"+config.Port, nil); err != nil {
+	log.Printf("listening on port %s", c.Port)
+	if err := http.ListenAndServe(":"+c.Port, nil); err != nil {
 		log.Println(err)
 		return err
 	}
 
 	return nil
+
 }

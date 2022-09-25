@@ -2,24 +2,23 @@ package main
 
 import (
 	"log"
-	"yottadb"
 	"yottadb/handlers"
 )
 
 func main() {
 
-	hashKey := "SCtnOxT8NgNRXFkO"
-	nodeTree := []string{"http://localhost:8081"}
+	nodetree := []string{"http://localhost:8081"}
 
-	conf := handlers.Config{
+	c := handlers.Config{
 		Port:     "8080",
-		NodeTree: &nodeTree,
-		HashKey:  hashKey,
+		Hashkey:  "38udhjdhd",
+		Nodetree: &nodetree,
+		Protocol: "http",
 	}
 
-	err := yottadb.StartServer(conf)
+	err := handlers.StartServer(c)
 	if err != nil {
-		log.Fatalln("Error starting server: ", err)
+		log.Println("Error starting server: ", err)
 	}
 
 }

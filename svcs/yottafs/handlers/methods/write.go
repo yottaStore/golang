@@ -3,12 +3,12 @@ package methods
 import (
 	"errors"
 	"github.com/fxamacker/cbor/v2"
-	"yottafs/iodriver"
+	"yottafs/iodrivers"
 )
 
-func Write(ioReq iodriver.Request, driver iodriver.Interface) ([]byte, error) {
+func Create(ioReq iodrivers.Request, driver iodrivers.Interface) ([]byte, error) {
 
-	resp, err := driver.Write(ioReq)
+	resp, err := driver.Create(ioReq)
 	if err != nil {
 		return nil, errors.New("Read failed")
 	}

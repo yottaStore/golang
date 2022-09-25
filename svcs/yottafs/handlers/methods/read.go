@@ -3,20 +3,20 @@ package methods
 import (
 	"errors"
 	"github.com/fxamacker/cbor/v2"
-	"yottafs/iodriver"
+	"yottafs/iodrivers"
 )
 
-func Read(ioReq iodriver.Request, driver iodriver.Interface) ([]byte, error) {
+func Read(ioReq iodrivers.Request, driver iodrivers.Interface) ([]byte, error) {
 
 	resp, err := driver.Read(ioReq)
 
 	if err != nil {
-		return nil, errors.New("Read failed")
+		return nil, errors.New("read failed")
 	}
 
 	buff, err := cbor.Marshal(resp)
 	if err != nil {
-		return nil, errors.New("Read failed")
+		return nil, errors.New("read failed")
 	}
 
 	return buff, nil

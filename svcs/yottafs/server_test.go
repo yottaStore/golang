@@ -2,6 +2,7 @@ package yottafs
 
 import (
 	"io"
+	"log"
 	"net/http"
 	"testing"
 	"time"
@@ -22,7 +23,13 @@ func TestStartServer(t *testing.T) {
 	}
 
 	conf.Driver = "direct"
-	go StartServer(conf)
+
+	go func() {
+		err := StartServer(conf)
+		if err != nil {
+			log.Println("Error starting server: ", err)
+		}
+	}()
 
 	time.Sleep(200 * time.Millisecond)
 
@@ -30,6 +37,8 @@ func TestStartServer(t *testing.T) {
 	if err != nil || resp.StatusCode != http.StatusOK {
 		t.Error("Error reaching server: ", err)
 	}
+
+	log.Println("fourth")
 
 	buff, err := io.ReadAll(resp.Body)
 	if err != nil {

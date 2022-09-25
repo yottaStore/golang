@@ -1,73 +1,85 @@
 package handlers
 
 import (
-	"encoding/json"
+	"errors"
 	"log"
 	"net/http"
-	"path"
 	"strings"
-	"yottadb/dbdriver"
-	"yottadb/dbdriver/document"
-	"yottadb/dbdriver/keyvalue"
+	"yottadb/dbdrivers/document"
+	"yottadb/dbdrivers/dummy"
+	"yottadb/dbdrivers/keyval"
 )
 
-type Config struct {
-	NodeTree *[]string
-	Port     string
-	HashKey  string
-}
-
-// ShiftPath splits off the first component of p, which will be cleaned of
-// relative components before processing. head will never contain a slash and
-// tail will always be a rooted path without trailing slash.
-func ShiftPath(p string) (head, tail string) {
-	p = path.Clean("/" + p)
-	i := strings.Index(p[1:], "/") + 1
-	if i <= 0 {
-		return p[1:], "/"
-	}
-	return p[1:i], p[i:]
-}
-
-func HttpHandlerFactory(config Config) (func(http.ResponseWriter, *http.Request), error) {
-
-	dd, err := document.New(config.HashKey, config.NodeTree)
-	kvd, err := keyvalue.New(config.HashKey, config.NodeTree)
+func versionHandler(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
+	_, err := w.Write([]byte("Hello from yottadb-go v 0.0.1!"))
 	if err != nil {
-		log.Println("Error instantiating driver: ", err)
-		return nil, err
+		log.Println("Error with version handler", err)
+	}
+}
+
+func notFoundHandler(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusBadRequest)
+	_, err := w.Write([]byte("Error: Endpoint not found"))
+	if err != nil {
+		log.Println("Error: not found handler failed: ", err)
+	}
+}
+
+func StartHttpServer(c Config) error {
+
+	httpHandler, err := HttpHandlerFactory(c)
+	if err != nil {
+		log.Println("Error instantianting handler: ", err)
+		return nil
+	}
+
+	http.HandleFunc("/version", versionHandler)
+	http.HandleFunc("/yottadb/", httpHandler)
+	http.HandleFunc("/", notFoundHandler)
+
+	log.Printf("listening on port %s", c.Port)
+	if err := http.ListenAndServe(":"+c.Port, nil); err != nil {
+		log.Println(err)
+		return err
+	}
+
+	return nil
+
+}
+
+func HttpHandlerFactory(c Config) (func(http.ResponseWriter, *http.Request), error) {
+
+	dd, err := dummy.New()
+	if err != nil {
+		return nil, errors.New("failed instantiating dummy driver")
+	}
+
+	kvd, err := keyval.New(c.Nodetree, c.Hashkey)
+	if err != nil {
+		return nil, errors.New("failed instantiating dummy driver")
+	}
+
+	docd, err := document.New(c.Nodetree, c.Hashkey)
+	if err != nil {
+		return nil, errors.New("failed instantiating dummy driver")
 	}
 
 	handler := func(w http.ResponseWriter, r *http.Request) {
 
-		var req dbdriver.Request
-		decoder := json.NewDecoder(r.Body)
-		err := decoder.Decode(&req)
-		if err != nil {
-			w.WriteHeader(http.StatusBadRequest)
-			log.Println("Request error: ", err)
-			if _, err := w.Write([]byte("Malformed YottaDB request")); err != nil {
-				log.Println("ERROR: ", err)
-			}
-			return
-		}
+		h := strings.Split(r.URL.Path, "/")[2]
+		log.Println("Url Head: ", h)
 
-		log.Println("Request: ", req)
+		switch h {
 
-		switch req.Driver {
+		case "dummy":
+			dummy.Handler(w, r, dd)
+
+		case "keyval":
+			keyval.Handler(w, r, kvd)
 
 		case "document":
-			document.HttpHandler(w, req, dd)
-
-		case "collection":
-			document.HttpHandler(w, req, dd)
-
-		case "keyvalue":
-			keyvalue.HttpHandler(w, req, kvd)
-
-		case "columnar":
-
-		case "pubsub":
+			document.Handler(w, r, docd)
 
 		default:
 			w.WriteHeader(http.StatusBadRequest)
