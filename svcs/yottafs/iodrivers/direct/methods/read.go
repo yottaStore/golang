@@ -47,12 +47,12 @@ func Read(path string) (iodrivers.Response, error) {
 		return resp, err
 	}
 
-	aba := formatAba(stat.Mtim.Unix())
+	generationToken := formatToken(stat.Mtim.Unix())
 
 	resp = iodrivers.Response{
-		Path:     path,
-		Data:     dataBlock.Data,
-		AbaToken: aba,
+		Path:       path,
+		Data:       dataBlock.Data,
+		Generation: generationToken,
 	}
 
 	return resp, nil

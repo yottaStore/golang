@@ -1,4 +1,4 @@
-package client
+package methods
 
 import (
 	"bytes"
@@ -13,7 +13,8 @@ import (
 func Delete(path, node string) error {
 
 	req := iodrivers.Request{
-		Path: path,
+		Path:   path,
+		Method: iodrivers.Delete,
 	}
 
 	buff, err := cbor.Marshal(req)
@@ -41,4 +42,3 @@ func Delete(path, node string) error {
 
 	return nil
 }
-

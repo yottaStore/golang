@@ -1,33 +1,44 @@
 package yottafs
 
 import (
-	"errors"
 	"log"
 	"net/http"
 	"yottafs/handlers"
-	"yottafs/iodrivers"
 	"yottafs/iodrivers/direct"
-	"yottafs/iodrivers/dummy"
 )
 
 type Config struct {
 	Namespace string
 	Driver    string
 	Port      string
+	Protocol  string
 }
 
-func pickDriver(c Config) (iodrivers.Interface, error) {
+func StartServer(c Config) error {
 
-	switch c.Driver {
-	case "dummy":
-		return dummy.New()
-	case "direct":
-		return direct.New(c.Namespace)
-	default:
-		return nil, errors.New("")
+	log.Println("Starting yottafs...")
 
+	dd, err := direct.New(c.Namespace)
+	if err != nil {
+		log.Fatal("Error instantiating driver: ", err)
 	}
 
+	httpHandler, err := handlers.HttpHandlerFactory(dd)
+	if err != nil {
+		log.Fatal("Error instantiating http handler: ", err)
+	}
+
+	http.HandleFunc("/yottafs", httpHandler)
+	http.HandleFunc("/version", versionHandler)
+	http.HandleFunc("/", notFoundHandler)
+
+	log.Println("Listening on port: ", c.Port)
+	if err := http.ListenAndServe(":"+c.Port, nil); err != nil {
+		log.Println("Error starting server: ", err)
+		return err
+	}
+
+	return nil
 }
 
 func versionHandler(w http.ResponseWriter, r *http.Request) {
@@ -44,35 +55,4 @@ func notFoundHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println("Error: not found handler failed: ", err)
 	}
-}
-
-func StartServer(c Config) error {
-
-	log.Println("Starting yottafs...")
-
-	d, err := pickDriver(c)
-	if err != nil {
-		log.Println("Error instantiating driver: ", err)
-		return err
-	}
-
-	httpHandler, err := handlers.HttpHandlerFactory(d)
-	if err != nil {
-		log.Println("Error instantiating handler: ", err)
-		return err
-	}
-
-	http.HandleFunc("/version", versionHandler)
-	http.HandleFunc("/yottafs/", httpHandler)
-	http.HandleFunc("/", notFoundHandler)
-
-	// Start HTTP server.
-	log.Printf("listening on port %s", c.Port)
-	if err := http.ListenAndServe(":"+c.Port, nil); err != nil {
-		log.Println(err)
-		return err
-	}
-
-	return nil
-
 }

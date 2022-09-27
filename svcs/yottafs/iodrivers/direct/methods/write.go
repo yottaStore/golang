@@ -44,6 +44,7 @@ func Write(path string, data []byte, createDir bool) (iodrivers.Response, error)
 		return resp, err
 	}
 
+	// TODO: test this
 	writeSize := (len(buff)-1)/BlockSize + 1
 	file := CallocAlignedBlock(writeSize)
 
@@ -61,7 +62,7 @@ func Write(path string, data []byte, createDir bool) (iodrivers.Response, error)
 		return resp, err
 	}
 
-	resp.AbaToken = formatAba(stat.Mtim.Unix())
+	resp.Generation = formatToken(stat.Mtim.Unix())
 
 	return resp, nil
 

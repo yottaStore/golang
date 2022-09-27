@@ -37,7 +37,7 @@ func createDirPath(path string) error {
 	return nil
 }
 
-func formatAba(sec int64, nsec int64) []byte {
+func formatToken(sec int64, nsec int64) []byte {
 
 	return []byte(strconv.FormatInt(sec, 36) +
 		strconv.FormatInt(nsec, 36))

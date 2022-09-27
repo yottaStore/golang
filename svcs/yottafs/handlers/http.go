@@ -4,60 +4,46 @@ import (
 	"github.com/fxamacker/cbor/v2"
 	"log"
 	"net/http"
-	"strings"
 	"yottafs/handlers/methods"
 	"yottafs/iodrivers"
 )
 
-func findMethod(path string) string {
-
-	tmp := strings.Split(path, "/")
-	return tmp[len(tmp)-1]
-}
-
 func HttpHandlerFactory(d iodrivers.Interface) (func(http.ResponseWriter, *http.Request), error) {
 
 	handler := func(w http.ResponseWriter, r *http.Request) {
-
-		log.Println("New request")
 
 		var req iodrivers.Request
 		decoder := cbor.NewDecoder(r.Body)
 		err := decoder.Decode(&req)
 
 		if err != nil {
-			log.Println(req, err)
+			log.Println("Malformed request: ", err)
 			w.WriteHeader(http.StatusBadRequest)
-			if _, err := w.Write([]byte("Malformed YottaFs request")); err != nil {
-				log.Println("ERROR: ", err)
+			if _, err := w.Write([]byte("Malformed YottaFS request")); err != nil {
+				log.Println("Error responding to client: ", err)
 			}
 			return
 		}
+		log.Println("New request with method ", req.Method, " for record: ", req.Path)
 
-		method := findMethod(r.URL.Path)
-
-		log.Println("New request with method: ", method)
-
-		switch method {
-		case "read":
+		switch req.Method {
+		case iodrivers.Read:
 			buff, err := methods.Read(req, d)
 			if err != nil {
 				w.WriteHeader(http.StatusInternalServerError)
 				if _, err := w.Write([]byte("Read request failed")); err != nil {
-					log.Println("ERROR: ", err)
+					log.Println("Error responding to client: ", err)
 				}
 				return
 			}
 
 			w.WriteHeader(http.StatusOK)
-			_, err = w.Write(buff)
-
-			if err != nil {
-				log.Println("ERROR: ", err)
+			if _, err = w.Write(buff); err != nil {
+				log.Println("Error responding to client: ", err)
 			}
 
-		case "create":
-			buff, err := methods.Create(req, d)
+		case iodrivers.Write:
+			buff, err := methods.Write(req, d)
 			if err != nil {
 				w.WriteHeader(http.StatusInternalServerError)
 				if _, err := w.Write([]byte("Write request failed")); err != nil {
@@ -67,19 +53,22 @@ func HttpHandlerFactory(d iodrivers.Interface) (func(http.ResponseWriter, *http.
 			}
 
 			w.WriteHeader(http.StatusOK)
-			_, err = w.Write(buff)
-
-			if err != nil {
-				log.Println("ERROR: ", err)
+			if _, err = w.Write(buff); err != nil {
+				log.Println("Error responding to client: ", err)
 			}
-		case "delete":
-			err := d.Delete(req)
+
+		case iodrivers.Delete:
+			_, err := d.Delete(req)
 			if err != nil {
 				w.WriteHeader(http.StatusInternalServerError)
 				if _, err := w.Write([]byte("Delete request failed")); err != nil {
 					log.Println("ERROR: ", err)
 				}
 				return
+			}
+			w.WriteHeader(http.StatusOK)
+			if _, err = w.Write(nil); err != nil {
+				log.Println("Error responding to client: ", err)
 			}
 
 		case "append":
@@ -88,7 +77,7 @@ func HttpHandlerFactory(d iodrivers.Interface) (func(http.ResponseWriter, *http.
 			if err != nil {
 				w.WriteHeader(http.StatusBadRequest)
 				if _, err := w.Write([]byte("Method not found")); err != nil {
-					log.Println("ERROR: ", err)
+					log.Println("Error responding to client: ", err)
 				}
 			}
 

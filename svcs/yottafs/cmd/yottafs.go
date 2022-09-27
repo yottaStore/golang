@@ -11,7 +11,7 @@ func main() {
 		"/tmp/yottafs",
 		"direct",
 		"8081",
-	}
+		"http"}
 
 	err := yottafs.StartServer(conf)
 	if err != nil {

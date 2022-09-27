@@ -1,4 +1,4 @@
-package client
+package methods
 
 import (
 	"bytes"
@@ -10,20 +10,23 @@ import (
 	"yottafs/iodrivers"
 )
 
-func Read(path, node string) (iodrivers.Response, error) {
+func Write(data []byte, path, node string) (iodrivers.Response, error) {
 
 	var resp iodrivers.Response
-	req := iodrivers.Request{
-		Path: path,
+
+	yfsReq := iodrivers.Request{
+		Path:   path,
+		Data:   data,
+		Method: iodrivers.Write,
 	}
 
-	buff, err := cbor.Marshal(req)
+	buff, err := cbor.Marshal(yfsReq)
 	if err != nil {
-		log.Println("Error marshalling during read request: ", err)
+		log.Println("Error marshalling during write request: ", err)
 		return resp, err
 	}
 
-	result, err := http.Post(node+"/yottafs/read", "application/octet-stream",
+	result, err := http.Post(node+"/yottafs", "application/octet-stream",
 		bytes.NewBuffer(buff))
 	if err != nil {
 		log.Println("Error connecting to yottafs: ", err)
@@ -31,7 +34,7 @@ func Read(path, node string) (iodrivers.Response, error) {
 	}
 
 	if result.StatusCode != http.StatusOK {
-		log.Println("Read request failed: ", err)
+		log.Println("Write request failed: ", err)
 		buff, err = io.ReadAll(result.Body)
 		if err != nil {
 			log.Println("Error reading yottafs response: ", err)
