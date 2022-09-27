@@ -1,8 +1,7 @@
-package methods
+package write
 
 import (
 	"golang.org/x/sys/unix"
-	"strconv"
 )
 
 func handleStep(path string) error {
@@ -12,7 +11,7 @@ func handleStep(path string) error {
 	return nil
 }
 
-func createDirPath(path string) error {
+func CreateDirPath(path string) error {
 
 	indexes := make([]int, 0, 1)
 
@@ -35,10 +34,4 @@ func createDirPath(path string) error {
 	}
 
 	return nil
-}
-
-func formatToken(sec int64, nsec int64) []byte {
-
-	return []byte(strconv.FormatInt(sec, 36) +
-		strconv.FormatInt(nsec, 36))
 }

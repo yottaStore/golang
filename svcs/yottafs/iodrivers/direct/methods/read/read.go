@@ -1,10 +1,11 @@
-package methods
+package read
 
 import (
 	"github.com/fxamacker/cbor/v2"
 	"golang.org/x/sys/unix"
 	"log"
 	"yottafs/iodrivers"
+	"yottafs/iodrivers/direct/utils"
 )
 
 func Read(path string) (iodrivers.Response, error) {
@@ -31,8 +32,8 @@ func Read(path string) (iodrivers.Response, error) {
 		return resp, err
 	}
 
-	blockSize := (int(stat.Size)-1)/BlockSize + 1
-	file := CallocAlignedBlock(blockSize)
+	blockSize := (int(stat.Size)-1)/utils.BlockSize + 1
+	file := utils.CallocAlignedBlock(blockSize)
 
 	_, err = unix.Read(fd, file)
 	if err != nil {
@@ -47,7 +48,7 @@ func Read(path string) (iodrivers.Response, error) {
 		return resp, err
 	}
 
-	generationToken := formatToken(stat.Mtim.Unix())
+	generationToken := utils.FormatToken(stat.Mtim.Unix())
 
 	resp = iodrivers.Response{
 		Path:       path,

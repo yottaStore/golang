@@ -1,19 +1,36 @@
 package iodrivers
 
 type Interface interface {
-	// Record methods
+	// Read methods
 	Read(Request) (Response, error)
+	Compare(Request) (Response, error)
+
+	// Write methods
 	Write(Request) (Response, error)
-	Update(Request) (Response, error)
+	Delete(Request) (Response, error)
 	CompareAndSwap(Request) (Response, error)
 
-	// Queue methods
-	Seek(Request) (Response, error)
-	Append(Request) (Response, error)
-	CompareAndAppend(Request) (Response, error)
-
-	// Common methods
-	Delete(Request) (Response, error)
+	// Utility methods
 	Verify(Request) (Response, error)
-	Fscheck(Request) (Response, error)
+	Check(Request) (Response, error)
+}
+
+type Method string
+
+const (
+	Read    Method = "read"
+	Compare        = "compare"
+
+	Write          = "write"
+	Append         = "append"
+	CompareAndSwap = "cas"
+	Delete         = "delete"
+
+	Verify = "verify"
+	Check  = "check"
+)
+
+// TODO: use this
+type DataBlock struct {
+	Data []byte
 }

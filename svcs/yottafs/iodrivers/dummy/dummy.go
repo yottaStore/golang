@@ -1,41 +1,51 @@
 package dummy
 
-import "yottafs/iodrivers"
+import (
+	"yottafs/iodrivers"
+)
 
 type Driver struct {
 	iodrivers.Interface
 }
 
-func (d Driver) Create(r iodrivers.Request) (iodrivers.Response, error) {
-
-	resp := iodrivers.Response{
-		Path: r.Path}
-	return resp, nil
-}
-
 func (d Driver) Read(r iodrivers.Request) (iodrivers.Response, error) {
 
-	resp := iodrivers.Response{
-		Path: r.Path}
+	var resp iodrivers.Response
 	return resp, nil
 }
 
-func (d Driver) Update(r iodrivers.Request) (iodrivers.Response, error) {
+func (d Driver) Compare(r iodrivers.Request) (iodrivers.Response, error) {
 
-	resp := iodrivers.Response{
-		Path: r.Path}
+	var resp iodrivers.Response
 	return resp, nil
 }
 
-func (d Driver) Delete(r iodrivers.Request) error {
+func (d Driver) Write(r iodrivers.Request) (iodrivers.Response, error) {
 
-	return nil
-
+	var resp iodrivers.Response
+	return resp, nil
 }
 
-func New() (Driver, error) {
+func (d Driver) CompareAndSwap(r iodrivers.Request) (iodrivers.Response, error) {
 
-	var d Driver
+	var resp iodrivers.Response
+	return resp, nil
+}
 
-	return d, nil
+func (d Driver) Delete(r iodrivers.Request) (iodrivers.Response, error) {
+
+	var resp iodrivers.Response
+	return resp, nil
+}
+
+func (d Driver) Verify(r iodrivers.Request) (iodrivers.Response, error) {
+
+	var resp iodrivers.Response
+	return resp, nil
+}
+
+func (d Driver) Check(r iodrivers.Request) (iodrivers.Response, error) {
+
+	var resp iodrivers.Response
+	return resp, nil
 }

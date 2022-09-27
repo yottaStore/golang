@@ -1,4 +1,4 @@
-package methods
+package write
 
 import (
 	"golang.org/x/sys/unix"

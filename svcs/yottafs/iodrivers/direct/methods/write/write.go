@@ -1,4 +1,4 @@
-package methods
+package write
 
 import (
 	"errors"
@@ -6,6 +6,7 @@ import (
 	"golang.org/x/sys/unix"
 	"log"
 	"yottafs/iodrivers"
+	"yottafs/iodrivers/direct/utils"
 )
 
 func Write(path string, data []byte, createDir bool) (iodrivers.Response, error) {
@@ -26,7 +27,7 @@ func Write(path string, data []byte, createDir bool) (iodrivers.Response, error)
 		}
 	}(fd)
 	if err == unix.ENOENT && createDir {
-		if err := createDirPath(path); err != nil {
+		if err := CreateDirPath(path); err != nil {
 			log.Println("Error creating dir: ", err)
 			return resp, err
 		}
@@ -45,8 +46,8 @@ func Write(path string, data []byte, createDir bool) (iodrivers.Response, error)
 	}
 
 	// TODO: test this
-	writeSize := (len(buff)-1)/BlockSize + 1
-	file := CallocAlignedBlock(writeSize)
+	writeSize := (len(buff)-1)/utils.BlockSize + 1
+	file := utils.CallocAlignedBlock(writeSize)
 
 	copy(file, buff)
 	_, err = unix.Write(fd, file)
@@ -62,7 +63,7 @@ func Write(path string, data []byte, createDir bool) (iodrivers.Response, error)
 		return resp, err
 	}
 
-	resp.Generation = formatToken(stat.Mtim.Unix())
+	resp.Generation = utils.FormatToken(stat.Mtim.Unix())
 
 	return resp, nil
 

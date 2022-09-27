@@ -1,4 +1,4 @@
-package methods
+package utils
 
 import "unsafe"
 

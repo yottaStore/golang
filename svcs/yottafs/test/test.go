@@ -27,5 +27,6 @@ func main() {
 		log.Fatal("Error Reading: ", err)
 	}
 	log.Println("Read response: ", res)
+	log.Println("Data response: ", string(res.Data))
 
 }
