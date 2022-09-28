@@ -21,7 +21,7 @@ func CallocAlignedBlock(size int) []byte {
 		offset = AlignSize - a
 	}
 
-	block = block[offset : offset+BlockSize]
+	block = block[offset : offset+size*BlockSize]
 
 	return block
 }

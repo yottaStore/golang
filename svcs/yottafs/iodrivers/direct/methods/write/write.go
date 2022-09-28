@@ -32,9 +32,7 @@ func Write(path string, data []byte, createDir bool) (iodrivers.Response, error)
 			return resp, err
 		}
 		fd, err = unix.Open(path, unix.O_RDWR|unix.O_CREAT|unix.O_TRUNC|unix.O_DIRECT, 0766)
-	}
-
-	if err != nil {
+	} else if err != nil {
 		log.Println("Error opening file: ", err)
 		return resp, err
 	}
