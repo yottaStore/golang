@@ -7,10 +7,6 @@ import (
 	"yottafs/iodrivers/direct/utils"
 )
 
-type Block struct {
-	Data []byte
-}
-
 func findLast(data []byte) int64 {
 
 	index := len(data) - 1
