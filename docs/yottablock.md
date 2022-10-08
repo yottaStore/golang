@@ -5,20 +5,23 @@ Yottablock is the disk storage format
 
 Header:
 - 4 bit version
-- 12 bit size
+- 3 bit block type 
+- 9 bit size
 - 16 bit flags
+- 16 bit count (max size ~= 256 mb)
+- 16 bit reserved
 
-Total: 4 byte
+Total: 8 byte
 
 Body:
-- 4084 byte body
+- 4080 byte body
 
 Footer:
 - 64 bit hash
 
 
 Total: 4096 byte
-Usable: 4084 byte
+Usable: 4080 byte
 
 # Type of blocks
 
@@ -50,9 +53,13 @@ TODO: Jumboblock
 To store multiple records in one list of blocks, set
 `F_LINKEDBLOCKS`, which means a header will be 
 stored as first record in the block, with
-data to navigate the list.
+data to navigate the list. The header is generated
+by `yottafs`
 
+To ensure optimal concurrency we refer to the
+`Non blocking linked list` paper. 
 ```
+REDO THIS
 type LinkedHeader struct {
     NextLinkedBlock BlockPointer
     FirstAggregatedBlock BlockPointer
