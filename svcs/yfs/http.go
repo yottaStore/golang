@@ -1,7 +1,6 @@
-package handler
+package yfs
 
 import (
-	"github.com/yottaStore/golang/svcs/yfs"
 	"github.com/yottaStore/golang/svcs/yfs/iodriver"
 	"log"
 	"net/http"
@@ -19,7 +18,7 @@ func HttpHandlerFactory(d iodriver.Iodriver) (HttpHandler, error) {
 	return handler, nil
 }
 
-func New(c yfs.Config, d iodriver.Iodriver) error {
+func New(c Config, d iodriver.Iodriver) error {
 
 	h, err := HttpHandlerFactory(d)
 	if err != nil {

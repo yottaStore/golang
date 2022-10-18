@@ -1,51 +1,32 @@
 package block
 
+type Block struct {
+	Version   uint8
+	Type      BlockType
+	Flags     Flag
+	Length    uint16
+	Reserved1 uint8
+	Reserved2 uint8
+	// Total 64 bits
+	Body []byte
+	Hash uint64
+}
+
+// Versions
+const v0 uint8 = 0
+
+// Types
+type BlockType uint8
+
 const (
-	Size = 4096
+	BodyType   BlockType = 1
+	TailType   BlockType = 2
+	AppendType BlockType = 3
 )
 
-type Block [Size]byte
+// Flags
+type Flag uint16
 
-type BlockPointer struct {
-	Offset uint64
-	Length uint16
-}
-
-type Tails []BlockPointer
-
-type Record struct {
-	Body    []Block
-	Tails   Tails
-	Appends [][]Block
-}
-
-func (b *Record) Create(body []byte) error { return nil }
-
-func (b *Record) Read() ([]byte, error) {
-
-	// Read Tails
-	// Read Body
-	// Read Appends
-
-	return nil, nil
-}
-
-func (b *Record) Append(tail []byte, append [][]byte) error { return nil }
-
-func (b *Record) Delete() error { return nil }
-
-func (b *Record) Compact() error {
-
-	// Write attempt to log
-	// Read record
-	// Compact record
-	// Write temporary body
-
-	// Replace body
-	// Collapse tails
-	// Write success to log
-
-	return nil
-}
-
-func (b *Record) Merge() error { return nil }
+const (
+	F_COMPRESSED Flag = 1 << 10
+)

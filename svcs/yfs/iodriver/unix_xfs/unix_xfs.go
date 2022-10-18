@@ -4,7 +4,7 @@ import (
 	"errors"
 	"github.com/cornelk/hashmap"
 	"github.com/yottaStore/golang/svcs/yfs/iodriver"
-	"github.com/yottaStore/golang/utils/alloc"
+	"github.com/yottaStore/golang/utils/block"
 	"github.com/yottaStore/golang/utils/utils"
 	"golang.org/x/sys/unix"
 	"log"
@@ -40,7 +40,7 @@ func (d *IODriver) Read(record string) ([]byte, error) {
 		return nil, errors.New("error getting tails stat: " + err.Error())
 	}
 
-	tb := alloc.New(int(ts.Blocks))
+	tb := block.Alloc(int(ts.Blocks))
 	if _, err := unix.Read(tfd, tb); err != nil {
 		return nil, errors.New("error reading tails: " + err.Error())
 	}
@@ -58,7 +58,7 @@ func (d *IODriver) Read(record string) ([]byte, error) {
 	}
 
 	// TODO: check if size is correct
-	bb := alloc.New(int(ts.Blocks))
+	bb := block.Alloc(int(ts.Blocks))
 	if _, err := unix.Read(bfd, bb); err != nil {
 		return nil, errors.New("error reading body: " + err.Error())
 	}
@@ -124,7 +124,7 @@ func (d *IODriver) Append(record string, payload []byte) error {
 		return err
 	}
 
-	tailBlock := alloc.New(1)
+	tailBlock := block.Alloc(1)
 	copy(tailBlock, appendPath)
 
 	_, err = unix.Write(td, tailBlock)

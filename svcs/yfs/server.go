@@ -2,7 +2,6 @@ package yfs
 
 import (
 	"errors"
-	"github.com/yottaStore/golang/svcs/yfs/handler"
 	"github.com/yottaStore/golang/svcs/yfs/iodriver"
 	"github.com/yottaStore/golang/svcs/yfs/iodriver/unix_xfs"
 	"log"
@@ -40,7 +39,7 @@ func Start(c Config) error {
 
 	switch c.Protocol {
 	case "http":
-		err = handler.New(c, iod)
+		err = New(c, iod)
 		if err != nil {
 			log.Println("Error creating handler: ", err)
 			return err
