@@ -5,7 +5,7 @@ import (
 	"github.com/zeebo/xxh3"
 )
 
-func Serialize(payload []byte, t BlockType, f Flag) ([]byte, error) {
+func Serialize(payload []byte, t BlockType, f Flags) ([]byte, error) {
 
 	// Get the size of the block
 	size, remainder := GetSize(len(payload))

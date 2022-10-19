@@ -3,7 +3,7 @@ package block
 type Block struct {
 	Version   uint8
 	Type      BlockType
-	Flags     Flag
+	Flags     Flags
 	Length    uint16
 	Reserved1 uint8
 	Reserved2 uint8
@@ -25,8 +25,8 @@ const (
 )
 
 // Flags
-type Flag uint16
+type Flags uint16
 
 const (
-	F_COMPRESSED Flag = 1 << 10
+	F_COMPRESSED Flags = 1 << 10
 )

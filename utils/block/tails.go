@@ -1,27 +1,30 @@
 package block
 
 import (
-	"bytes"
+	"encoding/binary"
 	"github.com/fxamacker/cbor/v2"
-	"io"
+	"log"
 )
 
 type Tail struct {
 	Pointer []byte
+	Length  uint16
 	Hash    []byte
 }
 
-type SerializedTail [2][]byte
+type SerializedTail [3][]byte
 
-func SerializeTails(t []Tail, flags uint16) ([]byte, error) {
+func SerializeTails(t []Tail, flags Flags) ([]byte, error) {
 
-	var ff uint16
+	var ff Flags
 	var payload []byte
 	var tmp SerializedTail
+	tmp[1] = make([]byte, 2)
 
 	for _, tail := range t {
 		tmp[0] = tail.Pointer
-		tmp[1] = tail.Hash
+		binary.BigEndian.PutUint16(tmp[1], tail.Length)
+		tmp[2] = tail.Hash
 		tmpb, err := cbor.Marshal(tmp)
 		if err != nil {
 			return nil, err
@@ -36,20 +39,30 @@ func SerializeTails(t []Tail, flags uint16) ([]byte, error) {
 
 func DeserializeTails(rawpayload []byte) ([]Tail, error) {
 
-	decoder := cbor.NewDecoder(bytes.NewReader(rawpayload))
-	var t []Tail
-
-	for {
-		var tmp SerializedTail
-		err := decoder.Decode(&tmp)
-		if err == io.EOF {
-			continue
-		}
-		if err != nil {
-			return nil, err
-		}
-		t = append(t, Tail{tmp[0], tmp[1]})
+	blocks, err := Deserialize(rawpayload)
+	if err != nil {
+		return nil, err
 	}
 
-	return t, nil
+	var tails []Tail
+
+	for _, block := range blocks {
+
+		var st SerializedTail
+
+		err := cbor.Unmarshal(block.Body, &st)
+		if err != nil {
+			log.Fatal("error unmarshaling: " + err.Error())
+		}
+
+		t := Tail{
+			Pointer: st[0],
+			Length:  binary.BigEndian.Uint16(st[1]),
+			Hash:    st[2],
+		}
+
+		tails = append(tails, t)
+	}
+
+	return tails, nil
 }

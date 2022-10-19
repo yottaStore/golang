@@ -14,7 +14,7 @@ func Deserialize(buff []byte) ([]Block, error) {
 		blocks[i] = Block{
 			Version: buff[index],
 			Type:    BlockType(buff[index+1]),
-			Flags:   Flag(binary.BigEndian.Uint16(buff[index+2:])),
+			Flags:   Flags(binary.BigEndian.Uint16(buff[index+2:])),
 			Length:  length,
 			Body:    buff[index+HeadSize : index+HeadSize+int(length)],
 			Hash:    binary.BigEndian.Uint64(buff[index+BlockSize-FootSize:]),

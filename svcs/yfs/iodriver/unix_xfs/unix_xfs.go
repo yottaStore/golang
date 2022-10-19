@@ -7,7 +7,6 @@ import (
 	"github.com/yottaStore/golang/utils/block"
 	"github.com/yottaStore/golang/utils/utils"
 	"golang.org/x/sys/unix"
-	"log"
 )
 
 type IODriver struct {
@@ -40,9 +39,14 @@ func (d *IODriver) Read(record string) ([]byte, error) {
 		return nil, errors.New("error getting tails stat: " + err.Error())
 	}
 
-	tb := block.Alloc(int(ts.Blocks))
+	tb := block.Alloc(int(ts.Size) / block.BlockSize)
 	if _, err := unix.Read(tfd, tb); err != nil {
 		return nil, errors.New("error reading tails: " + err.Error())
+	}
+
+	tails, err := block.DeserializeTails(tb)
+	if err != nil {
+		return nil, errors.New("error deserializing tails: " + err.Error())
 	}
 
 	// Read body
@@ -64,10 +68,28 @@ func (d *IODriver) Read(record string) ([]byte, error) {
 	}
 
 	rb = append(rb, bb...)
-	rb = append(rb, tb...)
 
 	// Read appends
 	// TODO: read appends blocks
+
+	for _, tail := range tails {
+		afd, err := unix.Open(string(tail.Pointer), ReadOpts, 0766)
+		if err != nil {
+			return nil, errors.New("error opening append: " + err.Error())
+		}
+
+		var appendStats unix.Stat_t
+		if err := unix.Fstat(tfd, &appendStats); err != nil {
+			return nil, errors.New("error getting append stat: " + err.Error())
+		}
+
+		appendBuffer := block.Alloc(int(tail.Length))
+		if _, err := unix.Read(afd, appendBuffer); err != nil {
+			return nil, errors.New("error reading append: " + err.Error())
+		}
+
+		rb = append(rb, appendBuffer...)
+	}
 
 	return rb, nil
 }
@@ -120,14 +142,18 @@ func (d *IODriver) Append(record string, payload []byte) error {
 	tailPath := d.Data + record + "/tails"
 	td, err := unix.Open(tailPath, AppendOpts, 0766)
 	if err != nil {
-		log.Println("Crash here!: ", tailPath)
 		return err
 	}
 
-	tailBlock := block.Alloc(1)
-	copy(tailBlock, appendPath)
+	t := block.Tail{
+		Pointer: []byte(appendPath),
+		Length:  1,
+		Hash:    []byte("djjdjd"),
+	}
 
-	_, err = unix.Write(td, tailBlock)
+	tails, err := block.SerializeTails([]block.Tail{t}, block.F_COMPRESSED)
+
+	_, err = unix.Write(td, tails)
 	if err != nil {
 		if err := unix.Unlink(appendPath); err != nil {
 			return errors.New("error deleting failed append: " + err.Error())

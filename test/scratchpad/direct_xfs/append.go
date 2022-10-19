@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/yottaStore/golang/svcs/yfs/iodriver/unix_xfs"
-	"github.com/yottaStore/golang/utils/alloc"
+	"github.com/yottaStore/golang/utils/block"
 	"log"
 )
 
@@ -15,7 +15,7 @@ func main() {
 
 	record := "test"
 
-	payload := alloc.New(1)
+	payload := block.Alloc(1)
 	copy(payload, []byte("Hello, world 3! \n"))
 	err = iod.Append(record, payload)
 	if err != nil {
