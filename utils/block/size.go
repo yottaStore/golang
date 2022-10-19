@@ -11,10 +11,9 @@ const (
 
 func GetSize(payloadLen int) (int, int) {
 
-	length := payloadLen + HeadSize
-	bodySize := BlockSize - FootSize
-	size := (length-1)/bodySize + 1
-	remainder := payloadLen % bodySize
+	length := payloadLen //+ HeadSize
+	size := (length-1)/BodySize + 1
+	remainder := payloadLen % BodySize
 
 	return size, remainder
 }

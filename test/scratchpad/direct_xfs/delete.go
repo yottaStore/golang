@@ -14,9 +14,8 @@ func main() {
 
 	record := "test"
 
-	payload := []byte("Hello, world 3! \n")
-	err = iod.Append(record, payload)
+	err = iod.Delete(record)
 	if err != nil {
-		log.Fatal("Error appending to file: ", err)
+		log.Fatal("Error deleting file: ", err)
 	}
 }
