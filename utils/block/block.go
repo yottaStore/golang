@@ -2,7 +2,7 @@ package block
 
 type Block struct {
 	Version   uint8
-	Type      BlockType
+	Type      Type
 	Flags     Flags
 	Length    uint16
 	Reserved1 uint8
@@ -16,12 +16,13 @@ type Block struct {
 const v0 uint8 = 0
 
 // Types
-type BlockType uint8
+type Type uint8
 
 const (
-	BodyType   BlockType = 1
-	TailType   BlockType = 2
-	AppendType BlockType = 3
+	BodyType   Type = 1
+	TailType   Type = 2
+	AppendType Type = 3
+	SkipType   Type = 17
 )
 
 // Flags

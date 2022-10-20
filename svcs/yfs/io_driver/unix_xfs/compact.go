@@ -17,7 +17,7 @@ func compact(record string, d *IODriver) error {
 	}
 
 	// Read tails
-	tails, _, err := read_tails(record, d)
+	tails, tsize, err := read_tails(record, d)
 	if err != nil {
 		return err
 	}
@@ -61,10 +61,15 @@ func compact(record string, d *IODriver) error {
 		return err
 	}
 
-	// TODO: add fake block
+	b, err := block.Serialize([]byte{}, block.SkipType, 0)
+	if err != nil {
+		return err
+	}
 
-	//err = unix.Fallocate(tfd, unix.FALLOC_FL_COLLAPSE_RANGE, 0, tsize)
-	err = unix.Ftruncate(tfd, 0)
+	_, err = unix.Write(tfd, b)
+
+	err = unix.Fallocate(tfd, unix.FALLOC_FL_COLLAPSE_RANGE, 0, tsize)
+	//err = unix.Ftruncate(tfd, tsize)
 	if err != nil {
 		return err
 	}

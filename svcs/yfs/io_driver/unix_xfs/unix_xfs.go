@@ -2,12 +2,13 @@ package unix_xfs
 
 import (
 	"github.com/cornelk/hashmap"
-	"github.com/yottaStore/golang/svcs/yfs/iodriver"
+	"github.com/yottaStore/golang/svcs/yfs/io_driver"
 	"golang.org/x/sys/unix"
+	"os"
 )
 
 type IODriver struct {
-	iodriver.Iodriver
+	io_driver.IODriver
 	Namespace string
 	Data      string
 	Locks     *hashmap.Map[string, uint8]
@@ -19,6 +20,9 @@ const (
 	ReadOpts   = DriverOpts | unix.O_RDONLY
 	AppendOpts = DriverOpts | unix.O_WRONLY | unix.O_APPEND
 )
+
+// TODO: use streams
+// TODO: implement WAL
 
 func (d *IODriver) Read(record string) ([]byte, error) {
 
@@ -32,10 +36,11 @@ func (d *IODriver) Create(record string, payload []byte) error {
 
 func (d *IODriver) Delete(record string) error {
 	path := d.Data + "/" + record
-	err := unix.Unlink(path + "/body")
+	/*err := unix.Unlink(path + "/body")
 	err = unix.Rmdir(path + "/append")
 	err = unix.Unlink(path + "/tails")
-	err = unix.Rmdir(path)
+	err = unix.Rmdir(path)*/
+	err := os.RemoveAll(path)
 	return err
 }
 

@@ -33,7 +33,7 @@ func SerializeTails(t []Tail, flags Flags) ([]byte, error) {
 	}
 
 	ff |= flags
-	return Serialize(payload, 2, ff)
+	return Serialize(payload, TailType, ff)
 
 }
 
@@ -47,6 +47,10 @@ func DeserializeTails(rawpayload []byte) ([]Tail, error) {
 	var tails []Tail
 
 	for _, block := range blocks {
+
+		if block.Type == SkipType {
+			continue
+		}
 
 		var st SerializedTail
 

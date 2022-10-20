@@ -2,8 +2,9 @@ package yfs
 
 import (
 	"errors"
-	"github.com/yottaStore/golang/svcs/yfs/iodriver"
-	"github.com/yottaStore/golang/svcs/yfs/iodriver/unix_xfs"
+	"github.com/yottaStore/golang/svcs/yfs/handlers/http"
+	"github.com/yottaStore/golang/svcs/yfs/io_driver"
+	"github.com/yottaStore/golang/svcs/yfs/io_driver/unix_xfs"
 	"log"
 )
 
@@ -14,32 +15,29 @@ type Config struct {
 	Port      string
 }
 
-type Request struct {
-	Op   string
-	Path string
-	Data []byte
-}
-
 func Start(c Config) error {
 
-	var iod iodriver.Iodriver
+	var iod io_driver.IODriver
 	var err error
 
 	switch c.IoDriver {
 	case "unix_xfs":
 		iod, err = unix_xfs.New(c.Namespace)
 		if err != nil {
-			log.Println("Error creating iodriver: ", err)
+			log.Println("Error creating io_driver: ", err)
 			return err
 		}
 	default:
-		return errors.New("invalid iodriver: " + c.IoDriver)
+		return errors.New("invalid io_driver: " + c.IoDriver)
 
 	}
 
 	switch c.Protocol {
 	case "http":
-		err = New(c, iod)
+		hc := http.Config{
+			Port: c.Port,
+		}
+		err = http.New(hc, iod)
 		if err != nil {
 			log.Println("Error creating handler: ", err)
 			return err

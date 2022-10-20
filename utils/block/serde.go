@@ -5,7 +5,7 @@ import (
 	"github.com/zeebo/xxh3"
 )
 
-func Serialize(payload []byte, t BlockType, f Flags) ([]byte, error) {
+func Serialize(payload []byte, t Type, f Flags) ([]byte, error) {
 
 	// Get the size of the block
 	size, remainder := GetSize(len(payload))
@@ -36,6 +36,8 @@ func Serialize(payload []byte, t BlockType, f Flags) ([]byte, error) {
 		}
 
 		// Set the hash
+		// TODO: verify the hash
+		// TODO: hash is bugged
 		h := xxh3.Hash(buff[i*BlockSize : (i+1)*BlockSize+HeadSize])
 		binary.BigEndian.PutUint64(buff[(i+1)*BlockSize-FootSize:], h)
 	}
@@ -55,7 +57,7 @@ func Deserialize(buff []byte) ([]Block, error) {
 		length := binary.BigEndian.Uint16(buff[index+4:])
 		blocks[i] = Block{
 			Version: buff[index],
-			Type:    BlockType(buff[index+1]),
+			Type:    Type(buff[index+1]),
 			Flags:   Flags(binary.BigEndian.Uint16(buff[index+2:])),
 			Length:  length,
 			Body:    buff[index+HeadSize : index+HeadSize+int(length)],

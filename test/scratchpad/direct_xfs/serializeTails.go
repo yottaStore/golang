@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/yottaStore/golang/svcs/yfs/iodriver/unix_xfs"
+	"github.com/yottaStore/golang/svcs/yfs/io_driver/unix_xfs"
 	"github.com/yottaStore/golang/utils/block"
 	"golang.org/x/sys/unix"
 	"log"
