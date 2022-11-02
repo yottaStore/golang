@@ -84,7 +84,7 @@ func HttpHandlerFactory(d io_driver.IODriver) (HttpHandler, error) {
 
 		default:
 			w.WriteHeader(http.StatusBadRequest)
-			if _, err := w.Write([]byte("Unknown method")); err != nil {
+			if _, err := w.Write([]byte("Unknown YottaFS method")); err != nil {
 				log.Println("Error responding to client: ", err)
 			}
 

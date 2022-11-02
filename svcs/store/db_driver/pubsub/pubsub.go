@@ -1,0 +1,18 @@
+package pubsub
+
+type Method string
+
+const (
+	CREATE_TOPIC  Method = "CREATE_TOPIC"
+	PUBLISH_TOPIC Method = "PUBLISH_TOPIC"
+	UPDATE_TOPIC  Method = "UPDATE_TOPIC"
+	DELETE_TOPIC  Method = "DELETE_TOPIC"
+
+	CREATE_CONSUMER Method = "CREATE_CONSUMER"
+	READ_CONSUMER   Method = "READ_CONSUMER"
+	UPDATE_CONSUMER Method = "UPDATE_CONSUMER"
+	DELETE_CONSUMER Method = "DELETE_CONSUMER"
+)
+
+type PubSubDriver struct {
+}

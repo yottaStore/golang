@@ -20,9 +20,9 @@ const (
 type Driver string
 
 const (
-	KEYVALUE Driver = "KEYVALUE"
-	DOCUMENT        = "DOCUMENT"
-	PUBSUB          = "PUBSUB"
+	KEY_VALUE Driver = "KEY_VALUE"
+	DOCUMENT         = "DOCUMENT"
+	PUBSUB           = "PUBSUB"
 )
 
 type Request struct {

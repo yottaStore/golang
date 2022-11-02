@@ -9,14 +9,14 @@ type Config struct {
 	Port string
 }
 
-func New(c Config) error {
+func Start(c Config) error {
 
 	h, err := HttpHandlerFactory()
 	if err != nil {
 		log.Fatal("Error creating http handler: ", err)
 	}
 
-	http.HandleFunc("/yfs", h)
+	http.HandleFunc("/store", h)
 	http.HandleFunc("/version", versionHandler)
 	http.HandleFunc("/healthz", healthzHandler)
 	http.HandleFunc("/", notFoundHandler)
