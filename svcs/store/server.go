@@ -18,7 +18,7 @@ func Start(c Config) error {
 		hc := http.Config{
 			Port: c.Port,
 		}
-		err := http.New(hc)
+		err := http.Start(hc)
 		if err != nil {
 			log.Println("Error creating handler: ", err)
 			return err

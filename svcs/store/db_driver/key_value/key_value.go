@@ -1,7 +1,17 @@
 package key_value
 
-import "github.com/yottaStore/golang/svcs/store/db_driver"
+type Method string
+
+const (
+	CREATE_RECORD     Method = "CREATE_RECORD"
+	READ_RECORD       Method = "READ_RECORD"
+	UPDATE_RECORD     Method = "UPDATE_RECORD"
+	DELETE_RECORD     Method = "DELETE_RECORD"
+	CREATE_COLLECTION Method = "CREATE_COLLECTION"
+	READ_COLLECTION   Method = "READ_COLLECTION"
+	UPDATE_COLLECTION Method = "UPDATE_COLLECTION"
+	DELETE_COLLECTION Method = "DELETE_COLLECTION"
+)
 
 type KeyValueDriver struct {
-	db_driver.DBDriver
 }
