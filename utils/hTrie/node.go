@@ -11,6 +11,7 @@ type Node struct {
 	Pointer  string
 	Weight   uint32
 	Children []*Node
+	Parent   *Node
 	Hash     [16]byte
 }
 
@@ -33,6 +34,7 @@ func (n *Node) Insert(s Shard, prefix string) error {
 				newNode := Node{
 					Pointer: coord,
 					Weight:  s.Weight,
+					Parent:  parent,
 				}
 
 				// Make sure insertion keep lexicographical order
@@ -58,6 +60,7 @@ func (n *Node) Insert(s Shard, prefix string) error {
 			newNode := Node{
 				Pointer: coord,
 				Weight:  s.Weight,
+				Parent:  parent,
 			}
 
 			parent.Children = append(children, &newNode)

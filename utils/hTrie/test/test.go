@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/yottaStore/golang/libs/hTrie"
+	"github.com/yottaStore/golang/utils/hTrie"
 	"log"
 )
 
