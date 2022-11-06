@@ -2,29 +2,36 @@ package htree
 
 func insertShard(url string, weight uint64, root *Node, shouldUpdate bool) ([]*Node, error) {
 
-	coords, err := getCoords(url, root.Pointer, false)
+	// TODO: use find
+	// TODO: fail if parent is not a pnode
+
+	coords, err := getCoords(url, root.Pointer, true)
 	if err != nil {
 		return nil, err
 	}
 
 	levels := len(coords)
 	visitedNodes := make([]*Node, levels)
+	visitedNodes[0] = root
 
 	nodeType := T_VNODE
 	parent := root
 	children := root.Children
-	for idx, coord := range coords {
+	for idx, coord := range coords[1:] {
 		found := false
-		insertionIdx := 0
+		insertionIdx := -1
 		for cidx, child := range children {
+			//insertionIdx = cidx
+
 			if child.Pointer == coord {
 				found = true
-				visitedNodes[idx] = child
+				visitedNodes[idx+1] = child
 				child.Weight += weight
 				parent = child
 				children = child.Children
 				break
 			}
+			// Make sure insertion respect the lexicographical order
 			if child.Pointer > coord {
 				insertionIdx = cidx
 				break
@@ -44,31 +51,34 @@ func insertShard(url string, weight uint64, root *Node, shouldUpdate bool) ([]*N
 				Parent:  parent,
 			}
 
-			// Make sure insertion keep the lexicographical order
-			if insertionIdx == 0 {
+			if len(parent.Children) == 0 {
 				parent.Children = make([]*Node, 1)
+			}
+
+			if insertionIdx == -1 {
+				//insertionIdx = len(parent.Children)
+				parent.Children = append(children, &newNode)
 			} else {
 				parent.Children = append(children[:insertionIdx+1], children[insertionIdx:]...)
+				parent.Children[insertionIdx] = &newNode
 			}
-			parent.Children[insertionIdx] = &newNode
-			visitedNodes[idx] = &newNode
+			visitedNodes[idx+1] = &newNode
 			parent = &newNode
 			children = nil
 		}
 
 	}
 
+	root.Weight += weight
+
 	if shouldUpdate {
 
-		for idx := levels - 1; idx >= 0; idx-- {
+		for idx := levels - 1; idx > -1; idx-- {
 			if err = visitedNodes[idx].Update(); err != nil {
 				return visitedNodes, err
 			}
 		}
 
-		if err = root.Update(); err != nil {
-			return visitedNodes, err
-		}
 	}
 
 	return visitedNodes, nil

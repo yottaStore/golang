@@ -8,7 +8,8 @@ func New(prefix string) (*Root, error) {
 	}
 
 	tree := &Root{
-		Root: root,
+		Root:   root,
+		Prefix: prefix,
 	}
 
 	return tree, nil
