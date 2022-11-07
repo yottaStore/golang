@@ -1,4 +1,4 @@
-package rebar
+package scorer
 
 import (
 	"encoding/binary"
@@ -35,7 +35,7 @@ func bytesToUint16(b []byte) []uint16 {
 	return buff
 }
 
-func round(nodes []*htree.Node, hash []byte, shards int) ([]*htree.Node, error) {
+func exp_round(nodes []*htree.Node, hash []byte, shards int) ([]*htree.Node, error) {
 
 	count := len(nodes)
 

@@ -51,10 +51,10 @@ func main() {
 		log.Fatal("Error updating: ", err)
 	}
 
-	err = r.Root.Update()
+	/*err = r.Root.Update()
 	if err != nil {
 		log.Fatal("Error updating tree: ", err)
-	}
+	}*/
 
 	err = r.Verify()
 	if err != nil {

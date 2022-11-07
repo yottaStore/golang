@@ -1,11 +1,11 @@
 package rebar
 
 import (
-	"github.com/yottaStore/golang/utils/hTrie"
+	"github.com/yottaStore/golang/utils/htree"
 	"github.com/zeebo/xxh3"
 )
 
-func navigateTree(nodes []*hTrie.Node, hash []byte, count int) ([]*hTrie.Node, error) {
+func navigateTree(nodes []*htree.Node, hash []byte, count int) ([]*htree.Node, error) {
 
 	for {
 
@@ -15,44 +15,45 @@ func navigateTree(nodes []*hTrie.Node, hash []byte, count int) ([]*hTrie.Node, e
 	return nil, nil
 }
 
-func findReplicas(nodes []*hTrie.Node, hash []byte, count int) ([]*hTrie.Node, error) {
+func findReplicas(nodes []*htree.Node, hash []byte, count int) ([]*htree.Node, error) {
 
 	if len(nodes) >= count {
 		return round(nodes, hash, count)
 	}
 
-	var newNodes []*hTrie.Node
+	var replicaPool []*htree.Node
 
 	for _, node := range nodes {
-		newNodes = append(newNodes, node.Children...)
+		replicaPool = append(replicaPool, node.Children...)
 	}
 
-	return findReplicas(newNodes, hash, count)
+	return findReplicas(replicaPool, hash, count)
 }
 
-func findPool(record string, tree hTrie.Trie, opts Opts) ([][]*hTrie.Node, error) {
+func findPool(record string, replica *htree.Node, opts Opts) ([]*htree.Node, error) {
 
-	hash := xxh3.Hash128Seed([]byte(record), opts.VerticalSeed).Bytes()
+	children := replica.Children
+	var err error
 
-	roots, err := round(tree.Root.Children, hash[:], opts.Replication)
-	if err != nil {
-		return nil, err
-	}
+	for i := 0; ; i++ {
 
-	pool := make([][]*hTrie.Node, 0, opts.Replication)
+		if children[0].Children == nil {
+			hash := xxh3.Hash128Seed([]byte(record), opts.Seeds[i][0]).Bytes()
+			children, err = round(children, hash[:], opts.Sharding)
+			if err != nil {
+				return nil, err
+			}
 
-	for idx, root := range roots {
-		tmp, err := navigateTree(root.Children, hash[:], opts.Sharding)
+			break
+		}
+
+		hash := xxh3.Hash128Seed([]byte(record), opts.Seeds[i][0]).Bytes()
+		children, err = round(children, hash[:], 1)
 		if err != nil {
 			return nil, err
 		}
-
-		pool[idx] = tmp
 	}
 
-	return pool, nil
-}
+	return children, nil
 
-type Suggestion interface {
-	uint8 | uint16
 }

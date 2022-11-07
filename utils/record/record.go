@@ -3,11 +3,12 @@ package record
 import "errors"
 
 type Record struct {
-	Account     string
-	Driver      string
-	Collection  string
-	Record      string
-	PoolPointer string
+	Account      string
+	Driver       string
+	Collection   string
+	Record       string
+	PoolPointer  string
+	ShardPointer string
 }
 
 // Example record: "account@driver:collection/record/subrecord"

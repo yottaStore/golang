@@ -1,35 +1,34 @@
 package rebar
 
 import (
-	"github.com/yottaStore/golang/utils/hTrie"
+	"github.com/yottaStore/golang/utils/htree"
 	"github.com/yottaStore/golang/utils/record"
 )
 
 type Opts struct {
-	Sharding       int
-	Replication    int
-	VerticalSeed   uint64
-	HorizontalSeed uint64
+	Sharding    int
+	Replication int
+	Seeds       *[16][4]uint64
 }
 
-func FindPool(record record.Record, tree hTrie.Trie, opts Opts) ([]*hTrie.Node, error) {
+func FindPool(record string, tree *htree.Root, opts Opts) ([]*htree.Node, error) {
+
+	return findPool(record, tree.Root, opts)
+}
+
+func FindShard(record2 string, pool []*htree.Node, opts Opts) (*htree.Node, error) {
 
 	return nil, nil
 }
 
-func FindShard(record2 record.Record, pool []*hTrie.Node, opts Opts) (*hTrie.Node, error) {
+func Find(record record.Record, tree *htree.Root, opts Opts) (*htree.Node, error) {
 
-	return nil, nil
-}
-
-func Find(record record.Record, tree hTrie.Trie, opts Opts) (*hTrie.Node, error) {
-
-	pool, err := FindPool(record, tree, opts)
+	pool, err := FindPool(record.PoolPointer, tree, opts)
 	if err != nil {
 		return nil, err
 	}
 
-	npool, err := FindShard(record, pool, opts)
+	npool, err := FindShard(record.ShardPointer, pool, opts)
 	if err != nil {
 		return nil, err
 	}
