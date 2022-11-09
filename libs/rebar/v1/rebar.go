@@ -6,7 +6,7 @@ import (
 )
 
 type Hasher func()
-type Scorer func()
+type Scorer func(nodes []*htree.Node, hash []byte, shards int) ([]*htree.Node, error)
 
 type Navigator struct {
 	Seed      uint64

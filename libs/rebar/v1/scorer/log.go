@@ -8,20 +8,20 @@ import (
 	"sort"
 )
 
-type Scores struct {
+type LogScores struct {
 	scores []float64
 	idx    []int
 }
 
-func (s Scores) Len() int {
+func (s LogScores) Len() int {
 	return len(s.scores)
 }
-func (s Scores) Swap(i, j int) {
+func (s LogScores) Swap(i, j int) {
 	s.scores[i], s.scores[j] = s.scores[j], s.scores[i]
 	s.idx[i], s.idx[j] = s.idx[j], s.idx[i]
 }
 
-func (s Scores) Less(i, j int) bool {
+func (s LogScores) Less(i, j int) bool {
 	return s.scores[i] > s.scores[j]
 }
 
@@ -35,7 +35,7 @@ func bytesToUint16(b []byte) []uint16 {
 	return buff
 }
 
-func exp_round(nodes []*htree.Node, hash []byte, shards int) ([]*htree.Node, error) {
+func log_round(nodes []*htree.Node, hash []byte, shards int) ([]*htree.Node, error) {
 
 	count := len(nodes)
 
@@ -59,7 +59,7 @@ func exp_round(nodes []*htree.Node, hash []byte, shards int) ([]*htree.Node, err
 		idxs[i] = i
 	}
 
-	s := Scores{scores: scores, idx: idxs}
+	s := LogScores{scores: scores, idx: idxs}
 	sort.Sort(s)
 
 	output := make([]*htree.Node, shards)
