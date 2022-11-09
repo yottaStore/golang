@@ -1,18 +1,18 @@
 package v1
 
 import (
+	"github.com/yottaStore/golang/libs/rebar/v1/hasher"
+	"github.com/yottaStore/golang/libs/rebar/v1/scorer"
 	"github.com/yottaStore/golang/utils/htree"
 	"github.com/yottaStore/golang/utils/record"
 )
 
-type Hasher func()
 type Scorer func(nodes []*htree.Node, hash []byte, shards int) ([]*htree.Node, error)
 
 type Navigator struct {
-	Seed      uint64
-	SeedTable *[16][8]uint64
-	Hasher    Hasher
-	Scorer    Scorer
+	Seed   [2]uint64
+	Hasher hasher.Interface
+	Scorer scorer.Interface
 }
 
 type Options struct {
@@ -20,28 +20,18 @@ type Options struct {
 	Replication int
 }
 
-func (n *Navigator) FindPools(pointer string, tree *htree.Root, opts Options) ([][]*htree.Node, error) {
+func (n *Navigator) FindPools(pointer string, tree *htree.Root, opts Options) ([][]*htree.Node, int, error) {
 
-	// Find replicas
-
-	replicas, err := findReplicas(pointer, tree, opts)
+	// Init hasher
+	err := n.Hasher.Init(pointer, n.Seed[0])
 	if err != nil {
-		return nil, err
-	}
-	// For each replica, find pool
-	pools := make([][]*htree.Node, opts.Replication)
-	for idx, replica := range replicas {
-		pool, err := findPool(replica, opts)
-		if err != nil {
-			return nil, err
-		}
-		pools[idx] = pool
+		return nil, 0, err
 	}
 
-	return pools, nil
+	return findPools(pointer, tree.Root, opts, n.Hasher, n.Scorer)
 }
 
-func (n *Navigator) FindRecord(pointer string, pool []*htree.Node) (*htree.Node, error) {
+func (n *Navigator) FindRecord(pointer string, pool []*htree.Node, level int) (*htree.Node, error) {
 
 	return findRecord(pointer, pool)
 
@@ -49,19 +39,18 @@ func (n *Navigator) FindRecord(pointer string, pool []*htree.Node) (*htree.Node,
 
 func (n *Navigator) Find(record record.Record, tree *htree.Root, opts Options) ([]*htree.Node, error) {
 
-	pools, err := n.FindPools(record.PoolPointer, tree, opts)
+	pools, level, err := n.FindPools(record.PoolPointer, tree, opts)
 	if err != nil {
 		return nil, err
 	}
 
-	replicas := make([]*htree.Node, 0, opts.Replication)
+	replicas := make([]*htree.Node, opts.Replication)
 
-	for _, pool := range pools {
-		node, err := n.FindRecord(record.ShardPointer, pool)
+	for idx, pool := range pools {
+		replicas[idx], err = n.FindRecord(record.ShardPointer, pool, level)
 		if err != nil {
 			return nil, err
 		}
-		replicas = append(replicas, node)
 	}
 
 	return replicas, nil

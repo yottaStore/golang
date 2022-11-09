@@ -1,27 +1,38 @@
 package v1
 
-func New(seed uint64) (*Navigator, error) {
+import (
+	"github.com/yottaStore/golang/libs/rebar/v1/hasher"
+	"github.com/yottaStore/golang/libs/rebar/v1/scorer"
+)
 
-	var seedTable [16][8]uint64
+func New(seed [2]uint64) (*Navigator, error) {
+
+	h, err := hasher.NewXxh3Hasher(seed)
+	if err != nil {
+		return nil, err
+	}
+
+	s, err := scorer.NewLogScore()
+	if err != nil {
+		return nil, err
+	}
 
 	n := &Navigator{
-		Seed:      seed,
-		SeedTable: &seedTable,
+		Seed:   seed,
+		Hasher: h,
+		Scorer: s,
 	}
 
 	return n, nil
 
 }
 
-func NewWithOpts(seed uint64, hasher Hasher, scorer Scorer) (*Navigator, error) {
-
-	var seedTable [16][8]uint64
+func NewWithOpts(seed [2]uint64, hasher hasher.Interface, scorer scorer.Interface) (*Navigator, error) {
 
 	n := &Navigator{
-		Seed:      seed,
-		Hasher:    hasher,
-		Scorer:    scorer,
-		SeedTable: &seedTable,
+		Seed:   seed,
+		Hasher: hasher,
+		Scorer: scorer,
 	}
 
 	return n, nil
